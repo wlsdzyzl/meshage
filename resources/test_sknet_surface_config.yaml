@@ -1,0 +1,40 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: SKNet
+  skp_num: 256
+  isk_num: 4
+  skp_neighbor_num: 72
+  radius_scaling: 1.25
+  dbscan_eps: 0.65
+  dbscan_min_sample_num: 1
+  sphere:
+    method: icosphere
+    n: 12
+loader:
+  dataset: 
+    name: PcdDataset
+    data_dir: right
+    data_suffix: ply
+  data_path_list: 
+    - /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/surface
+  batch_size: 64
+  num_workers: 8
+  shuffle: true
+  data_transforms:
+    - name: Normalize
+    - name: FixedPoints
+      method: qfps
+      num: 5120
+    - name: ToTensor
+      dtype: float
+
+custom_save_results: 
+  - name: recon_sphere
+    dir: /media/wlsdzyzl/DATA1/vcg-results/skeleton/imagecas_surface/sknet/sphere/right
+  - name: recon_skeleton
+    dir: /media/wlsdzyzl/DATA1/vcg-results/skeleton/imagecas_surface/sknet/skeleton/right
+  - name: radius
+    dir: /media/wlsdzyzl/DATA1/vcg-results/skeleton/imagecas_surface/sknet/skr/right

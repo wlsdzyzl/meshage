@@ -1,0 +1,10 @@
+dist/
+results/
+*.egg-info/
+*.out
+*.pyc
+trash/
+build/
+__pycache__
+trash
+3rdparty
