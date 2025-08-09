@@ -6,7 +6,7 @@ from scipy.ndimage import uniform_filter
 import argparse
 import glob
 import os
-from vcg.utils import save_sdf2mesh, space_length, truncated_value
+from vcg.utils import save_sdf2mesh, truncated_value, resolution2coord
 logger = get_logger("script::generate_sdf_from_skeleton")
 ### generate sdf from skeleton and surface points for volume (-1, -1, -1) to (1, 1, 1)
 def generate_sdf(skeleton, surface, resolution=0.01, k = 5):
@@ -21,10 +21,7 @@ def generate_sdf(skeleton, surface, resolution=0.01, k = 5):
     Returns:
     - sdf: A numpy array representing the signed distance field.
     """
-    ### 
-    length = int(space_length / resolution)
-    x, y, z = (np.mgrid[:length, :length, :length] - length / 2 + 0.5 ) * resolution
-    grid_points = np.stack((x, y, z), axis=-1).reshape(-1, 3)
+    grid_points, length = resolution2coord(resolution)
     surf_tree = KDTree(surface)
     ske_tree = KDTree(skeleton)
     ## surface: N x 3, skeleton: M x 3, grid_points: L x 3
@@ -46,7 +43,7 @@ def process(skeleton_path, surface_path, sdf_path, mesh_path, resolution=0.01, s
     surface = load_ply(surface_path)
     surface, (center, scaling) = normalize(surface, channel_dim = -1, return_transform=True)
     if len(surface) < k or len(skeleton) < k:
-        logger.info(f"skipping empty surface: {surface_path}")
+        logger.info(f"Skip empty surface: {surface_path}")
         return
     skeleton = normalize(skeleton, channel_dim = -1, center = center, scaling = scaling)
     logger.info(f"generating sdf which will be saved to {sdf_path}")
@@ -57,7 +54,7 @@ def process(skeleton_path, surface_path, sdf_path, mesh_path, resolution=0.01, s
     if sdf_smoothing:
         truncated_indices = np.abs(sdf) < truncated_value
         sdf[truncated_indices] = uniform_filter(sdf, size = 3)[truncated_indices]
-        np.save(sdf_path+'.smooth.npy', sdf)
+        np.save(sdf_path[:-4]+'.smooth.npy', sdf)
     save_sdf2mesh(mesh_path, sdf)
 ### python generate_sdf_from_skeleton.py --surface_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/surface --skeleton_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/skeleton --sdf_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/sdf --recon_mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/mesh_from_sdf --sdf_smoothing
 if __name__ == "__main__":
@@ -86,8 +83,8 @@ if __name__ == "__main__":
         base_name = os.path.basename(sk_path).replace(".ply", "")
         sdf_path = os.path.join(args.sdf_dir, f"{base_name}_sdf.npy")
         mesh_path = os.path.join(args.recon_mesh_dir, f"{base_name}_mesh.ply")
-        if args.resume and os.path.exists(sdf_path) and os.path.exists(mesh_path):
-            logger.info(f'Skipping processed file: {stl_path}')
+        if args.resume and os.path.exists(mesh_path):
+            logger.info(f'Skip processed file: {surf_path}')
             continue
         process(sk_path, surf_path, sdf_path, 
                     mesh_path = mesh_path, 
