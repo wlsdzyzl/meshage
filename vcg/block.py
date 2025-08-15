@@ -26,10 +26,9 @@ def batch_dbscan(batch_points, eps=0.05, min_samples=10, n_jobs=-1):
     """
     B, N, _ = batch_points.shape
     batch_np = batch_points.detach().cpu().numpy()
-    with Parallel(n_jobs=-1) as parallel:
-        results = Parallel(n_jobs=n_jobs)(delayed(dbscan_single_cloud_np)(
-            batch_np[i], eps, min_samples
-            ) for i in range(B))
+    results = Parallel(n_jobs=n_jobs)(delayed(dbscan_single_cloud_np)(
+        batch_np[i], eps, min_samples
+        ) for i in range(B))
     results = np.array(results)
 
     cluster_labels = torch.tensor(results, dtype=torch.long, device=batch_points.device)  # [B, N]

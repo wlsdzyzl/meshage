@@ -6,17 +6,16 @@ from flemme.loss import SinkhornLoss
 from flemme.logger import get_logger
 from knn_cuda import KNN
 from flemme.block.pcd_utils import furthest_point_sample, gather_features
-from flemme.utils import batch_normalize
+from flemme.utils import normalize, DataForm
 from .loss import Sphere, RadiusConsistencyLoss as RCLoss, SingleTopoTreeLoss as TTLoss
 from .block import SkeletonizationBlock
-
 logger = get_logger("vcg.sknet")
 
     
 ## skeleton extraction from local graph
 ### not learnable
 class SkeletonNet(nn.Module):
-    def __init__(self, model_config):
+    def __init__(self, model_config, **kwargs):
         super().__init__()
         self.skp_num = model_config.pop('skp_num', 256)
         self.isk_num = model_config.pop('isk_num', 2)
@@ -36,6 +35,9 @@ class SkeletonNet(nn.Module):
         self.is_conditional = False 
         self.is_supervised = False 
         self.is_generative = False
+        self.data_form = DataForm.PCD
+    def get_input_shape(self):
+        return [self.point_num, 3]      
     def forward(self, xyz, **kwargs):
  
         ### first skeletonization
@@ -115,7 +117,9 @@ class LearnableSkeletonNet(AE):
         ncc_sphere_points = []
         
         for nxyz in ncc_xyzs:
-            nxyz, (nmean, nscaling) = batch_normalize(nxyz, channel_dim = -1, return_transform = True)
+            nxyz, (nmean, nscaling) = normalize(nxyz, channel_dim = -1, 
+                                        return_transform = True,
+                                        batch = True)
             dists, _ = self.knn(nxyz, nxyz)
             nxyz_weights = F.softmax(dists.mean(dim = -1), dim = -1)
             

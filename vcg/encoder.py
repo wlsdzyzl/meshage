@@ -38,6 +38,8 @@ class SkeletonEncoder(PointEncoder):
                  pos_embedding,
                  **kwargs):
         super().__init__(point_dim=point_dim, 
+                time_channel = 0,
+                time_injection = 'gate_bias',
                 projection_channel = projection_channel,
                 local_feature_channels = local_feature_channels, 
                 num_blocks = num_blocks,
@@ -61,7 +63,7 @@ class SkeletonEncoder(PointEncoder):
             if pos_embedding == 'sin':
                 self.pos_embed = PositionEmbeddingBlock(in_channel = 3, 
                     out_channel = projection_channel,
-                    activation = self.activation)
+                    activation = activation)
                 logger.info("Using sinusoidal point cloud positional embedding.")
             else:
                 self.pos_embed = nn.Linear(3, projection_channel)
@@ -70,6 +72,7 @@ class SkeletonEncoder(PointEncoder):
         ## 4 dim: xyzr
         self.sk_proj = nn.Linear(4, projection_channel)
         self.query_and_group = QueryAndGroup(num_neighbors_k_cross, knn_query='feature')
+        self.out_channel += 3
 
     def group_surface_to_skeleton(self, layer_id, pos, pos_emb, sk, sk_emb, sff, skf):
         sff_trans = channel_recover(sff)
@@ -94,17 +97,17 @@ class SkeletonEncoder(PointEncoder):
         if hasattr(self, 'pos_embed'):
             pos_emb = self.pos_embed(pos_emb)
             sk_emb = self.pos_embed(sk_emb)
-        ssf, skf = self.point_proj(x), skf = self.sk_proj(torch.cat((sk, r), dim = -1))
+        sff, skf = self.point_proj(x), self.sk_proj(torch.cat((sk, r), dim = -1))
         ## create shared lf, vlf and ca for skeleton and surface?
         for lid, lf in enumerate(self.lf[:-1]):
-            vssf, vskf = ssf, skf
-            ssf, skf = lf(ssf, c = c), lf(skf, c = c)
+            vsff, vskf = sff, skf
+            sff, skf = lf(sff, c = c), lf(skf, c = c)
             if hasattr(self, 'vlf'):
-                ssf = ssf + self.vlf[lid](vssf, pos, c = c)
+                sff = sff + self.vlf[lid](vsff, pos, c = c)
                 skf = skf + self.vlf[lid](vskf, sk, c = c)
             if hasattr(self, 'ca'):
-                ssf = self.ca[lid](ssf)
-                skf = self.ca[lid](ssf)
+                sff = self.ca[lid](sff)
+                skf = self.ca[lid](sff)
             ## group skeleton feature from neighbor surface points
             skf = self.group_surface_to_skeleton(lid, pos, pos_emb, sk, sk_emb, sff, skf)
             sf_res.append(sff)
@@ -464,7 +467,7 @@ class SkeletonSDFCNNDecoder(SeqNetDecoder):
         # self.out_point_dim = point_dim
         self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
                     out_channel = projection_channel,
-                    activation = self.activation)
+                    activation = activation)
     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
     def forward(self, latent, coordinate, c = None):
         ### use cross attention to compute coordinate and local feature
@@ -475,7 +478,7 @@ class SkeletonSDFCNNDecoder(SeqNetDecoder):
 class SkeletonSDFTransDecoder(SeqTransDecoder):
     def __init__(self, point_dim=1, projection_channel = 256, 
                 latent_channel = 256,
-                latent_injection = 'gate_bias',
+                latent_injection = 'cross_atten',
                 num_blocks = 2,
                 building_block = 'pct_sa', seq_feature_channels = [], 
                 normalization = 'group', num_norm_groups = 8, 
@@ -510,18 +513,19 @@ class SkeletonSDFTransDecoder(SeqTransDecoder):
         # self.out_point_dim = point_dim
         self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
                     out_channel = projection_channel,
-                    activation = self.activation)
+                    activation = activation)
     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
     def forward(self, latent, coordinate, c = None):
         ### use cross attention to compute coordinate and local feature
         coord_feature = self.coord_proj(coordinate)
+        print(coord_feature.shape, latent.shape)
         res = super().forward(coord_feature, t = latent, c = c)
         return res
 
 class SkeletonSDFMambaDecoder(SeqMambaDecoder):
     def __init__(self, point_dim=1, projection_channel = 256, 
                 latent_channel = 256,
-                latent_injection = 'gate_bias',
+                latent_injection = 'cross_atten',
                 num_blocks = 2,
                 building_block = 'pmamba', seq_feature_channels = [], 
                 normalization = 'group', num_norm_groups = 8, 
@@ -569,7 +573,7 @@ class SkeletonSDFMambaDecoder(SeqMambaDecoder):
         # self.out_point_dim = point_dim
         self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
                     out_channel = projection_channel,
-                    activation = self.activation)
+                    activation = activation)
     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
     def forward(self, latent, coordinate, c = None):
         ### use cross attention to compute coordinate and local feature
@@ -578,14 +582,14 @@ class SkeletonSDFMambaDecoder(SeqMambaDecoder):
         return res
     
 supported_skeleton_encoders = {}
-supported_skeleton_encoders['SkSDFCNN'] = (SkeletonCNNEncoder, SkeletonSDFCNNDecoder)
-supported_skeleton_encoders['SkSDFTrans'] = (SkeletonTransEncoder, SkeletonSDFTransDecoder)
-supported_skeleton_encoders['SkSDFMamba'] = (SkeletonMambaEncoder, SkeletonSDFMambaDecoder)
+supported_skeleton_encoders['SKSDFCNN'] = (SkeletonCNNEncoder, SkeletonSDFCNNDecoder)
+supported_skeleton_encoders['SKSDFTrans'] = (SkeletonTransEncoder, SkeletonSDFTransDecoder)
+supported_skeleton_encoders['SKSDFMamba'] = (SkeletonMambaEncoder, SkeletonSDFMambaDecoder)
 
 supported_buildingblocks_for_encoder = {}
-supported_buildingblocks_for_encoder['SkSDFCNN'] = ['dense', 'double_dense', 'res_dense', 'fc', 'double_fc', 'res_fc']
-supported_buildingblocks_for_encoder['SkSDFTrans'] = ['pct_sa', 'pct_oa']
-supported_buildingblocks_for_encoder['SkSDFMamba'] = ['pmamba', 'pmamba2']
+supported_buildingblocks_for_encoder['SKSDFCNN'] = ['dense', 'double_dense', 'res_dense', 'fc', 'double_fc', 'res_fc']
+supported_buildingblocks_for_encoder['SKSDFTrans'] = ['pct_sa', 'pct_oa']
+supported_buildingblocks_for_encoder['SKSDFMamba'] = ['pmamba', 'pmamba2']
 
 def create_skeleton_encoder(encoder_config, return_encoder = True, return_decoder = True):
         encoder_name = encoder_config.pop('name')

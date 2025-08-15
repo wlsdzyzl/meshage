@@ -6,6 +6,7 @@ model:
   name: SKNet
   skp_num: 256
   isk_num: 4
+  point_num: 5120
   skp_neighbor_num: 72
   radius_scaling: 1.25
   dbscan_eps: 0.65
@@ -29,7 +30,6 @@ loader:
       method: qfps
       num: 5120
     - name: ToTensor
-      dtype: float
 
 custom_save_results: 
   - name: recon_sphere
@@ -38,3 +38,4 @@ custom_save_results:
     dir: /media/wlsdzyzl/DATA1/vcg-results/skeleton/imagecas_surface/sknet/skeleton/right
   - name: radius
     dir: /media/wlsdzyzl/DATA1/vcg-results/skeleton/imagecas_surface/sknet/skr/right
+# eval_batch_num: 1
