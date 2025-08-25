@@ -1,5 +1,6 @@
 import numpy as np
 from flemme.utils import save_ply
+
 import mcubes
 min_r = 0.007
 max_r = 0.12
@@ -28,6 +29,11 @@ def radius_normalize(data):
 
 def radius_inv_normalize(data):
     return data / scaling_r + center_r
+
+def save_sdf(save_path, sdf):
+    length = int(np.cbrt(sdf.shape[0]))
+    sdf = sdf.reshape((length, length, length))
+    np.save(save_path, sdf)
 
 def save_sdf2mesh(save_path, sdf, threshold=0.0):
     vertices, triangles = mcubes.marching_cubes(sdf, isovalue = threshold, truncated_value = truncated_value)

@@ -36,6 +36,7 @@ class SkeletonEncoder(PointEncoder):
                  condition_first,
                  skeleton_net_config,
                  pos_embedding,
+                 with_radius,
                  **kwargs):
         super().__init__(point_dim=point_dim, 
                 time_channel = 0,
@@ -70,18 +71,19 @@ class SkeletonEncoder(PointEncoder):
                 logger.info("Using point cloud positional embedding.")
         self.skeletonize = SkeletonNet(skeleton_net_config)
         ## 4 dim: xyzr
-        self.sk_proj = nn.Linear(4, projection_channel)
+
+        self.sk_proj = nn.Linear(3 + with_radius, projection_channel)
         self.query_and_group = QueryAndGroup(num_neighbors_k_cross, knn_query='feature')
         self.out_channel += 3
-
-    def group_surface_to_skeleton(self, layer_id, pos, pos_emb, sk, sk_emb, sff, skf):
+        self.with_radius = with_radius
+    def group_surface_to_skeleton(self, layer_id, pos, pos_emb, sk, sk_emb, sff, skf, c):
         sff_trans = channel_recover(sff)
         skf_trans = channel_recover(skf)
         grouped_sff = channel_transfer(self.query_and_group(pos, pos_emb, sk, sk_emb, sff_trans, skf_trans))
         ## intergrate skf into grouped surface feature
         sk_emb_feature = torch.cat((sk_emb - sk_emb, skf), dim = -1)
         grouped_sff = torch.cat((grouped_sff, sk_emb_feature.unsqueeze(2)), dim = 2)
-        grouped_sff = self.msg[layer_id](grouped_sff)
+        grouped_sff = self.msg[layer_id](grouped_sff, c = c)
         ### (B, N, K, C) -> (B, N, C), N: num of skeletal points
         skf = grouped_sff.max(dim = 2)[0]
         return skf
@@ -94,14 +96,21 @@ class SkeletonEncoder(PointEncoder):
         ske_res = self.skeletonize(pos)
         sk, r = ske_res['recon_skeleton'], ske_res['radius']
         pos_emb, sk_emb = pos, sk
+        
         if hasattr(self, 'pos_embed'):
             pos_emb = self.pos_embed(pos_emb)
             sk_emb = self.pos_embed(sk_emb)
-        sff, skf = self.point_proj(x), self.sk_proj(torch.cat((sk, r), dim = -1))
+        
+        sff = self.point_proj(x)
+        if self.with_radius:
+            skf = self.sk_proj(torch.cat((sk, r), dim = -1))
+        else:
+            skf = self.sk_proj(sk)
         ## create shared lf, vlf and ca for skeleton and surface?
         for lid, lf in enumerate(self.lf[:-1]):
             vsff, vskf = sff, skf
             sff, skf = lf(sff, c = c), lf(skf, c = c)
+
             if hasattr(self, 'vlf'):
                 sff = sff + self.vlf[lid](vsff, pos, c = c)
                 skf = skf + self.vlf[lid](vskf, sk, c = c)
@@ -109,20 +118,21 @@ class SkeletonEncoder(PointEncoder):
                 sff = self.ca[lid](sff)
                 skf = self.ca[lid](sff)
             ## group skeleton feature from neighbor surface points
-            skf = self.group_surface_to_skeleton(lid, pos, pos_emb, sk, sk_emb, sff, skf)
+            skf = self.group_surface_to_skeleton(lid, pos, pos_emb, sk, sk_emb, sff, skf, c)
             sf_res.append(sff)
             sk_res.append(skf)
             
         vsff = torch.concat(sf_res, dim = -1)
         vskf = torch.concat(sk_res, dim = -1)
         sff, skf = self.lf[-1](vsff, c = c), self.lf[-1](vskf, c = c)
+        # print(sk.mean(), r.mean(), pos_emb.mean(), sk_emb.mean(), sff.mean(), skf.mean())
         if hasattr(self, 'vlf'):
             sff = sff + self.vlf[-1](vsff, pos, c = c)
             skf = skf + self.vlf[-1](vskf, sk, c = c)
         if hasattr(self, 'ca'):
             sff = self.ca[-1](sff)
             skf = self.ca[-1](skf)
-        skf = self.group_surface_to_skeleton(-1, pos, pos_emb, sk, sk_emb, sff, skf)
+        skf = self.group_surface_to_skeleton(-1, pos, pos_emb, sk, sk_emb, sff, skf, c)
         
         ### concate global embedding and local point feautre
         ### is this necessary?
@@ -160,6 +170,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                  condition_first = False,
                  skeleton_net_config = {},
                  pos_embedding = True,
+                 with_radius = False,
                  **kwargs):
         super().__init__(point_dim=point_dim, 
                 projection_channel = projection_channel,
@@ -180,7 +191,8 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                 condition_injection = condition_injection,
                 condition_first = condition_first,
                 skeleton_net_config = skeleton_net_config,
-                pos_embedding = pos_embedding)
+                pos_embedding = pos_embedding,
+                with_radius = with_radius)
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
 
@@ -252,6 +264,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
                     condition_first = False,
                     pos_embedding = True,
                     skeleton_net_config = {},
+                    with_radius = False,
                     **kwargs):
         super().__init__(point_dim=point_dim, 
                 projection_channel = projection_channel,
@@ -272,7 +285,8 @@ class SkeletonTransEncoder(SkeletonEncoder):
                 condition_injection = condition_injection,
                 condition_first = condition_first,
                 skeleton_net_config = skeleton_net_config,
-                pos_embedding = pos_embedding)
+                pos_embedding = pos_embedding,
+                with_radius = with_radius)
         
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
@@ -355,6 +369,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                 condition_first = False,
                 pos_embedding = True,
                 skeleton_net_config = {},
+                with_radius = False,
                 **kwargs):
         super().__init__(point_dim=point_dim, 
                 projection_channel = projection_channel,
@@ -375,7 +390,8 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                 condition_injection = condition_injection,
                 condition_first = condition_first,
                 skeleton_net_config = skeleton_net_config,
-                pos_embedding = pos_embedding)
+                pos_embedding = pos_embedding,
+                with_radius = with_radius)
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
 
@@ -518,7 +534,6 @@ class SkeletonSDFTransDecoder(SeqTransDecoder):
     def forward(self, latent, coordinate, c = None):
         ### use cross attention to compute coordinate and local feature
         coord_feature = self.coord_proj(coordinate)
-        print(coord_feature.shape, latent.shape)
         res = super().forward(coord_feature, t = latent, c = c)
         return res
 

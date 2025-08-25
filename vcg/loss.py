@@ -1,12 +1,12 @@
 import torch
 import torch.nn as nn
-
+import numpy as np
 from knn_cuda import KNN
 from flemme.block.pcd_utils import grouping_operation
 from flemme.block import channel_transfer, channel_recover
 from flemme.encoder.point.sphere3d import icosphere, uvsphere
 from flemme.logger import get_logger
-from topologylayer.nn import AlphaLayer, BarcodePolyFeature
+# from topologylayer.nn import AlphaLayer, BarcodePolyFeature
 from flemme.loss.ext_modules import ChamferDistance
 from functools import partial
 from flemme.utils import DataForm
@@ -173,41 +173,41 @@ class RadiusConsistencyLoss(nn.Module):
             res = res.sum()
         return res
 
-class SingleTopoTreeLoss(nn.Module):
-    def __init__(self, reduction = 'mean'):
-        super().__init__()
-        self.reduction = reduction
-        self.layer = AlphaLayer(maxdim=1)
-        self.func = BarcodePolyFeature(0,2,0)
+# class SingleTopoTreeLoss(nn.Module):
+#     def __init__(self, reduction = 'mean'):
+#         super().__init__()
+#         self.reduction = reduction
+#         self.layer = AlphaLayer(maxdim=1)
+#         self.func = BarcodePolyFeature(0,2,0)
 
-    def forward(self, r):
-        res = torch.stack([self.func(self.layer(ri)) for ri in r])
-        if self.reduction == "mean":
-            res = res.mean()
-        if self.reduction == 'sum':
-            res = res.sum()
-        return res
+#     def forward(self, r):
+#         res = torch.stack([self.func(self.layer(ri)) for ri in r])
+#         if self.reduction == "mean":
+#             res = res.mean()
+#         if self.reduction == 'sum':
+#             res = res.sum()
+#         return res
 
 
-class MultipleTopoTreeLoss(nn.Module):
-    def __init__(self, reduction = 'mean', num_connected_components = 2):
-        super().__init__()
-        self.reduction = reduction
-        self.layer = AlphaLayer(maxdim=1)
-        self.func = BarcodePolyFeature(0,2,0)
-        self.ncc = num_connected_components
-    def forward(self, r):
-        nr = torch.chunk(r, dim = 1, chunks = self.ncc)
-        n_res = []
-        for tmp_r in nr: 
-            tmp_r = batch_normalize(tmp_r, channel_dim = -1)
-            res = torch.stack([self.func(self.layer(ri)) for ri in tmp_r])
-            if self.reduction == "mean":
-                res = res.mean()
-            if self.reduction == 'sum':
-                res = res.sum()
-            n_res.append(res)
-        return sum(n_res) / len(n_res)
+# class MultipleTopoTreeLoss(nn.Module):
+#     def __init__(self, reduction = 'mean', num_connected_components = 2):
+#         super().__init__()
+#         self.reduction = reduction
+#         self.layer = AlphaLayer(maxdim=1)
+#         self.func = BarcodePolyFeature(0,2,0)
+#         self.ncc = num_connected_components
+#     def forward(self, r):
+#         nr = torch.chunk(r, dim = 1, chunks = self.ncc)
+#         n_res = []
+#         for tmp_r in nr: 
+#             tmp_r = batch_normalize(tmp_r, channel_dim = -1)
+#             res = torch.stack([self.func(self.layer(ri)) for ri in tmp_r])
+#             if self.reduction == "mean":
+#                 res = res.mean()
+#             if self.reduction == 'sum':
+#                 res = res.sum()
+#             n_res.append(res)
+#         return sum(n_res) / len(n_res)
 
 # class IsoForceLoss(nn.Module):
 #     def __init__(self, k = 2, reduction = 'mean'):
@@ -245,14 +245,14 @@ def get_loss(loss_config):
     loss_name = loss_config.pop('name', None)
     if loss_name == 'Radius':
         return RadiusConsistencyLoss(**loss_config)
-    elif loss_name == 'TopoTree':
-        return SingleTopoTreeLoss(**loss_config)
-    elif loss_name == 'MultipleTopoTree':
-        return MultipleTopoTreeLoss(**loss_config)
     elif loss_name == 'ChamferER':
         return ChamferEigenRatioLoss(**loss_config)
     elif loss_name == 'MSEER':
         return MSEEigenRatioLoss(**loss_config)
+    # elif loss_name == 'TopoTree':
+    #     return SingleTopoTreeLoss(**loss_config)
+    # elif loss_name == 'MultipleTopoTree':
+    #     return MultipleTopoTreeLoss(**loss_config)
     else:
         loss_config['name'] = loss_name
         return get_flemme_loss(loss_config, data_form = DataForm.PCD)

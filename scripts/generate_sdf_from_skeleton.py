@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial import KDTree
-from flemme.utils import load_ply, normalize, rmdirs, mkdirs
+from flemme.utils import load_ply, normalize, rmdirs, mkdirs, save_ply
 from flemme.logger import get_logger
 from scipy.ndimage import uniform_filter
 import argparse
@@ -38,14 +38,21 @@ def generate_sdf(skeleton, surface, resolution=0.01, k = 5):
     sign = np.sign(np.einsum("bi,bi->b", grid_points - closest_surface,  closest_skeleton - closest_surface))
     sdf = (sign * dist).reshape(length, length, length)
     return sdf
-def process(skeleton_path, surface_path, sdf_path, mesh_path, resolution=0.01, sdf_smoothing=True, k = 5):
+def process(skeleton_path, surface_path, sdf_path, mesh_path, 
+            normalization = True,
+            resolution=0.01, 
+            sdf_smoothing=True, 
+            k = 5):
     skeleton = load_ply(skeleton_path)
     surface = load_ply(surface_path)
-    surface, (center, scaling) = normalize(surface, channel_dim = -1, return_transform=True)
     if len(surface) < k or len(skeleton) < k:
         logger.info(f"Skip empty surface: {surface_path}")
         return
-    skeleton = normalize(skeleton, channel_dim = -1, center = center, scaling = scaling)
+    
+    if normalization:
+        surface, (center, scaling) = normalize(surface, channel_dim = -1, return_transform=True)
+        skeleton = normalize(skeleton, channel_dim = -1, center = center, scaling = scaling)
+        save_ply(surface_path[:-4]+'_normalized.ply', surface)
     logger.info(f"generating sdf which will be saved to {sdf_path}")
     sdf = generate_sdf(skeleton, surface, resolution=resolution, k = k)
     np.save(sdf_path, sdf)
@@ -65,9 +72,9 @@ if __name__ == "__main__":
     parser.add_argument("--recon_mesh_dir", type=str, required=True, help="Path to save the generated mesh.")
     parser.add_argument("--resolution", type=float, default=0.01, help="Resolution of the SDF grid.")
     parser.add_argument("--num_nn", type=int, default=5, help="Number of nearest neighbors.")
+    parser.add_argument("--normalization", action='store_true', help="Apply normalization to the surface.")
     parser.add_argument("--sdf_smoothing", action='store_true', help="Apply smoothing to the SDF.")
     parser.add_argument("--resume", action='store_true', help="Resume generating from the last file.")
-    
     args = parser.parse_args()
     surface_path_list = sorted(glob.glob(os.path.join(args.surface_dir, "*.ply")))
     skeleton_path_list = [ sf_path.replace(args.surface_dir, args.skeleton_dir)  for sf_path in surface_path_list]
@@ -80,6 +87,7 @@ if __name__ == "__main__":
 
     assert len(skeleton_path_list) == len(surface_path_list), "Number of skeleton and surface files must match."
     for sk_path, surf_path in zip(skeleton_path_list, surface_path_list):
+        logger.info(f'Processing skeleton: {sk_path} and surface: {surf_path}')
         base_name = os.path.basename(sk_path).replace(".ply", "")
         sdf_path = os.path.join(args.sdf_dir, f"{base_name}_sdf.npy")
         mesh_path = os.path.join(args.recon_mesh_dir, f"{base_name}_mesh.ply")
@@ -88,6 +96,7 @@ if __name__ == "__main__":
             continue
         process(sk_path, surf_path, sdf_path, 
                     mesh_path = mesh_path, 
+                    normalization=args.normalization,
                     resolution=args.resolution, 
                     sdf_smoothing=args.sdf_smoothing,
                     k = args.num_nn)

@@ -1,5 +1,7 @@
 # train ae or vae
 #### a template for pcd encoder
+determinstic: true
+detect_anomaly: true
 mode: train
 model:
   # can be AE, VAE, SeM and DDPM
@@ -16,9 +18,7 @@ model:
     local_feature_channels: [64, 128, 256, 512, 512]
     seq_feature_channels: [512, 512, 512]
     dense_channels: [512, 512]
-    num_heads: 8
     pos_embedding: true
-    d_k: 64
     # voxel_resolutions: [0, 0, 16, 16, 0, 0]
     activation: gelu
     normalization: layer
@@ -30,12 +30,13 @@ model:
 loader:
   dataset: 
     name: PcdSDFDataset
+    resolution: 0.022
     data_dir: raw/coronary_artery_left
     data_suffix: .ply
     target_dir: sdf022/coronary_artery_left
     target_suffix: _sdf.npy
     data_path: /media/wlsdzyzl/DATA1/datasets/pcd/MedSDF/
-  batch_size: 2
+  batch_size: 8
   num_workers: 8
   shuffle: true
   data_transforms:
@@ -44,10 +45,10 @@ loader:
     - name: ToTensor
   target_transforms:
     - name: FixedPoints
-      num: 4096
+      num: 2048
     - name: ToTensor
 
-check_point_dir: /media/wlsdzyzl/DATA1/flemme-ckp/coronary_artery_left/SkTrans_AE/
+check_point_dir: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkCNN_AE/
 # resume: true
 ### parameter for optimizer
 optimizer:
@@ -60,10 +61,10 @@ lr_scheduler:
   start_factor: 1.0
   end_factor: 0.01
 # resume: True
-max_epoch: 1000
+max_epoch: 100
 write_after_iters: 10
 write_sample_num: 4
-save_after_epochs: 10
+save_after_epochs: 5
 warmup_epochs: 1
 warmup_start_scale: 0.01
 clip_grad: 1.0
