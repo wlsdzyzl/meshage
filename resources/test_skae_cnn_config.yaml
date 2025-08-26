@@ -1,0 +1,51 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: SKSDF
+  coordinate_sampling_ratio: 0.1
+  encoder:
+    name: SKSDFCNN
+    in_channel: 3
+    out_channel: 1
+    point_num: 2048
+    building_block: dense
+    projection_channel: 64
+    num_neighbors_k_cross: 20
+    num_neighbors_k_self: 0
+    local_feature_channels: [64, 128, 256, 512, 512]
+    seq_feature_channels: [512, 512, 512]
+    dense_channels: [512, 512]
+    pos_embedding: true
+    # voxel_resolutions: [0, 0, 16, 16, 0, 0]
+    activation: gelu
+    normalization: layer
+  # decoder:
+  #   name: SKSDFTrans
+  #   building_block: pct_sa
+  reconstruction_losses: 
+    - name: MSE
+loader:
+  dataset: 
+    name: PcdSDFDataset
+    resolution: 0.022
+    data_dir: raw/coronary_artery_left
+    data_suffix: .ply
+    target_dir: sdf022/coronary_artery_left
+    target_suffix: _sdf.npy
+    data_path: /media/wlsdzyzl/DATA1/datasets/pcd/MedSDF/
+  batch_size: 2
+  num_workers: 8
+  shuffle: true
+  data_transforms:
+    - name: FixedPoints
+      num: 2048
+    - name: ToTensor
+  target_transforms:
+    - name: ToTensor
+
+model_path: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkCNN_AE/ckp_best_loss.pth
+recon_dir: /media/wlsdzyzl/DATA1/vcg-results/coronary_artery_left/SkCNN_AE
+pickle_results: True
+eval_batch_num: 4

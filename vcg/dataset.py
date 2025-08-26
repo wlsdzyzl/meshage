@@ -20,7 +20,7 @@ class PcdSDFDataset(Dataset):
                 target_transform = None, mode = 'train', data_dir = 'pcd', 
                 target_dir = 'sdf', data_suffix = '.ply', 
                 target_suffix='.npy', resolution = 0.01, 
-                filter_file = None, **kwargs):
+                filter_file = None, truncate_sdf = True, **kwargs):
         super().__init__()
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))

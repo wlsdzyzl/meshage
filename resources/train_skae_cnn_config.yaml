@@ -1,7 +1,5 @@
 # train ae or vae
 #### a template for pcd encoder
-determinstic: true
-detect_anomaly: true
 mode: train
 model:
   # can be AE, VAE, SeM and DDPM
@@ -48,7 +46,7 @@ loader:
       num: 2048
     - name: ToTensor
 
-check_point_dir: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkCNN_AE/
+check_point_dir: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkCNN_AE_test/
 # resume: true
 ### parameter for optimizer
 optimizer:

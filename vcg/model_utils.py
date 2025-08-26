@@ -110,7 +110,7 @@ def train_run(model, t, only_forward = False):
 
 def test_run(model, t):
     processed_input = process_input(t)
-    x, c, coord, sdf, _ = processed_input
+    x, c, coord, sdf, path = processed_input
     x = x.to(device) 
     if c is not None: 
         c = c.to(device)
@@ -122,14 +122,13 @@ def test_run(model, t):
     if not x.shape[1:] == tuple(model.get_input_shape()):
         logger.error("Inconsistent sample shape between data and model: {} and {}".format(x.shape[1:], tuple(model.get_input_shape())))
         exit(1)  
-    res = {'input': x, }
+    res = forward_pass(model, x, coord, c)
+    res['input'] = x
+    res['path'] = path
     if model.is_supervised:
         res['target'] = sdf
     if model.is_conditional:
         res['condition'] = c
-    ### here we want to generate raw image
-    tmp_res = forward_pass(model, x, coord, c)
-    res.update(tmp_res)
     return res 
 
 ## save sdf to sdf volume
