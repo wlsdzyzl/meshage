@@ -7,12 +7,11 @@ from flemme.block import QueryAndGroup, MultipleBuildingBlocks, \
                     LocalGraphLayer, PositionEmbeddingBlock
 from flemme.encoder import PointEncoder, SeqNetDecoder, \
         SeqTransDecoder, SeqMambaDecoder
-from flemme.utils import DataForm
+from flemme.utils import DataForm, normalize
 from flemme.logger import get_logger
 
 from .sknet import SkeletonNet
 from functools import partial
-
 ### skeleton-regularized point cloud auto-encoder
 logger = get_logger("skeleton_encoder")
 
@@ -37,6 +36,7 @@ class SkeletonEncoder(PointEncoder):
                  skeleton_net_config,
                  pos_embedding,
                  with_radius,
+                 standardize_latents,
                  **kwargs):
         super().__init__(point_dim=point_dim, 
                 time_channel = 0,
@@ -74,8 +74,9 @@ class SkeletonEncoder(PointEncoder):
 
         self.sk_proj = nn.Linear(3 + with_radius, projection_channel)
         self.query_and_group = QueryAndGroup(num_neighbors_k_cross, knn_query='feature')
-        self.out_channel += 3
+        self.out_channel += (3 + with_radius)
         self.with_radius = with_radius
+        self.standardize_latents = standardize_latents
     def group_surface_to_skeleton(self, layer_id, pos, pos_emb, sk, sk_emb, sff, skf, c):
         sff_trans = channel_recover(sff)
         skf_trans = channel_recover(skf)
@@ -145,8 +146,12 @@ class SkeletonEncoder(PointEncoder):
 
         ## compute embedding vectors
         x = self.dense(x, c = c)
-        ## skeleton and its latent features.
-        return torch.cat((sk, x), dim = -1)
+        if self.standardize_latents:
+            x = normalize(x, channel_dim = -1, batch = True)
+        if self.with_radius:
+            return torch.cat((sk, r, x), dim = -1)
+        else:
+            return torch.cat((sk, x), dim = -1)
 
 class SkeletonCNNEncoder(SkeletonEncoder):
     def __init__(self, point_dim=3, 
@@ -171,6 +176,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                  skeleton_net_config = {},
                  pos_embedding = True,
                  with_radius = False,
+                 standardize_latents = False,
                  **kwargs):
         super().__init__(point_dim=point_dim, 
                 projection_channel = projection_channel,
@@ -192,7 +198,8 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                 condition_first = condition_first,
                 skeleton_net_config = skeleton_net_config,
                 pos_embedding = pos_embedding,
-                with_radius = with_radius)
+                with_radius = with_radius,
+                standardize_latents = standardize_latents)
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
 
@@ -265,6 +272,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
                     pos_embedding = True,
                     skeleton_net_config = {},
                     with_radius = False,
+                    standardize_latents = False,
                     **kwargs):
         super().__init__(point_dim=point_dim, 
                 projection_channel = projection_channel,
@@ -286,7 +294,8 @@ class SkeletonTransEncoder(SkeletonEncoder):
                 condition_first = condition_first,
                 skeleton_net_config = skeleton_net_config,
                 pos_embedding = pos_embedding,
-                with_radius = with_radius)
+                with_radius = with_radius,
+                standardize_latents = standardize_latents)
         
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
@@ -370,6 +379,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                 pos_embedding = True,
                 skeleton_net_config = {},
                 with_radius = False,
+                standardize_latents = False,
                 **kwargs):
         super().__init__(point_dim=point_dim, 
                 projection_channel = projection_channel,
@@ -391,7 +401,8 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                 condition_first = condition_first,
                 skeleton_net_config = skeleton_net_config,
                 pos_embedding = pos_embedding,
-                with_radius = with_radius)
+                with_radius = with_radius,
+                standardize_latents = standardize_latents)
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
 
@@ -451,7 +462,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                             for lfc in local_feature_channels ])
 
 
-class SkeletonSDFCNNDecoder(SeqNetDecoder):
+class SkeletonSDFDecoder(SeqNetDecoder):
     def __init__(self, point_dim=1,
                 ### embedding  
                 projection_channel = 256, 
@@ -491,115 +502,115 @@ class SkeletonSDFCNNDecoder(SeqNetDecoder):
         res = super().forward(coord_feature, t = latent, c = c)
         return res
 
-class SkeletonSDFTransDecoder(SeqTransDecoder):
-    def __init__(self, point_dim=1, projection_channel = 256, 
-                latent_channel = 256,
-                latent_injection = 'cross_atten',
-                num_blocks = 2,
-                building_block = 'pct_sa', seq_feature_channels = [], 
-                normalization = 'group', num_norm_groups = 8, 
-                activation = 'lrelu', dropout = 0., 
-                num_heads = 4, d_k = None, 
-                qkv_bias = True, qk_scale = None, atten_dropout = None, 
-                mlp_hidden_ratios=[4.0, 4.0], 
-                condition_channel = 0,
-                condition_injection = 'gate_bias',
-                condition_first = False,
-                **kwargs):
-        super().__init__(point_dim = point_dim,
-            latent_channel = projection_channel,
-            time_channel = latent_channel,
-            time_injection = latent_injection,
-            num_blocks = num_blocks,
-            building_block = building_block,
-            seq_feature_channels = seq_feature_channels,
-            normalization = normalization,
-            num_norm_groups = num_norm_groups,
-            activation = activation,
-            dropout = dropout, 
-            num_heads = num_heads, d_k = d_k, 
-            qkv_bias = qkv_bias, qk_scale = qk_scale, 
-            atten_dropout = atten_dropout, 
-            mlp_hidden_ratios=mlp_hidden_ratios, 
-            condition_channel = condition_channel,
-            condition_injection = condition_injection,
-            condition_first = condition_first,
-            )
+# class SkeletonSDFTransDecoder(SeqTransDecoder):
+#     def __init__(self, point_dim=1, projection_channel = 256, 
+#                 latent_channel = 256,
+#                 latent_injection = 'cross_atten',
+#                 num_blocks = 2,
+#                 building_block = 'pct_sa', seq_feature_channels = [], 
+#                 normalization = 'group', num_norm_groups = 8, 
+#                 activation = 'lrelu', dropout = 0., 
+#                 num_heads = 4, d_k = None, 
+#                 qkv_bias = True, qk_scale = None, atten_dropout = None, 
+#                 mlp_hidden_ratios=[4.0, 4.0], 
+#                 condition_channel = 0,
+#                 condition_injection = 'gate_bias',
+#                 condition_first = False,
+#                 **kwargs):
+#         super().__init__(point_dim = point_dim,
+#             latent_channel = projection_channel,
+#             time_channel = latent_channel,
+#             time_injection = latent_injection,
+#             num_blocks = num_blocks,
+#             building_block = building_block,
+#             seq_feature_channels = seq_feature_channels,
+#             normalization = normalization,
+#             num_norm_groups = num_norm_groups,
+#             activation = activation,
+#             dropout = dropout, 
+#             num_heads = num_heads, d_k = d_k, 
+#             qkv_bias = qkv_bias, qk_scale = qk_scale, 
+#             atten_dropout = atten_dropout, 
+#             mlp_hidden_ratios=mlp_hidden_ratios, 
+#             condition_channel = condition_channel,
+#             condition_injection = condition_injection,
+#             condition_first = condition_first,
+#             )
 
-        # self.out_point_dim = point_dim
-        self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
-                    out_channel = projection_channel,
-                    activation = activation)
-    ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
-    def forward(self, latent, coordinate, c = None):
-        ### use cross attention to compute coordinate and local feature
-        coord_feature = self.coord_proj(coordinate)
-        res = super().forward(coord_feature, t = latent, c = c)
-        return res
+#         # self.out_point_dim = point_dim
+#         self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
+#                     out_channel = projection_channel,
+#                     activation = activation)
+#     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
+#     def forward(self, latent, coordinate, c = None):
+#         ### use cross attention to compute coordinate and local feature
+#         coord_feature = self.coord_proj(coordinate)
+#         res = super().forward(coord_feature, t = latent, c = c)
+#         return res
 
-class SkeletonSDFMambaDecoder(SeqMambaDecoder):
-    def __init__(self, point_dim=1, projection_channel = 256, 
-                latent_channel = 256,
-                latent_injection = 'cross_atten',
-                num_blocks = 2,
-                building_block = 'pmamba', seq_feature_channels = [], 
-                normalization = 'group', num_norm_groups = 8, 
-                activation = 'lrelu', dropout = 0.,
-                state_channel = 64, 
-                conv_kernel_size = 4, inner_factor = 2.0,  
-                head_channel = 64,
-                conv_bias=True, bias=False,
-                learnable_init_states = True, chunk_size=256,
-                dt_min=0.001, A_init_range=(1, 16),
-                dt_max=0.1, dt_init_floor=1e-4, 
-                dt_rank = None, dt_scale = 1.0,
-                mlp_hidden_ratios=[4.0, 4.0], 
-                condition_channel = 0,
-                condition_injection = 'gate_bias',
-                condition_first = False,
-                **kwargs):
-        super().__init__(point_dim = point_dim,
-            latent_channel = projection_channel,
-            time_channel = latent_channel,
-            time_injection = latent_injection,
-            num_blocks = num_blocks,
-            building_block = building_block,
-            seq_feature_channels = seq_feature_channels,
-            normalization = normalization,
-            num_norm_groups = num_norm_groups,
-            activation = activation,
-            dropout = dropout, 
-            state_channel = state_channel, 
-            conv_kernel_size = conv_kernel_size, 
-            inner_factor = inner_factor,  
-            head_channel = head_channel,
-            conv_bias=conv_bias, bias=bias,
-            learnable_init_states = learnable_init_states, 
-            chunk_size=chunk_size,
-            dt_min=dt_min, A_init_range=A_init_range,
-            dt_max=dt_max, dt_init_floor=dt_init_floor, 
-            dt_rank = dt_rank, dt_scale = dt_scale,
-            mlp_hidden_ratios=mlp_hidden_ratios, 
-            condition_channel = condition_channel,
-            condition_injection = condition_injection,
-            condition_first = condition_first,
-            )
+# class SkeletonSDFMambaDecoder(SeqMambaDecoder):
+#     def __init__(self, point_dim=1, projection_channel = 256, 
+#                 latent_channel = 256,
+#                 latent_injection = 'cross_atten',
+#                 num_blocks = 2,
+#                 building_block = 'pmamba', seq_feature_channels = [], 
+#                 normalization = 'group', num_norm_groups = 8, 
+#                 activation = 'lrelu', dropout = 0.,
+#                 state_channel = 64, 
+#                 conv_kernel_size = 4, inner_factor = 2.0,  
+#                 head_channel = 64,
+#                 conv_bias=True, bias=False,
+#                 learnable_init_states = True, chunk_size=256,
+#                 dt_min=0.001, A_init_range=(1, 16),
+#                 dt_max=0.1, dt_init_floor=1e-4, 
+#                 dt_rank = None, dt_scale = 1.0,
+#                 mlp_hidden_ratios=[4.0, 4.0], 
+#                 condition_channel = 0,
+#                 condition_injection = 'gate_bias',
+#                 condition_first = False,
+#                 **kwargs):
+#         super().__init__(point_dim = point_dim,
+#             latent_channel = projection_channel,
+#             time_channel = latent_channel,
+#             time_injection = latent_injection,
+#             num_blocks = num_blocks,
+#             building_block = building_block,
+#             seq_feature_channels = seq_feature_channels,
+#             normalization = normalization,
+#             num_norm_groups = num_norm_groups,
+#             activation = activation,
+#             dropout = dropout, 
+#             state_channel = state_channel, 
+#             conv_kernel_size = conv_kernel_size, 
+#             inner_factor = inner_factor,  
+#             head_channel = head_channel,
+#             conv_bias=conv_bias, bias=bias,
+#             learnable_init_states = learnable_init_states, 
+#             chunk_size=chunk_size,
+#             dt_min=dt_min, A_init_range=A_init_range,
+#             dt_max=dt_max, dt_init_floor=dt_init_floor, 
+#             dt_rank = dt_rank, dt_scale = dt_scale,
+#             mlp_hidden_ratios=mlp_hidden_ratios, 
+#             condition_channel = condition_channel,
+#             condition_injection = condition_injection,
+#             condition_first = condition_first,
+#             )
 
-        # self.out_point_dim = point_dim
-        self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
-                    out_channel = projection_channel,
-                    activation = activation)
-    ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
-    def forward(self, latent, coordinate, c = None):
-        ### use cross attention to compute coordinate and local feature
-        coord_feature = self.coord_proj(coordinate)
-        res = super().forward(coord_feature, t = latent, c = c)
-        return res
+#         # self.out_point_dim = point_dim
+#         self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
+#                     out_channel = projection_channel,
+#                     activation = activation)
+#     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
+#     def forward(self, latent, coordinate, c = None):
+#         ### use cross attention to compute coordinate and local feature
+#         coord_feature = self.coord_proj(coordinate)
+#         res = super().forward(coord_feature, t = latent, c = c)
+#         return res
     
 supported_skeleton_encoders = {}
-supported_skeleton_encoders['SKSDFCNN'] = (SkeletonCNNEncoder, SkeletonSDFCNNDecoder)
-supported_skeleton_encoders['SKSDFTrans'] = (SkeletonTransEncoder, SkeletonSDFTransDecoder)
-supported_skeleton_encoders['SKSDFMamba'] = (SkeletonMambaEncoder, SkeletonSDFMambaDecoder)
+supported_skeleton_encoders['SKSDFCNN'] = (SkeletonCNNEncoder, SkeletonSDFDecoder)
+supported_skeleton_encoders['SKSDFTrans'] = (SkeletonTransEncoder, SkeletonSDFDecoder)
+supported_skeleton_encoders['SKSDFMamba'] = (SkeletonMambaEncoder, SkeletonSDFDecoder)
 
 supported_buildingblocks_for_encoder = {}
 supported_buildingblocks_for_encoder['SKSDFCNN'] = ['dense', 'double_dense', 'res_dense', 'fc', 'double_fc', 'res_fc']
@@ -612,11 +623,17 @@ def create_skeleton_encoder(encoder_config, return_encoder = True, return_decode
             logger.error(f'Unsupported encoder: {encoder_name}')
             exit(1)        
         Encoder, Decoder = supported_skeleton_encoders[encoder_name]
-        ### building block usually can be fully-connected block, convolution block, swin or mamba block
         building_block = encoder_config.pop('building_block', 'single')
+        ### all encoders correspond to the same decoder whose building block could be different from encoder.
+        ### therefore we especially assign a building block for decoder during the reconstruction.
+        decoder_building_block = encoder_config.pop('decoder_building_block', 'dense')
         if not building_block in supported_buildingblocks_for_encoder[encoder_name]:
             ### pointnet decoder doesn't need building block
             logger.error(f'Unsupported building block \'{building_block}\' for encoder {encoder_name}, please use one of {supported_buildingblocks_for_encoder[encoder_name]}.')
+            exit(1)
+        if not decoder_building_block in supported_buildingblocks_for_encoder['SKSDFCNN']:
+            ### pointnet decoder doesn't need building block
+            logger.error(f'Unsupported building block \'{decoder_building_block}\' for decoder \'SkeletonSDFDecoder\', please use one of {supported_buildingblocks_for_encoder["SKSDFCNN"]}.')
             exit(1)
         in_channel = encoder_config.pop('in_channel', 3)
         out_channel = encoder_config.pop('out_channel', 1)
@@ -626,10 +643,8 @@ def create_skeleton_encoder(encoder_config, return_encoder = True, return_decode
         #### point cloud encoder
         point_num = encoder_config.pop('point_num', 2048)
         voxel_resolutions = encoder_config.pop('voxel_resolutions', [])
-        de_voxel_resolutions = encoder_config.pop('decoder_voxel_resolutions', [])
         dense_channels = encoder_config.pop('dense_channels', [256, 256])
         assert type(voxel_resolutions) == list, "voxel_resolutions should be a list."
-        assert type(de_voxel_resolutions) == list, "decoder_voxel_resolutions should be a list."
         assert type(dense_channels) == list, "dense_channels should be a list."
         if not return_encoder:
             latent_channel = encoder_config.pop('latent_channel', None)
@@ -655,7 +670,6 @@ def create_skeleton_encoder(encoder_config, return_encoder = True, return_decode
             decoder = Decoder(point_dim=out_channel, 
                                         latent_channel = latent_channel,
                                         seq_feature_channels = seq_feature_channels,
-                                        building_block=building_block,
-                                        voxel_resolutions = de_voxel_resolutions,
+                                        building_block=decoder_building_block,
                                         **encoder_config)
         return encoder, decoder

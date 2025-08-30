@@ -20,6 +20,7 @@ class SkeletonSDF(AE):
         assert self.coordinate_sampling_ratio > 0, "Coordinate sampling ratio must be positive."
         if self.coordinate_sampling_ratio < 1.0:
             self.knn = KNN(k = 1, transpose_mode=True)
+
     def decode(self, z, coord, c = None):
         z, c = self.parse_decoder_condition(z, c)
         if self.coordinate_sampling_ratio < 1.0:
@@ -31,30 +32,31 @@ class SkeletonSDF(AE):
             sampled_sdf = self.decoder(z, sampled_coord, c = c)
             reconed_sdf = - torch.ones((coord.shape[0], coord.shape[1], 1), device=coord.device) * truncated_value * 2
             reconed_sdf.scatter_(1, idx.unsqueeze(-1), sampled_sdf)
-            return reconed_sdf, sampled_sdf, idx
+            # return reconed_sdf, sampled_sdf, idx
+            return reconed_sdf
         else:
             sdf = self.decoder(z, coord, c = c)
             return sdf
     def forward(self, x, coord, c=None):
         z = self.encode(x, c = c)
         res = self.decode(z, coord, c = c)
-        if self.coordinate_sampling_ratio < 1.0:
-            return {'recon': res[0], 
-                    'latent':z, 
-                    'sampled_sdf': res[1],
-                    'sampled_index': res[2]}
-        else:
-            return {'recon': res, 'latent': z}
+        # if self.coordinate_sampling_ratio < 1.0:
+        #     return {'recon': res[0], 
+        #             'latent':z, 
+        #             'sampled_sdf': res[1],
+        #             'sampled_index': res[2]}
+        # else:
+        return {'recon': res, 'latent': z}
     def compute_loss(self, x, coord, y, c = None, res = None):
         if res is None:
             res = self.forward(x, coord, c)   
         losses = []
-        pred = res['recon']
-        # assert self.coordinate_sampling_ratio == 1.0, 'Coordinate sampling should only be used for test.'
-        if self.coordinate_sampling_ratio < 1.0:
-            y = gather_features(y, index = res['sampled_index'], channel_dim = -1, gather_dim = 1)
-            pred = res['sampled_sdf']
+        assert self.coordinate_sampling_ratio == 1.0, 'Coordinate sampling should only be used for test.'
+
+        # if self.coordinate_sampling_ratio < 1.0:
+        #     y = gather_features(y, index = res['sampled_index'], channel_dim = -1, gather_dim = 1)
+        #     pred = res['sampled_sdf']
         for loss, weight in zip(self.recon_losses, self.recon_loss_weights):
-            losses.append(loss(pred, y) * weight) 
+            losses.append(loss(res['recon'], y) * weight) 
         return losses, res
 

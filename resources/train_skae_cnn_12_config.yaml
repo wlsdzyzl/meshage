@@ -15,7 +15,7 @@ model:
     num_neighbors_k_self: 0
     local_feature_channels: [512, 512, 512, 512]
     seq_feature_channels: [512, 512, 512, 512]
-    dense_channels: [512, 6]
+    dense_channels: [512, 12]
     pos_embedding: true
     # voxel_resolutions: [0, 0, 16, 16, 0, 0]
     activation: gelu
@@ -46,7 +46,7 @@ loader:
       num: 2048
     - name: ToTensor
 
-check_point_dir: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkResCNN_AE_C6_With_RT/
+check_point_dir: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkResCNN_AE_C12_With_RT/
 ### parameter for optimizer
 optimizer:
   name: Adam

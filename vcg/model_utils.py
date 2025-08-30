@@ -1,11 +1,13 @@
 from vcg.sknet import SkeletonNet #, LearnableSkeletonNet
 from vcg.sk_sdf import SkeletonSDF
 from vcg.encoder import create_skeleton_encoder
-from vcg.utils import save_sdf
+from vcg.utils import save_sdf2mesh
 from flemme.model import create_model as _create_model, EDM, LDM
 from flemme.logger import get_logger
 from flemme.trainer import save_data as _save_data
+from flemme.utils import save_npy
 import torch
+import numpy as np
 
 logger = get_logger('model.utils')
 ## if we want to train pcd or image, 
@@ -135,6 +137,9 @@ def test_run(model, t):
 def save_data(output, data_form, output_path):    
     if output.shape[-1] == 1:
         output = output.squeeze(-1)
-        save_sdf(output_path+'.npy', output)
+        length = int(np.cbrt(output.shape[0]))
+        output = output.reshape((length, length, length))
+        save_npy(output_path+'.npy', output)
+        save_sdf2mesh(output_path+'.ply', output)
     else:
         _save_data(output, data_form, output_path)

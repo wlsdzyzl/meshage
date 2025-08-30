@@ -1,6 +1,6 @@
 import numpy as np
 from skimage.transform import resize
-from flemme.utils import rmdirs, mkdirs
+from flemme.utils import rmdirs, mkdirs, save_npy
 from flemme.logger import get_logger
 from scipy.ndimage import uniform_filter
 import math
@@ -27,13 +27,13 @@ def process(input_sdf_path, output_sdf_path,
     input_sdf = np.load(input_sdf_path)
     logger.info(f"generating sdf which will be saved to {output_sdf_path}")
     output_sdf = generate_sdf(input_sdf, resolution=resolution)
-    np.save(output_sdf_path, output_sdf)
+    save_npy(output_sdf_path, output_sdf)
     ### smooth input sdf and resize
     if sdf_smoothing:
         truncated_indices = np.abs(input_sdf) < truncated_value
         input_sdf[truncated_indices] = uniform_filter(input_sdf, size = 3)[truncated_indices]
         output_sdf = generate_sdf(input_sdf, resolution=resolution)
-        np.save(sdf_path[:-4]+'.smooth.npy', output_sdf)
+        save_npy(sdf_path[:-4]+'.smooth.npy', output_sdf)
     logger.info(f"extracting mesh which will be saved to {recon_mesh_path}")
     save_sdf2mesh(recon_mesh_path, output_sdf)
 ### python generate_sdf_from_mesh.py --mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet/bladder --sdf_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_SDF/bladder --recon_mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_Mesh/bladder --smoothing

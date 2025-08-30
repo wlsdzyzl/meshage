@@ -5,25 +5,42 @@ model:
   # can be AE, VAE, SeM and DDPM
   name: SKSDF
   coordinate_sampling_ratio: 0.1
+  # encoder:
+  #   name: SKSDFCNN
+  #   in_channel: 3
+  #   out_channel: 1
+  #   point_num: 2048
+  #   building_block: res_dense
+  #   projection_channel: 64
+  #   num_neighbors_k_cross: 32
+  #   num_neighbors_k_self: 0
+  #   local_feature_channels: [64, 128, 256, 512, 512]
+  #   seq_feature_channels: [512, 512, 512]
+  #   dense_channels: [512, 512, 6]
+  #   pos_embedding: true
+  #   # voxel_resolutions: [0, 0, 16, 16, 0, 0]
+  #   activation: gelu
+  #   normalization: layer
+  # reconstruction_losses: 
+  #   - name: MSE
   encoder:
     name: SKSDFCNN
     in_channel: 3
     out_channel: 1
     point_num: 2048
-    building_block: dense
+    building_block: res_dense
     projection_channel: 64
-    num_neighbors_k_cross: 20
+    num_neighbors_k_cross: 32
     num_neighbors_k_self: 0
-    local_feature_channels: [64, 128, 256, 512, 512]
-    seq_feature_channels: [512, 512, 512]
-    dense_channels: [512, 512]
+    local_feature_channels: [512, 512, 512, 512]
+    seq_feature_channels: [512, 512, 512, 512]
+    dense_channels: [512, 6]
     pos_embedding: true
     # voxel_resolutions: [0, 0, 16, 16, 0, 0]
     activation: gelu
     normalization: layer
-  # decoder:
-  #   name: SKSDFTrans
-  #   building_block: pct_sa
+    standardize_latents: True
+    with_radius: True
   reconstruction_losses: 
     - name: MSE
 loader:
@@ -44,8 +61,20 @@ loader:
     - name: ToTensor
   target_transforms:
     - name: ToTensor
-
-model_path: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkCNN_AE/ckp_best_loss.pth
-recon_dir: /media/wlsdzyzl/DATA1/vcg-results/coronary_artery_left/SkCNN_AE
 pickle_results: True
-eval_batch_num: 4
+
+
+model_path: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkResCNN_AE_C6_With_RT/ckp_best_loss.pth
+recon_dir: /media/wlsdzyzl/DATA1/vcg-results/coronary_artery_left/sdf_mesh/SkResCNN_AE_C6_With_RT
+
+custom_save_results: 
+  - name: latent
+    dir: /media/wlsdzyzl/DATA1/vcg-results/coronary_artery_left/latent/SkResCNN_AE_C6_With_RT
+
+# model_path: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkResCNN_AE_C6/ckp_best_loss.pth
+# recon_dir: /media/wlsdzyzl/DATA1/vcg-results/coronary_artery_left/sdf_mesh/SkResCNN_AE_C6
+
+# custom_save_results: 
+#   - name: latent
+#     dir: /media/wlsdzyzl/DATA1/vcg-results/coronary_artery_left/latent/SkResCNN_AE_C6
+# eval_batch_num: 4

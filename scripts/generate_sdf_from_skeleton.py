@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial import KDTree
-from flemme.utils import load_ply, normalize, rmdirs, mkdirs, save_ply
+from flemme.utils import load_ply, normalize, rmdirs, mkdirs, save_ply, save_npy
 from flemme.logger import get_logger
 from scipy.ndimage import uniform_filter
 import argparse
@@ -55,13 +55,13 @@ def process(skeleton_path, surface_path, sdf_path, mesh_path,
         save_ply(surface_path[:-4]+'_normalized.ply', surface)
     logger.info(f"generating sdf which will be saved to {sdf_path}")
     sdf = generate_sdf(skeleton, surface, resolution=resolution, k = k)
-    np.save(sdf_path, sdf)
+    save_npy(sdf_path, sdf)
     logger.info(f"extracting mesh which will be saved to {mesh_path}")
     ### smooth sdf
     if sdf_smoothing:
         truncated_indices = np.abs(sdf) < truncated_value
         sdf[truncated_indices] = uniform_filter(sdf, size = 3)[truncated_indices]
-        np.save(sdf_path[:-4]+'.smooth.npy', sdf)
+        save_npy(sdf_path[:-4]+'.smooth.npy', sdf)
     save_sdf2mesh(mesh_path, sdf)
 ### python generate_sdf_from_skeleton.py --surface_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/surface --skeleton_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/skeleton --sdf_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/sdf --recon_mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/mesh_from_sdf --sdf_smoothing
 if __name__ == "__main__":

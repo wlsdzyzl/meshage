@@ -1,4 +1,6 @@
 #!/bin/bash
+# generate sdf with low resolution
+
 # python generate_sdf_from_sdf.py --input_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedSDF/001/sdf/coronary_artery_left --sdf_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_SDF/coronary_artery_left --recon_mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_Mesh/coronary_artery_left --sdf_smoothing --resolution 0.022 --resume
 # python generate_sdf_from_sdf.py --input_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedSDF/001/sdf/coronary_artery_right --sdf_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_SDF/coronary_artery_right --recon_mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_Mesh/coronary_artery_right --sdf_smoothing --resolution 0.022 --resume
 # python generate_sdf_from_sdf.py --input_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedSDF/001/sdf/liver --sdf_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_SDF/liver --recon_mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_Mesh/liver --sdf_smoothing --resolution 0.022 --resume

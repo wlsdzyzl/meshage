@@ -30,11 +30,6 @@ def radius_normalize(data):
 def radius_inv_normalize(data):
     return data / scaling_r + center_r
 
-def save_sdf(save_path, sdf):
-    length = int(np.cbrt(sdf.shape[0]))
-    sdf = sdf.reshape((length, length, length))
-    np.save(save_path, sdf)
-
 def save_sdf2mesh(save_path, sdf, threshold=0.0):
     vertices, triangles = mcubes.marching_cubes(sdf, isovalue = threshold, truncated_value = truncated_value)
     vertices = (vertices + 0.5) / sdf.shape[0] * space_length - space_length / 2.0
@@ -42,6 +37,6 @@ def save_sdf2mesh(save_path, sdf, threshold=0.0):
 
 def resolution2coord(resolution):
     length = int(space_length / resolution)
-    x, y, z = (np.mgrid[:length, :length, :length] - length / 2 + 0.5 ) * resolution
+    x, y, z = ((np.mgrid[:length, :length, :length] - length / 2 + 0.5 ) * resolution).astype(np.float32)
     coord = np.stack((x, y, z), axis=-1).reshape(-1, 3)
     return coord, length

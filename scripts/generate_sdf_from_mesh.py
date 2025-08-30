@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.spatial import KDTree
-from flemme.utils import normalize, rmdirs, mkdirs, load_mesh, save_ply
+from flemme.utils import normalize, rmdirs, mkdirs, load_mesh, save_ply, save_npy
 from flemme.logger import get_logger
 from scipy.ndimage import uniform_filter
 import argparse
@@ -61,12 +61,12 @@ def process(mesh_path, sdf_path, recon_mesh_path, resolution=0.01,
         save_ply(mesh_path[:-4]+'.ply', surface, faces = mesh.faces)
         logger.info(f"generating sdf which will be saved to {sdf_path}")
         sdf = generate_sdf(surface, normals, resolution=resolution)
-        np.save(sdf_path, sdf)
+        save_npy(sdf_path, sdf)
         ### smooth sdf
         if sdf_smoothing:
             truncated_indices = np.abs(sdf) < truncated_value
             sdf[truncated_indices] = uniform_filter(sdf, size = 3)[truncated_indices]
-            np.save(sdf_path[:-4]+'.smooth.npy', sdf)
+            save_npy(sdf_path[:-4]+'.smooth.npy', sdf)
         logger.info(f"extracting mesh which will be saved to {recon_mesh_path}")
         save_sdf2mesh(recon_mesh_path, sdf)
     return mesh.is_watertight

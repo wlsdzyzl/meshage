@@ -1,6 +1,6 @@
 # train ae or vae
 #### a template for pcd encoder
-determinstic: true
+# determinstic: true
 mode: train
 model:
   # can be AE, VAE, SeM and DDPM
@@ -14,16 +14,15 @@ model:
     projection_channel: 64
     num_neighbors_k_cross: 20
     num_neighbors_k_self: 0
-    local_feature_channels: [64, 128, 256, 512, 512]
-    seq_feature_channels: [512, 512, 512]
-    dense_channels: [512, 512]
+    local_feature_channels: [512, 512, 512, 512]
+    seq_feature_channels: [512, 512, 512, 512]
+    dense_channels: [512, 6]
     pos_embedding: true
     # voxel_resolutions: [0, 0, 16, 16, 0, 0]
     activation: gelu
     normalization: layer
-  # decoder:
-  #   name: SKSDFTrans
-  #   building_block: pct_sa
+    standardize_latents: True
+    with_radius: True
   condition_embedding:
     combine_condition: injection
     condition_injection: gate_bias
@@ -32,7 +31,6 @@ model:
       type: categories
       out_channel: 128
       num_classes: 14
-    decoder: same_as_encoder
   reconstruction_losses: 
     - name: MSE
 loader:
@@ -79,7 +77,7 @@ max_epoch: 100
 write_after_iters: 10
 write_sample_num: 4
 save_after_epochs: 2
-# warmup_epochs: 1
+warmup_epochs: 1
 warmup_start_scale: 0.01
 clip_grad: 1.0
 # custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]
