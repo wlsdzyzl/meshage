@@ -37,7 +37,7 @@ def generate_sdf(skeleton, surface, resolution=0.01, k = 5):
     closest_skeleton = np.take(skeleton, axis=0, indices = idx).mean(axis = 1)
     sign = np.sign(np.einsum("bi,bi->b", grid_points - closest_surface,  closest_skeleton - closest_surface))
     sdf = (sign * dist).reshape(length, length, length)
-    return sdf
+    return sdf.astype(np.float32)
 def process(skeleton_path, surface_path, sdf_path, mesh_path, 
             normalization = True,
             resolution=0.01, 
@@ -63,7 +63,7 @@ def process(skeleton_path, surface_path, sdf_path, mesh_path,
         sdf[truncated_indices] = uniform_filter(sdf, size = 3)[truncated_indices]
         save_npy(sdf_path[:-4]+'.smooth.npy', sdf)
     save_sdf2mesh(mesh_path, sdf)
-### python generate_sdf_from_skeleton.py --surface_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/surface --skeleton_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/skeleton --sdf_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/sdf --recon_mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/output_lr/mesh_from_sdf --sdf_smoothing
+### python generate_sdf_from_skeleton.py --surface_dir /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_lr/surface --skeleton_dir /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_lr/skeleton --sdf_dir /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_lr/sdf --recon_mesh_dir /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_lr/mesh_from_sdf --sdf_smoothing
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate SDF from skeleton and surface points.")
     parser.add_argument("--skeleton_dir", type=str, required=True, help="Path to the skeleton files.")

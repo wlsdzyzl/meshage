@@ -8,19 +8,16 @@ model:
   isk_num: 4
   point_num: 5120
   skp_neighbor_num: 72
-  radius_scaling: 1.25
+  radius_scaling: 1.0
   dbscan_eps: 0.65
   dbscan_min_sample_num: 1
-  sphere:
-    method: icosphere
-    n: 12
 loader:
   dataset: 
     name: PcdDataset
-    data_dir: right
-    data_suffix: ply
+    data_dir: raw/coronary_artery_left
+    data_suffix: .ply
   data_path_list: 
-    - /media/wlsdzyzl/DATA1/datasets/pcd/imageCAS/surface
+    - //media/wlsdzyzl/DATA/datasets/pcd/MedSDF/
   batch_size: 64
   num_workers: 8
   shuffle: true
@@ -33,9 +30,9 @@ loader:
 
 custom_save_results: 
   - name: recon_sphere
-    dir: /media/wlsdzyzl/DATA1/vcg-results/skeleton/imagecas_surface/sknet/sphere/right
+    dir: /media/wlsdzyzl/DATA/vcg-results/skeleton/imagecas_surface/sknet/sphere/right
   - name: recon_skeleton
-    dir: /media/wlsdzyzl/DATA1/vcg-results/skeleton/imagecas_surface/sknet/skeleton/right
+    dir: /media/wlsdzyzl/DATA/vcg-results/skeleton/imagecas_surface/sknet/skeleton/right
   - name: radius
-    dir: /media/wlsdzyzl/DATA1/vcg-results/skeleton/imagecas_surface/sknet/skr/right
+    dir: /media/wlsdzyzl/DATA/vcg-results/skeleton/imagecas_surface/sknet/skr/right
 # eval_batch_num: 1

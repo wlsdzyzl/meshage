@@ -7,7 +7,8 @@ import math
 import argparse
 import glob
 import os
-from vcg.utils import save_sdf2mesh, space_length, truncated_value
+from vcg.utils import save_sdf2mesh
+from vcg.config import space_length, truncated_value
 
 
 logger = get_logger("script::generate_sdf_from_sdf")
@@ -20,7 +21,7 @@ def generate_sdf(sdf, resolution=0.01):
     ### 
     length = int(space_length / resolution)
     sdf = resize(sdf, (length, length, length), anti_aliasing = False, order = 3)
-    return sdf
+    return sdf.astype(np.float32)
 
 def process(input_sdf_path, output_sdf_path, 
         recon_mesh_path, resolution=0.01, sdf_smoothing = False):
@@ -36,7 +37,7 @@ def process(input_sdf_path, output_sdf_path,
         save_npy(sdf_path[:-4]+'.smooth.npy', output_sdf)
     logger.info(f"extracting mesh which will be saved to {recon_mesh_path}")
     save_sdf2mesh(recon_mesh_path, output_sdf)
-### python generate_sdf_from_mesh.py --mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet/bladder --sdf_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_SDF/bladder --recon_mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_Mesh/bladder --smoothing
+### python generate_sdf_from_mesh.py --mesh_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet/bladder --sdf_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet_SDF/bladder --recon_mesh_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet_Mesh/bladder --smoothing
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate SDF from sdf files.")
     parser.add_argument("--input_dir", type=str, required=True, help="Path to the input sdf files.")

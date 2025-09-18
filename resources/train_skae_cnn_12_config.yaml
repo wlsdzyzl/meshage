@@ -4,11 +4,13 @@ mode: train
 model:
   # can be AE, VAE, SeM and DDPM
   name: SKSDF
+  skeleton_constraints: True
+  skeleton_inter_num: 0
   encoder:
     name: SKSDFCNN
     in_channel: 3
     out_channel: 1
-    point_num: 2048
+    point_num: 2560
     building_block: res_dense
     projection_channel: 64
     num_neighbors_k_cross: 32
@@ -22,31 +24,40 @@ model:
     normalization: layer
     standardize_latents: True
     with_radius: True
+    skeleton_net_config:
+      skp_num: 256
+      isk_num: 2
+      skp_neighbor_num: 32
+      radius_scaling: 1.0
+      dbscan_eps: 0.65
+      dbscan_min_sample_num: 1
   reconstruction_losses: 
     - name: MSE
 loader:
   dataset: 
     name: PcdSDFDataset
     truncate_sdf: true
+    # coordinate_sampling_ratio: 0.1
     resolution: 0.022
     data_dir: raw/coronary_artery_left
     data_suffix: .ply
     target_dir: sdf022/coronary_artery_left
     target_suffix: _sdf.npy
-    data_path: /media/wlsdzyzl/DATA1/datasets/pcd/MedSDF/
+    data_path: /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/
   batch_size: 4
   num_workers: 8
   shuffle: true
   data_transforms:
     - name: FixedPoints
-      num: 2048
+      method: qfps
+      num: 2560
     - name: ToTensor
   target_transforms:
     - name: FixedPoints
-      num: 2048
+      num: 2560
     - name: ToTensor
-
-check_point_dir: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkResCNN_AE_C12_With_RT/
+## RTS, RC: radius constraints, Rscaling: radius scaling
+check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/coronary_artery_left/SkResCNN_AE_C12_With_RTS25_SS_Rc_wo_Rscaling_fps_2560/
 ### parameter for optimizer
 optimizer:
   name: Adam

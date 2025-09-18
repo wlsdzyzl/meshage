@@ -9,7 +9,9 @@ from flemme.utils import load_pcd, load_npy, \
 from flemme.logger import get_logger
 from flemme.dataset import pcd_dataset_dict, \
     create_loader
-from vcg.utils import resolution2coord, truncated_value
+from vcg.utils import resolution2coord
+from vcg.config import truncate_sdf, truncated_value, \
+                    train_truncate_scaling
 
 ### Point Cloud with SDF
 ### target is sdf
@@ -20,7 +22,7 @@ class PcdSDFDataset(Dataset):
                 target_transform = None, mode = 'train', data_dir = 'pcd', 
                 target_dir = 'sdf', data_suffix = '.ply', 
                 target_suffix='.npy', resolution = 0.01, 
-                filter_file = None, truncate_sdf = False, **kwargs):
+                filter_file = None, **kwargs):
         super().__init__()
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
@@ -37,7 +39,6 @@ class PcdSDFDataset(Dataset):
         self.target_path_list = [rreplace(rreplace(ppath, data_suffix, target_suffix, 1), data_dir, target_dir, 1) for ppath in self.pcd_path_list]
         self.target_transform = target_transform
         self.coord = resolution2coord(resolution)[0]
-        self.truncate_sdf = truncate_sdf
     def __len__(self):
         return len(self.pcd_path_list)
     def __getitem__(self, index):
@@ -57,10 +58,11 @@ class PcdSDFDataset(Dataset):
 
             if self.target_transform.fixed_points:
                 coord = self.coord
-                if self.truncate_sdf:
-                    coord = self.coord[np.abs(sdf) <= truncated_value * 3]
-                    sdf = sdf[np.abs(sdf) <= truncated_value * 3]
-                    # print(len(sdf))
+                abs_sdf = np.abs(sdf)
+                if truncate_sdf:
+                    sdf_filter = (abs_sdf <= truncated_value * train_truncate_scaling)
+                    coord = coord[sdf_filter]
+                    sdf = sdf[sdf_filter] / (truncated_value * train_truncate_scaling)
                 negative_sdf = sdf[sdf <= 0] 
                 positive_sdf = sdf[sdf > 0]
                 negative_coord = coord[sdf <= 0]
@@ -100,7 +102,6 @@ class PcdSDFWithClassLabelDataset(Dataset):
                  pre_shuffle = True,
                  resolution = 0.01, 
                  filter_file = None, 
-                 truncate_sdf = False,
                  **kwargs):
         super().__init__()
         if len(kwargs) > 0:
@@ -120,7 +121,7 @@ class PcdSDFWithClassLabelDataset(Dataset):
         if filter_file is not None:
             filter_dict = load_config(filter_file)
         for cls_dir in class_dirs:
-            sub_path_list = sorted(glob.glob(os.path.join(data_path, data_dir, cls_dir,  "*" + data_suffix)))
+            sub_path_list = sorted(glob.glob(os.path.join(data_path, data_dir, cls_dir, "*" + data_suffix)))
             if filter_dict:
                 filter_list = filter_dict[cls_dir]
                 sub_path_list = [p for p in sub_path_list if contains_one_of(p, filter_list)]
@@ -159,9 +160,11 @@ class PcdSDFWithClassLabelDataset(Dataset):
 
             if self.target_transform.fixed_points:
                 coord = self.coord
-                if self.truncate_sdf:
-                    coord = self.coord[np.abs(sdf) <= truncated_value * 3]
-                    sdf = sdf[np.abs(sdf) <= truncated_value * 3]
+                abs_sdf = np.abs(sdf)
+                if truncate_sdf:
+                    sdf_filter = (abs_sdf <= truncated_value * train_truncate_scaling)
+                    coord = coord[sdf_filter]
+                    sdf = sdf[sdf_filter] / (truncated_value * train_truncate_scaling)
                 negative_sdf = sdf[sdf <= 0] 
                 positive_sdf = sdf[sdf > 0]
                 negative_coord = coord[sdf <= 0]

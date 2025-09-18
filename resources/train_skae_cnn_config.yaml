@@ -8,7 +8,7 @@ model:
     name: SKSDFCNN
     in_channel: 3
     out_channel: 1
-    point_num: 2048
+    point_num: 2560
     building_block: res_dense
     projection_channel: 64
     num_neighbors_k_cross: 32
@@ -27,26 +27,28 @@ model:
 loader:
   dataset: 
     name: PcdSDFDataset
-    truncate_sdf: true
+    # truncate_sdf: true
+    coordinate_sampling_ratio: 0.1
     resolution: 0.022
     data_dir: raw/coronary_artery_left
     data_suffix: .ply
     target_dir: sdf022/coronary_artery_left
     target_suffix: _sdf.npy
-    data_path: /media/wlsdzyzl/DATA1/datasets/pcd/MedSDF/
+    data_path: /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/
   batch_size: 4
   num_workers: 8
   shuffle: true
   data_transforms:
     - name: FixedPoints
-      num: 2048
+      method: qfps
+      num: 2560
     - name: ToTensor
   target_transforms:
     - name: FixedPoints
-      num: 2048
+      num: 2560
     - name: ToTensor
 
-check_point_dir: /media/wlsdzyzl/DATA1/vcg-ckp/coronary_artery_left/SkResCNN_AE_C6_With_RT/
+check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/coronary_artery_left/SkResCNN_AE_C6_With_RT/
 ### parameter for optimizer
 optimizer:
   name: Adam

@@ -1,0 +1,58 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: LDM
+  diffusion:
+    name: EDM
+    eps_model:
+      time_channel: 128
+      encoder:
+        name: SeqTrans
+        in_channel: 16
+        point_num: 256
+        building_block: pct_sa
+        seq_feature_channels: [512, 512, 512, 512, 512, 512]
+        num_heads: 8
+        d_k: 64
+        activation: gelu
+        normalization: layer
+        # channel_attention: eca
+        # vector_embedding: false
+    eps_loss:
+      name: MSE
+  autoencoder:
+    name: SKSDF
+    coordinate_sampling_ratio: 0.1
+    encoder:
+      name: SKSDFCNN
+      in_channel: 3
+      out_channel: 1
+      point_num: 2560
+      building_block: res_dense
+      projection_channel: 64
+      num_neighbors_k_cross: 32
+      num_neighbors_k_self: 0
+      local_feature_channels: [512, 512, 512, 512]
+      seq_feature_channels: [512, 512, 512, 512]
+      dense_channels: [512, 12]
+      pos_embedding: true
+      # voxel_resolutions: [0, 0, 16, 16, 0, 0]
+      activation: gelu
+      normalization: layer
+      standardize_latents: True
+      with_radius: True
+    reconstruction_losses: 
+      - name: MSE
+    
+model_path:
+  diff_model: /media/wlsdzyzl/DATA/vcg-ckp/coronary_artery_left/SeqTrans_Occupancy/ckp_last.pth
+  ae_model: /media/wlsdzyzl/DATA/vcg-ckp/coronary_artery_left/SkResCNN_Occupancy/ckp_best_loss.pth
+eval_gen:
+  sampler:
+    name: NormalSampler
+    batch_size: 2
+  gen_dir: /media/wlsdzyzl/DATA/vcg-results/gen/icoronary_artery_left/LDM_EDM_Occ
+  ### new generation from random noise
+  random_sample_num: 64

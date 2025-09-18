@@ -1,13 +1,8 @@
 import numpy as np
 from flemme.utils import save_ply
-
 import mcubes
-min_r = 0.007
-max_r = 0.12
-center_r = (max_r - min_r) / 2.0
-scaling_r = 2.0 / (max_r - min_r)
-space_length = 2.2
-truncated_value = 0.1
+from vcg.config import *
+
 def load_skeleton(sk_path):
     sk = np.load(sk_path)
     r = None
@@ -31,12 +26,18 @@ def radius_inv_normalize(data):
     return data / scaling_r + center_r
 
 def save_sdf2mesh(save_path, sdf, threshold=0.0):
-    vertices, triangles = mcubes.marching_cubes(sdf, isovalue = threshold, truncated_value = truncated_value)
+    vertices, triangles = mcubes.marching_cubes(sdf, isovalue = threshold, 
+        truncated_value = truncated_value)
+    vertices = (vertices + 0.5) / sdf.shape[0] * space_length - space_length / 2.0
+    save_ply(save_path, vertices, faces = triangles)
+
+def save_occ2mesh(save_path, sdf):
+    vertices, triangles = mcubes.marching_cubes(sdf, isovalue = 0.5)
     vertices = (vertices + 0.5) / sdf.shape[0] * space_length - space_length / 2.0
     save_ply(save_path, vertices, faces = triangles)
 
 def resolution2coord(resolution):
     length = int(space_length / resolution)
-    x, y, z = ((np.mgrid[:length, :length, :length] - length / 2 + 0.5 ) * resolution).astype(np.float32)
+    x, y, z = ((np.mgrid[:length, :length, :length] - length / 2 + 0.5 ) * resolution)
     coord = np.stack((x, y, z), axis=-1).reshape(-1, 3)
     return coord, length

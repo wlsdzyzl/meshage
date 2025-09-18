@@ -6,7 +6,8 @@ from scipy.ndimage import uniform_filter
 import argparse
 import glob
 import os
-from vcg.utils import save_sdf2mesh, truncated_value, resolution2coord
+from vcg.utils import save_sdf2mesh, resolution2coord
+from vcg.config import truncated_value
 from trimesh.smoothing import filter_laplacian
 
 logger = get_logger("script::generate_sdf_from_mesh")
@@ -37,7 +38,7 @@ def generate_sdf(surface, normals, resolution=0.01):
     # sign[np.abs(dist) > 0.1] = 0
     # sign[ np.abs(dot_prod) < math.cos(math.radians(max_degree))] = 1.0
     sdf = (sign * dist).reshape(length, length, length)
-    return sdf
+    return sdf.astype(np.float32)
 
 def process(mesh_path, sdf_path, recon_mesh_path, resolution=0.01, 
     mesh_smoothing=False, sdf_smoothing = False, 
@@ -70,7 +71,7 @@ def process(mesh_path, sdf_path, recon_mesh_path, resolution=0.01,
         logger.info(f"extracting mesh which will be saved to {recon_mesh_path}")
         save_sdf2mesh(recon_mesh_path, sdf)
     return mesh.is_watertight
-### python generate_sdf_from_mesh.py --mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet/bladder --sdf_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_SDF/bladder --recon_mesh_dir /media/wlsdzyzl/DATA1/datasets/pcd/MedShapeNet_Mesh/bladder --smoothing
+### python generate_sdf_from_mesh.py --mesh_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet/bladder --sdf_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet_SDF/bladder --recon_mesh_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet_Mesh/bladder --smoothing
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate SDF from mesh files.")
     parser.add_argument("--mesh_dir", type=str, required=True, help="Path to the mesh files.")

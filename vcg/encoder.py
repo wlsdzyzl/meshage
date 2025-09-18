@@ -4,10 +4,11 @@ import torch.nn as nn
 from flemme.block import QueryAndGroup, MultipleBuildingBlocks, \
                     GroupSeqModelingLayer, get_building_block, \
                     channel_transfer, channel_recover, \
-                    LocalGraphLayer, PositionEmbeddingBlock
+                    LocalGraphLayer, PositionEmbeddingBlock, \
+                    ScaleShiftBlock
 from flemme.encoder import PointEncoder, SeqNetDecoder, \
         SeqTransDecoder, SeqMambaDecoder
-from flemme.utils import DataForm, normalize
+from flemme.utils import DataForm
 from flemme.logger import get_logger
 
 from .sknet import SkeletonNet
@@ -17,6 +18,7 @@ logger = get_logger("skeleton_encoder")
 
 class SkeletonEncoder(PointEncoder):
     def __init__(self, point_dim,
+                 point_num,
                  projection_channel,
                  num_neighbors_k_self,
                  num_neighbors_k_cross, 
@@ -69,14 +71,21 @@ class SkeletonEncoder(PointEncoder):
             else:
                 self.pos_embed = nn.Linear(3, projection_channel)
                 logger.info("Using point cloud positional embedding.")
+        self.point_num = point_num
+        skeleton_net_config['point_num'] = point_num
         self.skeletonize = SkeletonNet(skeleton_net_config)
         ## 4 dim: xyzr
-
+        
         self.sk_proj = nn.Linear(3 + with_radius, projection_channel)
         self.query_and_group = QueryAndGroup(num_neighbors_k_cross, knn_query='feature')
         self.out_channel += (3 + with_radius)
         self.with_radius = with_radius
         self.standardize_latents = standardize_latents
+        if self.standardize_latents:
+            # self.normalize = partial(normalize, channel_dim = -1, batch = True)
+            self.normalize = nn.Sequential(nn.Linear(dense_channels[-1], dense_channels[-1]),
+                        nn.LayerNorm((self.skeletonize.skp_num, dense_channels[-1]), 
+                        elementwise_affine = False, bias = False))
     def group_surface_to_skeleton(self, layer_id, pos, pos_emb, sk, sk_emb, sff, skf, c):
         sff_trans = channel_recover(sff)
         skf_trans = channel_recover(skf)
@@ -146,8 +155,9 @@ class SkeletonEncoder(PointEncoder):
 
         ## compute embedding vectors
         x = self.dense(x, c = c)
+        ### without activation
         if self.standardize_latents:
-            x = normalize(x, channel_dim = -1, batch = True)
+            x = self.normalize(x)
         if self.with_radius:
             return torch.cat((sk, r, x), dim = -1)
         else:
@@ -155,6 +165,7 @@ class SkeletonEncoder(PointEncoder):
 
 class SkeletonCNNEncoder(SkeletonEncoder):
     def __init__(self, point_dim=3, 
+                 point_num = 2560,
                  projection_channel = 64,
                  num_neighbors_k_self = 0, 
                  num_neighbors_k_cross = 32,
@@ -179,6 +190,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                  standardize_latents = False,
                  **kwargs):
         super().__init__(point_dim=point_dim, 
+                point_num=point_num,
                 projection_channel = projection_channel,
                 num_neighbors_k_self=num_neighbors_k_self,
                 num_neighbors_k_cross=num_neighbors_k_cross, 
@@ -250,6 +262,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
 
 class SkeletonTransEncoder(SkeletonEncoder):
     def __init__(self, point_dim=3, 
+                    point_num=2560,
                     projection_channel = 64,
                     num_neighbors_k_self=0,
                     num_neighbors_k_cross=32, 
@@ -275,6 +288,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
                     standardize_latents = False,
                     **kwargs):
         super().__init__(point_dim=point_dim, 
+                point_num=point_num,
                 projection_channel = projection_channel,
                 num_neighbors_k_self=num_neighbors_k_self,
                 num_neighbors_k_cross=num_neighbors_k_cross, 
@@ -350,6 +364,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
 
 class SkeletonMambaEncoder(SkeletonEncoder):
     def __init__(self, point_dim=3, 
+                point_num=2560,
                 projection_channel = 64,
                 num_neighbors_k_self=0,
                 num_neighbors_k_cross=32, 
@@ -382,6 +397,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                 standardize_latents = False,
                 **kwargs):
         super().__init__(point_dim=point_dim, 
+                point_num=point_num,
                 projection_channel = projection_channel,
                 num_neighbors_k_self=num_neighbors_k_self,
                 num_neighbors_k_cross=num_neighbors_k_cross, 
@@ -468,6 +484,7 @@ class SkeletonSDFDecoder(SeqNetDecoder):
                 projection_channel = 256, 
                 latent_channel = 256,
                 latent_injection = 'cross_atten',
+                skp_num = 256,
                 num_blocks = 2,
                 building_block = 'dense', seq_feature_channels = [], 
                 normalization = 'group', num_norm_groups = 8, 
@@ -475,6 +492,8 @@ class SkeletonSDFDecoder(SeqNetDecoder):
                 condition_channel = 0,
                 condition_injection = 'gate_bias',
                 condition_first = False,
+                with_radius = False,
+                standardize_latents = False,
                 **kwargs):
         super().__init__(point_dim = point_dim,
             latent_channel = projection_channel,
@@ -495,122 +514,26 @@ class SkeletonSDFDecoder(SeqNetDecoder):
         self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
                     out_channel = projection_channel,
                     activation = activation)
+        self.with_radius = with_radius
+        self.standardize_latents = standardize_latents
+        if standardize_latents:
+            self.scale_shift = ScaleShiftBlock((skp_num, latent_channel - 3 - with_radius))
     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
     def forward(self, latent, coordinate, c = None):
         ### use cross attention to compute coordinate and local feature
+        if self.standardize_latents:
+            latent = torch.concat((latent[..., :3 + self.with_radius], 
+                self.scale_shift(latent[..., 3 + self.with_radius:])), dim = -1)
         coord_feature = self.coord_proj(coordinate)
         res = super().forward(coord_feature, t = latent, c = c)
         return res
 
-# class SkeletonSDFTransDecoder(SeqTransDecoder):
-#     def __init__(self, point_dim=1, projection_channel = 256, 
-#                 latent_channel = 256,
-#                 latent_injection = 'cross_atten',
-#                 num_blocks = 2,
-#                 building_block = 'pct_sa', seq_feature_channels = [], 
-#                 normalization = 'group', num_norm_groups = 8, 
-#                 activation = 'lrelu', dropout = 0., 
-#                 num_heads = 4, d_k = None, 
-#                 qkv_bias = True, qk_scale = None, atten_dropout = None, 
-#                 mlp_hidden_ratios=[4.0, 4.0], 
-#                 condition_channel = 0,
-#                 condition_injection = 'gate_bias',
-#                 condition_first = False,
-#                 **kwargs):
-#         super().__init__(point_dim = point_dim,
-#             latent_channel = projection_channel,
-#             time_channel = latent_channel,
-#             time_injection = latent_injection,
-#             num_blocks = num_blocks,
-#             building_block = building_block,
-#             seq_feature_channels = seq_feature_channels,
-#             normalization = normalization,
-#             num_norm_groups = num_norm_groups,
-#             activation = activation,
-#             dropout = dropout, 
-#             num_heads = num_heads, d_k = d_k, 
-#             qkv_bias = qkv_bias, qk_scale = qk_scale, 
-#             atten_dropout = atten_dropout, 
-#             mlp_hidden_ratios=mlp_hidden_ratios, 
-#             condition_channel = condition_channel,
-#             condition_injection = condition_injection,
-#             condition_first = condition_first,
-#             )
-
-#         # self.out_point_dim = point_dim
-#         self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
-#                     out_channel = projection_channel,
-#                     activation = activation)
-#     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
-#     def forward(self, latent, coordinate, c = None):
-#         ### use cross attention to compute coordinate and local feature
-#         coord_feature = self.coord_proj(coordinate)
-#         res = super().forward(coord_feature, t = latent, c = c)
-#         return res
-
-# class SkeletonSDFMambaDecoder(SeqMambaDecoder):
-#     def __init__(self, point_dim=1, projection_channel = 256, 
-#                 latent_channel = 256,
-#                 latent_injection = 'cross_atten',
-#                 num_blocks = 2,
-#                 building_block = 'pmamba', seq_feature_channels = [], 
-#                 normalization = 'group', num_norm_groups = 8, 
-#                 activation = 'lrelu', dropout = 0.,
-#                 state_channel = 64, 
-#                 conv_kernel_size = 4, inner_factor = 2.0,  
-#                 head_channel = 64,
-#                 conv_bias=True, bias=False,
-#                 learnable_init_states = True, chunk_size=256,
-#                 dt_min=0.001, A_init_range=(1, 16),
-#                 dt_max=0.1, dt_init_floor=1e-4, 
-#                 dt_rank = None, dt_scale = 1.0,
-#                 mlp_hidden_ratios=[4.0, 4.0], 
-#                 condition_channel = 0,
-#                 condition_injection = 'gate_bias',
-#                 condition_first = False,
-#                 **kwargs):
-#         super().__init__(point_dim = point_dim,
-#             latent_channel = projection_channel,
-#             time_channel = latent_channel,
-#             time_injection = latent_injection,
-#             num_blocks = num_blocks,
-#             building_block = building_block,
-#             seq_feature_channels = seq_feature_channels,
-#             normalization = normalization,
-#             num_norm_groups = num_norm_groups,
-#             activation = activation,
-#             dropout = dropout, 
-#             state_channel = state_channel, 
-#             conv_kernel_size = conv_kernel_size, 
-#             inner_factor = inner_factor,  
-#             head_channel = head_channel,
-#             conv_bias=conv_bias, bias=bias,
-#             learnable_init_states = learnable_init_states, 
-#             chunk_size=chunk_size,
-#             dt_min=dt_min, A_init_range=A_init_range,
-#             dt_max=dt_max, dt_init_floor=dt_init_floor, 
-#             dt_rank = dt_rank, dt_scale = dt_scale,
-#             mlp_hidden_ratios=mlp_hidden_ratios, 
-#             condition_channel = condition_channel,
-#             condition_injection = condition_injection,
-#             condition_first = condition_first,
-#             )
-
-#         # self.out_point_dim = point_dim
-#         self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
-#                     out_channel = projection_channel,
-#                     activation = activation)
-#     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
-#     def forward(self, latent, coordinate, c = None):
-#         ### use cross attention to compute coordinate and local feature
-#         coord_feature = self.coord_proj(coordinate)
-#         res = super().forward(coord_feature, t = latent, c = c)
-#         return res
-    
 supported_skeleton_encoders = {}
 supported_skeleton_encoders['SKSDFCNN'] = (SkeletonCNNEncoder, SkeletonSDFDecoder)
 supported_skeleton_encoders['SKSDFTrans'] = (SkeletonTransEncoder, SkeletonSDFDecoder)
 supported_skeleton_encoders['SKSDFMamba'] = (SkeletonMambaEncoder, SkeletonSDFDecoder)
+
+supported_flemme_encoders = ['SeqNet', 'SeqTrans', 'SeqMamba']
 
 supported_buildingblocks_for_encoder = {}
 supported_buildingblocks_for_encoder['SKSDFCNN'] = ['dense', 'double_dense', 'res_dense', 'fc', 'double_fc', 'res_fc']
@@ -620,7 +543,7 @@ supported_buildingblocks_for_encoder['SKSDFMamba'] = ['pmamba', 'pmamba2']
 def create_skeleton_encoder(encoder_config, return_encoder = True, return_decoder = True):
         encoder_name = encoder_config.pop('name')
         if not encoder_name in supported_skeleton_encoders:
-            logger.error(f'Unsupported encoder: {encoder_name}')
+            logger.error(f'Unsupported encoder: {encoder_name}, should be one of {supported_skeleton_encoders.keys()}')
             exit(1)        
         Encoder, Decoder = supported_skeleton_encoders[encoder_name]
         building_block = encoder_config.pop('building_block', 'single')
@@ -641,13 +564,14 @@ def create_skeleton_encoder(encoder_config, return_encoder = True, return_decode
         encoder, decoder = None, None
         logger.info('Model is constructed for point cloud.')
         #### point cloud encoder
-        point_num = encoder_config.pop('point_num', 2048)
+        point_num = encoder_config.pop('point_num', 2560)
         voxel_resolutions = encoder_config.pop('voxel_resolutions', [])
         dense_channels = encoder_config.pop('dense_channels', [256, 256])
         assert type(voxel_resolutions) == list, "voxel_resolutions should be a list."
         assert type(dense_channels) == list, "dense_channels should be a list."
         if not return_encoder:
             latent_channel = encoder_config.pop('latent_channel', None)
+            skp_num = encoder_config.pop('skp_num', 256)
             assert latent_channel is not None, "Input channel of decoder (latent_channel) is not specified."
         ## 0: without using local graph
         local_feature_channels = encoder_config.pop('local_feature_channels', [64, 128, 256])  
@@ -656,20 +580,34 @@ def create_skeleton_encoder(encoder_config, return_encoder = True, return_decode
         assert isinstance(seq_feature_channels, list), 'feature channels should be a list.'
         if return_encoder:
             encoder = Encoder(point_dim=in_channel, 
-                                        local_feature_channels=local_feature_channels, 
-                                        dense_channels=dense_channels, 
-                                        building_block=building_block,
-                                        voxel_resolutions = voxel_resolutions,
-                                        **encoder_config)
+                              point_num=point_num,
+                            local_feature_channels=local_feature_channels, 
+                            dense_channels=dense_channels, 
+                            building_block=building_block,
+                            voxel_resolutions = voxel_resolutions,
+                            **encoder_config)
             latent_channel = encoder.out_channel
-            encoder.point_num = point_num
+            skp_num = encoder.skeletonize.skp_num
             encoder.data_form = DataForm.PCD
             encoder.channel_dim = -1
             encoder.feature_channel_dim = -1
         if return_decoder:
             decoder = Decoder(point_dim=out_channel, 
                                         latent_channel = latent_channel,
+                                        skp_num = skp_num,
                                         seq_feature_channels = seq_feature_channels,
                                         building_block=decoder_building_block,
                                         **encoder_config)
         return encoder, decoder
+# def create_encoder(encoder_config, return_encoder = True, return_decoder = True):
+#     if encoder_config['name'] in supported_skeleton_encoders:
+#         return create_skeleton_encoder(encoder_config, 
+#             return_encoder = return_encoder, 
+#             return_decoder = return_decoder)
+#     elif encoder_config['name'] in supported_flemme_encoders:
+#         return _create_encoder(encoder_config, 
+#             return_encoder = return_encoder, 
+#             return_decoder = return_decoder)
+#     else:
+#         logger.error(f'Unsupported encoder: {encoder_config["name"]}, should be one of {list(supported_skeleton_encoders.keys()) + supported_flemme_encoders}')
+#         exit(1)

@@ -1,11 +1,12 @@
 from vcg.sknet import SkeletonNet #, LearnableSkeletonNet
 from vcg.sk_sdf import SkeletonSDF
 from vcg.encoder import create_skeleton_encoder
-from vcg.utils import save_sdf2mesh
-from flemme.model import create_model as _create_model, EDM, LDM
+from vcg.utils import save_sdf2mesh, save_occ2mesh
+from vcg.config import truncated_value, train_truncate_scaling, use_occupancy
+from flemme.model import create_model as _create_model, EDM, LDM, supported_ae_models
 from flemme.logger import get_logger
 from flemme.trainer import save_data as _save_data
-from flemme.utils import save_npy
+from flemme.utils import save_npy, DataForm
 import torch
 import numpy as np
 
@@ -18,12 +19,8 @@ supported_skeleton_models = {
     'SKNet': SkeletonNet,
     # 'LSKNet': LearnableSkeletonNet,
     'SKSDF': SkeletonSDF}
-supported_flemme_models = {
-    ### edm: Elucidating the Design Space of Diffusion-Based Generative Models
-    'EDM': EDM,
-    #### latent diffusion model: diffusion model with a pre-trained auto-encoder
-    'LDM': LDM,
-    }
+supported_flemme_models = ['Base', 'EDM', 'LDM']
+supported_ae_models.append('SKSDF')
 def process_input(t):
     x, c, coord, sdf, p = None, None, None, None, None
     if len(t) == 2:
@@ -67,16 +64,18 @@ def forward_pass(model, x, coord, c, **kwargs):
     else:
         res = model(x, **kwargs)
     return res
+
+
 def create_model(model_config):
-    if model_config['name'] in supported_skeleton_models:
+    model_name = model_config.get('name', 'Base')
+    if model_name in supported_skeleton_models:
         return _create_model(model_config, 
-                             supported_models = supported_skeleton_models,
+                             supported_underlying_models = supported_skeleton_models,
                              create_encoder_fn = create_skeleton_encoder)
-    elif model_config['name'] in supported_flemme_models:
-        return _create_model(model_config, 
-                             supported_models = supported_flemme_models)
+    elif model_name in supported_flemme_models:
+        return _create_model(model_config, create_model_fn = create_model)
     else:
-        logger.error("Model {} is not supported.".format(model_config['name']))
+        logger.error(f'Unsupported model class: {model_name}, should be one of {list(supported_skeleton_models.keys()) + supported_flemme_models}')
         exit(1)
     
 def train_run(model, t, only_forward = False):
@@ -139,7 +138,11 @@ def save_data(output, data_form, output_path):
         output = output.squeeze(-1)
         length = int(np.cbrt(output.shape[0]))
         output = output.reshape((length, length, length))
-        save_npy(output_path+'.npy', output)
-        save_sdf2mesh(output_path+'.ply', output)
+        if use_occupancy:
+            output = output > 0
+            save_occ2mesh(output_path+'.ply', output)
+        else:
+            output = output * truncated_value * train_truncate_scaling
+            save_sdf2mesh(output_path+'.ply', output)
     else:
         _save_data(output, data_form, output_path)

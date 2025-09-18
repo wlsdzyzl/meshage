@@ -68,27 +68,6 @@ class SkeletonizationBlock(nn.Module):
         neighbor_weights = idx_mask.unsqueeze(-1)
         # B, N, K, 1
         neighbor_weights = neighbor_weights / (neighbor_weights.sum(dim = -2, keepdim = True) + 1e-7) 
-        if False:
-            neighbor_mean = (neighbors * neighbor_weights).sum(dim = -2, keepdim = True)
-            # print(neighbor_weights, neighbors)
-            diff = (neighbors - neighbor_mean).reshape(-1, 3).unsqueeze(-1)
-            # cov: B*N*K, 3, 3
-            cov = torch.bmm(diff, diff.transpose(1, 2).contiguous())
-            # cov: B, N, K, 3, 3
-            cov = cov.reshape(B, N, self.num_neighbor, 3, 3)
-            cov_weights = neighbor_weights.unsqueeze(-1)
-            # cov: B, N, 3, 3
-            cov = (cov_weights * cov).sum(dim = -3)
-            evalues = torch.linalg.eigvalsh(cov)
-            # lambda0 = evalues[..., 2]
-            lambda1 = evalues[..., 1]
-            # lambda2 = evalues[..., 0]
-            radius = (lambda1**0.5).unsqueeze(-1)
-
-            idx_mask = ((dist - 3 * radius) <= 0).float() * idx_mask
-            neighbor_weights = idx_mask.unsqueeze(-1)
-            neighbor_weights = neighbor_weights / (neighbor_weights.sum(dim = -2, keepdim = True) + 1e-7) 
         new_centers = (neighbors * neighbor_weights).sum(dim = -2)
-        radius = (dist.unsqueeze(-1) * neighbor_weights).sum(dim = -2)
-        return new_centers, radius
+        return new_centers
     

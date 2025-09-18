@@ -1,0 +1,9 @@
+min_r = 0.007
+max_r = 0.12
+center_r = (max_r - min_r) / 2.0
+scaling_r = 2.0 / (max_r - min_r)
+space_length = 2.2
+truncated_value = 0.1
+train_truncate_scaling = 2.5
+truncate_sdf = True
+use_occupancy = False

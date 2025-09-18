@@ -9,7 +9,7 @@ model:
     name: SKSDFTrans
     in_channel: 3
     out_channel: 1
-    point_num: 2048
+    point_num: 2560
     building_block: pct_sa
     projection_channel: 64
     # num_neighbors_k_cross: 20
@@ -44,17 +44,18 @@ loader:
     target_dir: sdf022
     target_suffix: _sdf.npy
     cls_label: MedSDF
-    data_path: /media/wlsdzyzl/DATA1/datasets/pcd/MedSDF/
+    data_path: /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/
   batch_size: 1
   num_workers: 8
   shuffle: true
   data_transforms:
     - name: FixedPoints
-      num: 2048
+      method: qfps
+      num: 2560
     - name: ToTensor
   target_transforms:
     - name: FixedPoints
-      num: 2048
+      num: 2560
     - name: ToTensor
   class_label_transforms:
     - name: Relabel
@@ -62,7 +63,7 @@ loader:
     - name: ToOneHot
       num_classes: 14
     - name: ToTensor
-check_point_dir: /media/wlsdzyzl/DATA1/vcg-ckp/MedSDF/SkTrans_AE/
+check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/MedSDF/SkTrans_AE/
 resume: true
 ### parameter for optimizer
 optimizer:

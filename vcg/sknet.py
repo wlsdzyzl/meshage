@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from flemme.model import AE
-from flemme.loss import SinkhornLoss
+# import torch.nn.functional as F
+# from flemme.model import AE
+# from flemme.loss import SinkhornLoss
 from flemme.logger import get_logger
 from knn_cuda import KNN
 from flemme.block.pcd_utils import furthest_point_sample, gather_features
@@ -27,16 +27,18 @@ class SkeletonNet(nn.Module):
         self.sklnz = SkeletonizationBlock(num_neighbor=self.skp_neighbor_num,
                                 dbscan_eps = self.dbscan_eps,
                                 dbscan_min_sample_num = self.dbscan_min_sample_num)
-        self.skp_neighbor_num_2nd = int(self.skp_neighbor_num * self.skp_num * 4/ self.point_num )
+        self.skp_neighbor_num_2nd = int(self.skp_neighbor_num * self.skp_num * 4 / self.point_num )
         # print(self.skp_neighbor_num, self.skp_neighbor_num_2nd)
         self.sklnz2 = SkeletonizationBlock(num_neighbor=self.skp_neighbor_num_2nd)
-        sphere_config = model_config.pop('sphere', {})
-        self.sphere = Sphere(**sphere_config)
-        self.radius_scaling = model_config.pop('radius_scaling', 1.5)
+        self.radius_scaling = model_config.pop('radius_scaling', 1.0)
         self.is_conditional = False 
         self.is_supervised = False 
         self.is_generative = False
         self.data_form = DataForm.PCD
+        self.knn = KNN(k = 4, transpose_mode=True)
+        sphere_config = model_config.pop('sphere', None)
+        if sphere_config:
+            self.sphere = Sphere(**sphere_config)
     def get_input_shape(self):
         return [self.point_num, 3]      
     def forward(self, xyz, **kwargs):
@@ -46,30 +48,30 @@ class SkeletonNet(nn.Module):
         centers = gather_features(xyz, index = sample_ids, 
             channel_dim = -1, gather_dim = 1)
         for _ in range(self.isk_num):
-            centers, radius = self.sklnz(centers, xyz)
+            centers = self.sklnz(centers, xyz)
                
 
         ### second skeletonization       
-        xyz = centers  
-        sample_ids = furthest_point_sample(xyz, self.skp_num)
-        centers = gather_features(xyz, index = sample_ids, 
-            channel_dim = -1, gather_dim = 1)
-        radius = gather_features(radius, index = sample_ids, 
+        new_xyz = centers  
+        sample_ids = furthest_point_sample(new_xyz, self.skp_num)
+        centers = gather_features(new_xyz, index = sample_ids, 
             channel_dim = -1, gather_dim = 1)
         for _ in range(self.isk_num):
-            centers, _radius = self.sklnz2(centers, xyz)  
-        radius = radius + _radius
-
+            centers = self.sklnz2(centers, new_xyz)  
+        ### compute radius from the 4 nearest neighbors
+        # (B, N, k)
+        dist, _ = self.knn(xyz, centers)
+        radius = dist.mean(dim = -1, keepdim = True)
         radius = radius * self.radius_scaling
-        sphere_points = self.sphere.get_batch_sphere_points(centers, radius)
         res = {
             'recon_skeleton': centers,
-            'recon_sphere': sphere_points,
             'radius': radius
         }
+        if hasattr(self, 'sphere'):
+            sphere_points = self.sphere.get_batch_sphere_points(centers, radius)
+            res['recon_sphere'] = sphere_points
         return res
-    
-# class SkeletonGraphNet(SkeletonNet):
+# class VoronoiSkeleton(nn.Module):
     
 ## skeleton extraction from local graph
 # class LearnableSkeletonNet(AE):

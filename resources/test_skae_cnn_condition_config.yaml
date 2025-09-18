@@ -1,28 +1,35 @@
 # train ae or vae
 #### a template for pcd encoder
-# determinstic: true
-mode: train
+mode: test
 model:
   # can be AE, VAE, SeM and DDPM
   name: SKSDF
+  coordinate_sampling_ratio: 0.1
   encoder:
     name: SKSDFCNN
     in_channel: 3
     out_channel: 1
     point_num: 2560
-    building_block: dense
+    building_block: res_dense
     projection_channel: 64
-    num_neighbors_k_cross: 20
+    num_neighbors_k_cross: 32
     num_neighbors_k_self: 0
     local_feature_channels: [512, 512, 512, 512]
     seq_feature_channels: [512, 512, 512, 512]
-    dense_channels: [512, 6]
+    dense_channels: [512, 12]
     pos_embedding: true
     # voxel_resolutions: [0, 0, 16, 16, 0, 0]
     activation: gelu
     normalization: layer
     standardize_latents: True
     with_radius: True
+    skeleton_net_config:
+      skp_num: 256
+      isk_num: 2
+      skp_neighbor_num: 32
+      radius_scaling: 1.0
+      dbscan_eps: 0.65
+      dbscan_min_sample_num: 1
   condition_embedding:
     combine_condition: injection
     condition_injection: gate_bias
@@ -30,20 +37,20 @@ model:
       name: OneHot
       type: categories
       out_channel: 128
-      num_classes: 14
+      num_classes: 2
   reconstruction_losses: 
     - name: MSE
 loader:
   dataset: 
     name: PcdSDFWithClassLabelDataset
     resolution: 0.022
-    data_dir: raw
+    data_dir: surface
     data_suffix: .ply
     target_dir: sdf022
     target_suffix: _sdf.npy
-    cls_label: MedSDF
-    data_path: /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/
-  batch_size: 8
+    cls_label: ImageCAS
+    data_path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized
+  batch_size: 3
   num_workers: 8
   shuffle: true
   data_transforms:
@@ -52,33 +59,21 @@ loader:
       num: 2560
     - name: ToTensor
   target_transforms:
-    - name: FixedPoints
-      num: 2560
     - name: ToTensor
   class_label_transforms:
     - name: Relabel
       offset: -1
     - name: ToOneHot
-      num_classes: 14
+      num_classes: 2
     - name: ToTensor
-check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/MedSDF/SkResCNN_AE_C12_With_RTS_SS/
-resume: true
-### parameter for optimizer
-optimizer:
-  name: Adam
-  lr: 0.0001
-  weight_decay: 0.00000001
-### scheduler for learning rate
-lr_scheduler: 
-  name: LinearLR
-  start_factor: 1.0
-  end_factor: 0.01
-# resume: True
-max_epoch: 100
-write_after_iters: 10
-write_sample_num: 4
-save_after_epochs: 2
-warmup_epochs: 1
-warmup_start_scale: 0.01
-clip_grad: 1.0
-# custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]
+pickle_results: True
+
+
+model_path: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkResCNN_AE_C12_Dilated_Coronary_Condition/ckp_best_loss.pth
+recon_dir: /media/wlsdzyzl/DATA/vcg-results/coronary_artery_left/sdf_mesh/SkResCNN_AE_C12_Dilated_Coronary_Condition
+
+custom_save_results: 
+  - name: latent
+    dir: /media/wlsdzyzl/DATA/vcg-results/coronary_artery_left/latent/SkResCNN_AE_C12_Dilated_Coronary_Condition
+  - name: skeleton
+    dir: /media/wlsdzyzl/DATA/vcg-results/coronary_artery_left/skeleton/SkResCNN_AE_C12_Dilated_Coronary_Condition
