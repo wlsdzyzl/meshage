@@ -5,6 +5,7 @@ model:
   # can be AE, VAE, SeM and DDPM
   name: SKSDF
   skeleton_constraints: True
+  skeleton_inter_num: 2
   encoder:
     name: SKSDFCNN
     in_channel: 3
@@ -69,7 +70,7 @@ loader:
       num_classes: 2
     - name: ToTensor
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkResCNN_AE_C12_Dilated_Coronary_Condition_NewR/
+check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkResCNN_AE_C12_Dilated_Coronary_Condition_NewR_Inter2/
 ### parameter for optimizer
 optimizer:
   name: Adam

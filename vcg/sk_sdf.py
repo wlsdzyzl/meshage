@@ -30,7 +30,7 @@ class SkeletonSDF(AE):
     def decode(self, z, coord = None, c = None):
         z, c = self.parse_decoder_condition(z, c)
         if coord is None:
-            coord = torch.from_numpy(np.stack((resolution2coord(self.resolution)[0], ) * z.shape[0])).to(z.device)
+            coord = torch.from_numpy(np.stack((resolution2coord(self.resolution)[0], ) * z.shape[0]).astype(np.float32)).to(z.device)
         if self.coordinate_sampling_ratio < 1.0:
             ske = z[..., :3]
             dist, _ = self.knn(ske, coord)

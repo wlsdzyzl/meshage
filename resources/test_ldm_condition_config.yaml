@@ -6,6 +6,9 @@ model:
   name: LDM
   diffusion:
     name: EDM
+    classifier_free_guidance:
+      condition_dropout: 0.2
+      guidance_weight: 2.0
     eps_model:
       time_channel: 128
       encoder:
@@ -18,12 +21,21 @@ model:
         d_k: 64
         activation: gelu
         normalization: layer
-        # channel_attention: eca
         # vector_embedding: false
+      condition_embedding:
+        combine_condition: injection
+        condition_injection: gate_bias
+        encoder:
+          name: OneHot
+          type: categories
+          out_channel: 128
+          num_classes: 2
+        decoder: same_as_encoder
     eps_loss:
       name: MSE
   autoencoder:
     name: SKSDF
+    skeleton_constraints: True
     coordinate_sampling_ratio: 0.1
     encoder:
       name: SKSDFCNN
@@ -43,16 +55,40 @@ model:
       normalization: layer
       standardize_latents: True
       with_radius: True
+      skeleton_net_config:
+        skp_num: 256
+        isk_num: 2
+        skp_neighbor_num: 32
+        radius_scaling: 1.0
+        dbscan_eps: 0.65
+        dbscan_min_sample_num: 1
+    condition_embedding:
+      combine_condition: injection
+      condition_injection: gate_bias
+      encoder:
+        name: OneHot
+        type: categories
+        out_channel: 128
+        num_classes: 2
     reconstruction_losses: 
       - name: MSE
     
 model_path:
-  diff_model: /media/wlsdzyzl/DATA/vcg-ckp/coronary_artery_left/SeqTrans_Occupancy/ckp_last.pth
-  ae_model: /media/wlsdzyzl/DATA/vcg-ckp/coronary_artery_left/SkResCNN_Occupancy/ckp_best_loss.pth
+  diff_model: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SeqTrans_AE_C12_Dilated_Coronary_Condition_NewR_Inter2/ckp_last.pth
+  ae_model: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkResCNN_AE_C12_Dilated_Coronary_Condition_NewR_Inter2/ckp_best_loss.pth
 eval_gen:
+  conditions: 
+    left: 1
+    right: 2
+  condition_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 2
+    - name: ToTensor  
   sampler:
     name: NormalSampler
     batch_size: 2
-  gen_dir: /media/wlsdzyzl/DATA/vcg-results/gen/icoronary_artery_left/LDM_EDM_Occ
+  gen_dir: /media/wlsdzyzl/DATA/vcg-results/gen/imageCAS/LDM_EDM_Condition_NewR_Inter2/
   ### new generation from random noise
   random_sample_num: 64

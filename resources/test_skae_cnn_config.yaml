@@ -48,7 +48,7 @@ pickle_results: True
 
 
 model_path: /media/wlsdzyzl/DATA/vcg-ckp/coronary_artery_left/SkResCNN_AE_C12_With_RTS25_SS_Rc_wo_Rscaling_fps_2560/ckp_best_loss.pth
-recon_dir: /media/wlsdzyzl/DATA/vcg-results/coronary_artery_left/sdf_mesh/SkResCNN_AE_C12_With_RTS25_SS_Rc_wo_Rscaling_fps_2560
+recon_dir: /media/wlsdzyzl/DATA/vcg-results/coronary_artery_left/mesh/SkResCNN_AE_C12_With_RTS25_SS_Rc_wo_Rscaling_fps_2560
 
 custom_save_results: 
   - name: latent
@@ -56,7 +56,7 @@ custom_save_results:
   - name: skeleton
     dir: /media/wlsdzyzl/DATA/vcg-results/coronary_artery_left/skeleton/SkResCNN_AE_C12_With_RTS25_SS_Rc_wo_Rscaling_fps_2560
 # model_path: /media/wlsdzyzl/DATA/vcg-ckp/coronary_artery_left/SkResCNN_AE_C6/ckp_best_loss.pth
-# recon_dir: /media/wlsdzyzl/DATA/vcg-results/coronary_artery_left/sdf_mesh/SkResCNN_AE_C6
+# recon_dir: /media/wlsdzyzl/DATA/vcg-results/coronary_artery_left/mesh/SkResCNN_AE_C6
 
 # custom_save_results: 
 #   - name: latent
