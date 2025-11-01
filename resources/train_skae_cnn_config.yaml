@@ -3,7 +3,7 @@
 mode: train
 model:
   # can be AE, VAE, SeM and DDPM
-  name: SKSDF
+  name: SDF
   encoder:
     name: SKSDFCNN
     in_channel: 3

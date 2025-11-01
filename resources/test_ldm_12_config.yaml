@@ -23,7 +23,7 @@ model:
     eps_loss:
       name: MSE
   autoencoder:
-    name: SKSDF
+    name: SDF
     coordinate_sampling_ratio: 0.1
     encoder:
       name: SKSDFCNN

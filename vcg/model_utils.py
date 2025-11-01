@@ -1,6 +1,6 @@
 from vcg.sknet import SkeletonNet #, LearnableSkeletonNet
-from vcg.sk_sdf import SkeletonSDF
-from vcg.encoder import create_skeleton_encoder
+from vcg.sdf_model import SDFModel
+from vcg.encoder import create_vcg_encoder
 from vcg.utils import save_sdf2mesh, save_occ2mesh
 from vcg.config import truncated_value, train_truncate_scaling, use_occupancy
 from flemme.model import create_model as _create_model, EDM, LDM, supported_ae_models
@@ -14,13 +14,13 @@ logger = get_logger('model.utils')
 ## if we want to train pcd or image, 
 ## make sure that the image size from data loader and image size from the model parameters are identical
 device = "cuda" if torch.cuda.is_available() else "cpu"
-supported_skeleton_models = {
+supported_vcg_models = {
     #### base model
     'SKNet': SkeletonNet,
     # 'LSKNet': LearnableSkeletonNet,
-    'SKSDF': SkeletonSDF}
+    'SDF': SDFModel}
 supported_flemme_models = ['Base', 'EDM', 'LDM']
-supported_ae_models.append('SKSDF')
+supported_ae_models.append('SDF')
 def process_input(t):
     x, c, coord, sdf, p = None, None, None, None, None
     if len(t) == 2:
@@ -68,14 +68,14 @@ def forward_pass(model, x, coord, c, **kwargs):
 
 def create_model(model_config):
     model_name = model_config.get('name', 'Base')
-    if model_name in supported_skeleton_models:
+    if model_name in supported_vcg_models:
         return _create_model(model_config, 
-                             supported_underlying_models = supported_skeleton_models,
-                             create_encoder_fn = create_skeleton_encoder)
+                             supported_underlying_models = supported_vcg_models,
+                             create_encoder_fn = create_vcg_encoder)
     elif model_name in supported_flemme_models:
         return _create_model(model_config, create_model_fn = create_model)
     else:
-        logger.error(f'Unsupported model class: {model_name}, should be one of {list(supported_skeleton_models.keys()) + supported_flemme_models}')
+        logger.error(f'Unsupported model class: {model_name}, should be one of {list(supported_vcg_models.keys()) + supported_flemme_models}')
         exit(1)
     
 def train_run(model, t, only_forward = False):

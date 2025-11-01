@@ -3,9 +3,9 @@
 mode: train
 model:
   # can be AE, VAE, SeM and DDPM
-  name: SKSDF
-  skeleton_constraints: True
-  skeleton_inter_num: 0
+  name: SDF
+  latent_point_constraints: True
+  latent_point_inter_num: 0
   encoder:
     name: SKSDFCNN
     in_channel: 3

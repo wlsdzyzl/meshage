@@ -4,7 +4,7 @@ determinstic: true
 mode: train
 model:
   # can be AE, VAE, SeM and DDPM
-  name: SKSDF
+  name: SDF
   encoder:
     name: SKSDFTrans
     in_channel: 3

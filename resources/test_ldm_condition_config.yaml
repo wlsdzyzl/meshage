@@ -34,8 +34,8 @@ model:
     eps_loss:
       name: MSE
   autoencoder:
-    name: SKSDF
-    skeleton_constraints: True
+    name: SDF
+    latent_point_constraints: True
     coordinate_sampling_ratio: 0.1
     encoder:
       name: SKSDFCNN
@@ -91,4 +91,4 @@ eval_gen:
     batch_size: 2
   gen_dir: /media/wlsdzyzl/DATA/vcg-results/gen/imageCAS/LDM_EDM_Condition_NewR_Inter2/
   ### new generation from random noise
-  random_sample_num: 64
+  random_sample_num: 1024

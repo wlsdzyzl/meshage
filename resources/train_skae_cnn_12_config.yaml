@@ -3,9 +3,9 @@
 mode: train
 model:
   # can be AE, VAE, SeM and DDPM
-  name: SKSDF
-  skeleton_constraints: True
-  skeleton_inter_num: 0
+  name: SDF
+  latent_point_constraints: True
+  latent_point_inter_num: 0
   encoder:
     name: SKSDFCNN
     in_channel: 3
@@ -43,7 +43,11 @@ loader:
     data_suffix: .ply
     target_dir: sdf022/coronary_artery_left
     target_suffix: _sdf.npy
-    data_path: /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/
+  data_path_list: 
+    - /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/fold1
+    - /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/fold2
+    - /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/fold3
+    - /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/fold4
   batch_size: 4
   num_workers: 8
   shuffle: true
