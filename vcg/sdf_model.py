@@ -25,10 +25,11 @@ class SDFModel(AE):
         self.latent_point_constraints = model_config.pop('latent_point_constraints', False)
         if self.latent_point_constraints:
             if self.skeleton_latent:
-                assert self.with_radius, \
-                    "with_radius need to be set as true for skeleton point constraints."
+                assert self.encoder.with_radius, \
+                    "with_radius need to be set as true for skeleton point constraints."            
             self.latent_point_inter_num = model_config.pop('latent_point_inter_num', 0)
             self.latent_point_knn = KNN(k = self.latent_point_inter_num + 1, transpose_mode = True)
+            logger.info(f'Using latent point constraints with {self.latent_point_inter_num} interpolated points.')
     def decode(self, z, coord = None, c = None):
         z, c = self.parse_decoder_condition(z, c)
         if coord is None:

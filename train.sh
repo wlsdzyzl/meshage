@@ -1,6 +1,5 @@
 #!/bin/bash
-
-# train_vcg --config /home/wlsdzyzl/project/vcg/resources/train_skae_cnn_12_condition_config_dilated.yaml
-test_vcg --config /home/wlsdzyzl/project/vcg/resources/test_skae_cnn_condition_config.yaml
-train_vcg --config /home/wlsdzyzl/project/vcg/resources/train_edm_condition_config.yaml
-test_vcg --config /home/wlsdzyzl/project/vcg/resources/test_ldm_condition_config.yaml
+train_vcg --config /home/wlsdzyzl/project/vcg/resources/skspsdf/retrain_skspae_cnn_12_condition_config_dilated.yaml
+train_vcg --config /home/wlsdzyzl/project/vcg/resources/sksdf/retrain_skae_cnn_12_condition_config_dilated.yaml
+train_vcg --config /home/wlsdzyzl/project/vcg/resources/spsdf/retrain_spae_cnn_12_condition_config_dilated.yaml
+train_vcg --config /home/wlsdzyzl/project/vcg/resources/skspsdf/retrain_skspae_cnn_12_condition_config_dilated.yaml

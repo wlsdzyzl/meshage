@@ -2,6 +2,7 @@ from .skeleton import SkeletonSDFDecoder, SkeletonCNNEncoder, \
     SkeletonTransEncoder, SkeletonMambaEncoder
 from .sparse_point import SparsePointSDFDecoder, SparsePointCNNEncoder, \
     SparsePointTransEncoder, SparsePointMambaEncoder
+from .sksp import SKSPCNNEncoder, SKSPTransEncoder, SKSPMambaEncoder
 from flemme.utils import DataForm
 from flemme.logger import get_logger
 
@@ -15,6 +16,9 @@ supported_vcg_encoders['SKSDFMamba'] = (SkeletonMambaEncoder, SkeletonSDFDecoder
 supported_vcg_encoders['SPSDFCNN'] = (SparsePointCNNEncoder, SparsePointSDFDecoder)
 supported_vcg_encoders['SPSDFTrans'] = (SparsePointTransEncoder, SparsePointSDFDecoder)
 supported_vcg_encoders['SPSDFMamba'] = (SparsePointMambaEncoder, SparsePointSDFDecoder)
+supported_vcg_encoders['SKSPSDFCNN'] = (SKSPCNNEncoder, SkeletonSDFDecoder)
+supported_vcg_encoders['SKSPSDFTrans'] = (SKSPTransEncoder, SkeletonSDFDecoder)
+supported_vcg_encoders['SKSPSDFMamba'] = (SKSPMambaEncoder, SkeletonSDFDecoder)
 
 supported_flemme_encoders = ['SeqNet', 'SeqTrans', 'SeqMamba']
 
@@ -22,9 +26,14 @@ supported_buildingblocks_for_encoder = {}
 supported_buildingblocks_for_encoder['SKSDFCNN'] = ['dense', 'double_dense', 'res_dense', 'fc', 'double_fc', 'res_fc']
 supported_buildingblocks_for_encoder['SKSDFTrans'] = ['pct_sa', 'pct_oa']
 supported_buildingblocks_for_encoder['SKSDFMamba'] = ['pmamba', 'pmamba2']
+
 supported_buildingblocks_for_encoder['SPSDFCNN'] = ['dense', 'double_dense', 'res_dense', 'fc', 'double_fc', 'res_fc']
 supported_buildingblocks_for_encoder['SPSDFTrans'] = ['pct_sa', 'pct_oa']
 supported_buildingblocks_for_encoder['SPSDFMamba'] = ['pmamba', 'pmamba2']
+
+supported_buildingblocks_for_encoder['SKSPSDFCNN'] = ['dense', 'double_dense', 'res_dense', 'fc', 'double_fc', 'res_fc']
+supported_buildingblocks_for_encoder['SKSPSDFTrans'] = ['pct_sa', 'pct_oa']
+supported_buildingblocks_for_encoder['SKSPSDFMamba'] = ['pmamba', 'pmamba2']
 
 def create_vcg_encoder(encoder_config, return_encoder = True, return_decoder = True):
         encoder_name = encoder_config.pop('name')

@@ -1,16 +1,19 @@
+sub_dirs: [left, right]
 prediction:
-  path: /media/wlsdzyzl/DATA/vcg-results/gen/imageCAS/LDM_EDM_Condition_NewR_Inter2/left
-  transforms:
-    - name: FixedPoints
-      num: 2048
+  path: /media/wlsdzyzl/DATA/vcg-results/gen/imageCAS/LDM_EDM_SkCNN
   suffix: .ply
-target:
-  path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/rmesh022/left
-  transforms:
+  transforms: 
     - name: FixedPoints
-      num: 2048
+      method: qfps
+      num: 2560
+target:
+  path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold5/rmesh022
   suffix: _mesh.ply
   data_form: pcd
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2560
 eval_type: gen
 # eval_batch_num: 2
 evaluation_metrics:
@@ -30,8 +33,6 @@ evaluation_metrics:
           dense_channels: [512, 512]
           activation: lrelu
           normalization: group
-        classification_losses: 
-          - name: CE
       embedding_net_path: /media/wlsdzyzl/DATA/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
       batch_size: 2
     - name: KID
@@ -50,8 +51,6 @@ evaluation_metrics:
           dense_channels: [512, 512]
           activation: lrelu
           normalization: group
-        classification_losses: 
-          - name: CE
       embedding_net_path: /media/wlsdzyzl/DATA/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
       batch_size: 2
     # - name: MMD

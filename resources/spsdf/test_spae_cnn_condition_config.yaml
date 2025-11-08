@@ -1,0 +1,74 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: SDF
+  coordinate_sampling_ratio: 0.1
+  encoder:
+    name: SPSDFCNN
+    in_channel: 3
+    out_channel: 1
+    point_num: 2560
+    building_block: res_dense
+    projection_channel: 64
+    num_neighbors_k: 32
+    num_fps_points: [1280, 640, 320, 256]
+    fps_feature_channels: [512, 512, 512, 512]
+    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    seq_feature_channels: [512, 512, 512, 512]
+    dense_channels: [512, 12]
+    pos_embedding: true
+    knn_query: feature
+    activation: gelu
+    normalization: layer
+    standardize_latents: True
+  condition_embedding:
+    combine_condition: injection
+    condition_injection: gate_bias
+    encoder:
+      name: OneHot
+      type: categories
+      out_channel: 128
+      num_classes: 2
+  reconstruction_losses: 
+    - name: MSE
+loader:
+  dataset: 
+    name: PcdSDFWithClassLabelDataset
+    resolution: 0.022
+    data_dir: surface
+    data_suffix: .ply
+    target_dir: sdf022
+    target_suffix: _sdf.npy
+    cls_label: ImageCAS
+  data_path_list: 
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold1
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold2
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold3
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold4
+    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold5
+  batch_size: 3
+  num_workers: 8
+  shuffle: true
+  data_transforms:
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+    - name: ToTensor
+  target_transforms:
+    - name: ToTensor
+  class_label_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 2
+    - name: ToTensor
+pickle_results: True
+model_path: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SpResCNN_val/ckp_best_loss.pth
+recon_dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SpResCNN_val_train_edm
+custom_save_results: 
+  - name: latent
+    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SpResCNN_val_train_edm
+  - name: latent_points
+    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/skeleton/SpResCNN_val_train_edm

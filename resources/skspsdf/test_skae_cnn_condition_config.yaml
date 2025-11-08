@@ -49,7 +49,12 @@ loader:
     target_dir: sdf022
     target_suffix: _sdf.npy
     cls_label: ImageCAS
-    data_path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized
+  data_path_list: 
+    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold1
+    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold2
+    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold3
+    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold4
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold5
   batch_size: 3
   num_workers: 8
   shuffle: true
@@ -69,11 +74,11 @@ loader:
 pickle_results: True
 
 
-model_path: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkResCNN_AE_C12_Dilated_Coronary_Condition_NewR_Inter2/ckp_best_loss.pth
-recon_dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SkResCNN_AE_C12_Dilated_Coronary_Condition_NewR_Inter2
+model_path: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkResCNN_val/ckp_best_loss.pth
+recon_dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SkResCNN_val_test
 
 custom_save_results: 
   - name: latent
-    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SkResCNN_AE_C12_Dilated_Coronary_Condition_NewR_Inter2
-  - name: skeleton
-    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/skeleton/SkResCNN_AE_C12_Dilated_Coronary_Condition_NewR_Inter2
+    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SkResCNN_val_test
+  - name: latent_points
+    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/skeleton/SkResCNN_val_test

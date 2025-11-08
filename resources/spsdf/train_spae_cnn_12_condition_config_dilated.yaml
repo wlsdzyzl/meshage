@@ -1,29 +1,29 @@
 # train ae or vae
 #### a template for pcd encoder
-determinstic: true
 mode: train
 model:
   # can be AE, VAE, SeM and DDPM
   name: SDF
+  latent_point_constraints: True
+  # latent_point_inter_num: 2
   encoder:
-    name: SKSDFTrans
+    name: SPSDFCNN
     in_channel: 3
     out_channel: 1
     point_num: 2560
-    building_block: pct_sa
+    building_block: res_dense
     projection_channel: 64
-    # num_neighbors_k_cross: 20
-    num_neighbors_k_self: 20
-    local_feature_channels: [64, 128, 256, 512, 512]
-    seq_feature_channels: [512, 512, 512]
-    dense_channels: [512, 512]
+    num_neighbors_k: 32
+    num_fps_points: [1280, 640, 320, 256]
+    fps_feature_channels: [512, 512, 512, 512]
+    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    seq_feature_channels: [512, 512, 512, 512]
+    dense_channels: [512, 12]
     pos_embedding: true
-    # voxel_resolutions: [0, 0, 16, 16, 0, 0]
+    knn_query: feature
     activation: gelu
     normalization: layer
-  # decoder:
-  #   name: SKSDFTrans
-  #   building_block: pct_sa
+    standardize_latents: True
   condition_embedding:
     combine_condition: injection
     condition_injection: gate_bias
@@ -31,21 +31,25 @@ model:
       name: OneHot
       type: categories
       out_channel: 128
-      num_classes: 14
-    decoder: same_as_encoder
+      num_classes: 2
   reconstruction_losses: 
     - name: MSE
 loader:
   dataset: 
     name: PcdSDFWithClassLabelDataset
+    truncate_prob: 0.9
     resolution: 0.022
-    data_dir: raw
+    data_dir: surface
     data_suffix: .ply
     target_dir: sdf022
     target_suffix: _sdf.npy
-    cls_label: MedSDF
-    data_path: /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/
-  batch_size: 1
+    cls_label: ImageCAS
+  data_path_list: 
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold1
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold2
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold3
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold4
+  batch_size: 2
   num_workers: 8
   shuffle: true
   data_transforms:
@@ -61,10 +65,12 @@ loader:
     - name: Relabel
       offset: -1
     - name: ToOneHot
-      num_classes: 14
+      num_classes: 2
     - name: ToTensor
-check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/MedSDF/SkTrans_AE/
-resume: true
+val_split_ratio: 0.1
+val_split_seed: 42
+## RTS, RC: radius constraints, Rscaling: radius scaling
+check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SpResCNN_val_LPC/
 ### parameter for optimizer
 optimizer:
   name: Adam
@@ -76,11 +82,12 @@ lr_scheduler:
   start_factor: 1.0
   end_factor: 0.01
 # resume: True
-max_epoch: 100
+pretrained: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SpResCNN_val_LPC/ckp_best_loss.pth
+max_epoch: 70
 write_after_iters: 10
 write_sample_num: 4
 save_after_epochs: 2
-# warmup_epochs: 1
+warmup_epochs: 1
 warmup_start_scale: 0.01
 clip_grad: 1.0
 # custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]

@@ -7,7 +7,7 @@ from .skeleton import SkeletonSDFDecoder
 from flemme.logger import get_logger
 
 ### skeleton-regularized point cloud auto-encoder
-logger = get_logger("skeleton_encoder")
+logger = get_logger("sparse_point_encoder")
 
 class SparsePointCNNEncoder(PointNet2Encoder):
     def __init__(self, point_dim = 3,

@@ -36,6 +36,7 @@ class SkeletonEncoder(PointEncoder):
                  pos_embedding,
                  with_radius,
                  standardize_latents,
+                 knn_query,
                  **kwargs):
         super().__init__(point_dim=point_dim, 
                 time_channel = 0,
@@ -75,7 +76,7 @@ class SkeletonEncoder(PointEncoder):
         ## 4 dim: xyzr
         
         self.sk_proj = nn.Linear(3 + with_radius, projection_channel)
-        self.query_and_group = QueryAndGroup(num_neighbors_k_cross, knn_query='feature')
+        self.query_and_group = QueryAndGroup(num_neighbors_k_cross, knn_query=knn_query)
         self.out_channel += (3 + with_radius)
         self.with_radius = with_radius
         self.standardize_latents = standardize_latents
@@ -185,6 +186,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                  pos_embedding = True,
                  with_radius = False,
                  standardize_latents = True,
+                 knn_query = 'feature',
                  **kwargs):
         super().__init__(point_dim=point_dim, 
                 point_num=point_num,
@@ -207,7 +209,8 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                 skeleton_net_config = skeleton_net_config,
                 pos_embedding = pos_embedding,
                 with_radius = with_radius,
-                standardize_latents = standardize_latents)
+                standardize_latents = standardize_latents,
+                knn_query = knn_query)
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
 
@@ -280,6 +283,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
                     skeleton_net_config = {},
                     with_radius = False,
                     standardize_latents = True,
+                    knn_query = 'feature',
                     **kwargs):
         super().__init__(point_dim=point_dim, 
                 point_num=point_num,
@@ -302,7 +306,8 @@ class SkeletonTransEncoder(SkeletonEncoder):
                 skeleton_net_config = skeleton_net_config,
                 pos_embedding = pos_embedding,
                 with_radius = with_radius,
-                standardize_latents = standardize_latents)
+                standardize_latents = standardize_latents,
+                knn_query = knn_query)
         
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
@@ -386,6 +391,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                 skeleton_net_config = {},
                 with_radius = False,
                 standardize_latents = True,
+                knn_query = 'feature',
                 **kwargs):
         super().__init__(point_dim=point_dim, 
                 point_num=point_num,
@@ -408,7 +414,8 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                 skeleton_net_config = skeleton_net_config,
                 pos_embedding = pos_embedding,
                 with_radius = with_radius,
-                standardize_latents = standardize_latents)
+                standardize_latents = standardize_latents,
+                knn_query = knn_query)
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
 

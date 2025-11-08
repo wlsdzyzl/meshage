@@ -9,3 +9,4 @@ __pycache__
 trash
 3rdparty
 *pickled/
+logs/

@@ -74,8 +74,8 @@ model:
       - name: MSE
     
 model_path:
-  diff_model: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SeqTrans_AE_C12_Dilated_Coronary_Condition_NewR_Inter2/ckp_last.pth
-  ae_model: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkResCNN_AE_C12_Dilated_Coronary_Condition_NewR_Inter2/ckp_best_loss.pth
+  diff_model: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SeqTrans_SkCNN/ckp_last.pth
+  ae_model: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkResCNN_val/ckp_best_loss.pth
 eval_gen:
   conditions: 
     left: 1
@@ -89,6 +89,6 @@ eval_gen:
   sampler:
     name: NormalSampler
     batch_size: 2
-  gen_dir: /media/wlsdzyzl/DATA/vcg-results/gen/imageCAS/LDM_EDM_Condition_NewR_Inter2/
+  gen_dir: /media/wlsdzyzl/DATA/vcg-results/gen/imageCAS/LDM_EDM_SkCNN/
   ### new generation from random noise
   random_sample_num: 1024
