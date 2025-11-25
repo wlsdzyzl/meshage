@@ -1,6 +1,6 @@
 sub_dirs: [left, right]
 prediction:
-  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SkResCNN_val_test
+  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SkSpResCNN_val_LPC_test
   suffix: .ply
   transforms: 
     - name: FixedPoints

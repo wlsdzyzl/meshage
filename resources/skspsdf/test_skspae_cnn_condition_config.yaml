@@ -6,7 +6,7 @@ model:
   name: SDF
   coordinate_sampling_ratio: 0.1
   encoder:
-    name: SKSDFCNN
+    name: SKSPSDFCNN
     in_channel: 3
     out_channel: 1
     point_num: 2560
@@ -14,7 +14,11 @@ model:
     projection_channel: 64
     num_neighbors_k_cross: 32
     num_neighbors_k_self: 0
+    num_neighbors_k: 32
     local_feature_channels: [512, 512, 512, 512]
+    num_fps_points: [1280, 640, 320, 160]
+    fps_feature_channels: [512, 512, 512, 512]
+    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
     seq_feature_channels: [512, 512, 512, 512]
     dense_channels: [512, 12]
     pos_embedding: true
@@ -23,8 +27,9 @@ model:
     normalization: layer
     standardize_latents: True
     with_radius: True
+    knn_query: feature
     skeleton_net_config:
-      skp_num: 256
+      skp_num: 128
       isk_num: 2
       skp_neighbor_num: 32
       radius_scaling: 1.0
@@ -74,11 +79,11 @@ loader:
 pickle_results: True
 
 
-model_path: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkResCNN_val/ckp_best_loss.pth
-recon_dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SkResCNN_val_test
+model_path: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SkSpResCNN_val_LPC/ckp_best_loss.pth
+recon_dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SkSpResCNN_val_LPC_test
 
 custom_save_results: 
   - name: latent
-    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SkResCNN_val_test
+    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SkSpResCNN_val_LPC_test
   - name: latent_points
-    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/skeleton/SkResCNN_val_test
+    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/skeleton/SkSpResCNN_val_LPC_test

@@ -1,14 +1,14 @@
 sub_dirs: [left, right]
 prediction:
-  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SkResCNN_val_test
+  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SkResCNN_val_LPC_test
   suffix: .ply
   transforms: 
     - name: FixedPoints
       method: qfps
       num: 2560
 target:
-  path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold5/rmesh022
-  suffix: _mesh.ply
+  path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold5/raw
+  suffix: .ply
   data_form: pcd
   transforms: 
     - name: FixedPoints

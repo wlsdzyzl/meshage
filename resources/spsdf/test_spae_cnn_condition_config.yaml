@@ -43,12 +43,12 @@ loader:
     target_suffix: _sdf.npy
     cls_label: ImageCAS
   data_path_list: 
-    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold1
-    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold2
-    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold3
-    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold4
-    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold5
-  batch_size: 3
+    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold1
+    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold2
+    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold3
+    # - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold4
+    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_dilated/standardized/split/fold5
+  batch_size: 2
   num_workers: 8
   shuffle: true
   data_transforms:
@@ -65,10 +65,10 @@ loader:
       num_classes: 2
     - name: ToTensor
 pickle_results: True
-model_path: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SpResCNN_val/ckp_best_loss.pth
-recon_dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SpResCNN_val_train_edm
+model_path: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SpResCNN_val_LPC/ckp_best_loss.pth
+recon_dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/mesh/SpResCNN_val_LPC_test
 custom_save_results: 
   - name: latent
-    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SpResCNN_val_train_edm
+    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SpResCNN_val_LPC_test
   - name: latent_points
-    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/skeleton/SpResCNN_val_train_edm
+    dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS/skeleton/SpResCNN_val_LPC_test

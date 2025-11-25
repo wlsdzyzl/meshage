@@ -19,7 +19,7 @@ logger = get_logger('pcd_sdf_dataset')
 
 class PcdSDFDataset(Dataset):
     def __init__(self, data_path, data_transform = None, 
-                target_transform = None, mode = 'train', data_dir = 'pcd', 
+                target_transform = None, mode = 'train', data_dir = 'raw', 
                 target_dir = 'sdf', data_suffix = '.ply', 
                 target_suffix='.npy', resolution = 0.01, 
                 filter_file = None, truncate_prob = 1.0, **kwargs):
@@ -36,7 +36,11 @@ class PcdSDFDataset(Dataset):
             with open(filter_file, 'r') as file:
                 filter_list = [line.strip() for line in file.readlines()]
             self.pcd_path_list = [ p for p in self.pcd_path_list if contains_one_of(p, filter_list)]
-        self.target_path_list = [rreplace(rreplace(ppath, data_suffix, target_suffix, 1), data_dir, target_dir, 1) for ppath in self.pcd_path_list]
+        if target_dir is None:
+            assert self.mode == 'test', "Only in test mode, target_dir can be None."
+            self.target_path_list = None
+        else:
+            self.target_path_list = [rreplace(rreplace(ppath, data_suffix, target_suffix, 1), data_dir, target_dir, 1) for ppath in self.pcd_path_list]
         self.target_transform = target_transform
         self.coord = resolution2coord(resolution)[0]
         self.truncate_prob = truncate_prob
@@ -46,9 +50,11 @@ class PcdSDFDataset(Dataset):
         """Get the pcds"""
         
         pcd = load_pcd(self.pcd_path_list[index])
-        sdf = load_npy(self.target_path_list[index]).flatten()
-        assert len(sdf) == len(self.coord), f"Coordinates ({len(self.coord)}) and sdf ({len(sdf)}) are not matched."
-
+        if not self.target_path_list is None:
+            sdf = load_npy(self.target_path_list[index]).flatten()
+            assert len(sdf) == len(self.coord), f"Coordinates ({len(self.coord)}) and sdf ({len(sdf)}) are not matched."
+        else:
+            sdf = None
 
         ### pose transformation (translation and rotation) is not allowed
         ### only perform fixed_points transform
@@ -56,38 +62,40 @@ class PcdSDFDataset(Dataset):
 
             n_state, t_state = get_random_state()
             pcd = self.data_transform(pcd)
+            if self.target_transform:
+                if self.target_transform.fixed_points:
+                    coord = self.coord
+                    if truncate_sdf:
+                        if np.random.rand() < self.truncate_prob:
+                            sdf_filter = (np.abs(sdf) <= truncated_value * train_truncate_scaling)
+                            coord = coord[sdf_filter]
+                            sdf = sdf[sdf_filter] 
+                        sdf = sdf / (truncated_value * train_truncate_scaling)
+                    negative_sdf = sdf[sdf <= 0] 
+                    positive_sdf = sdf[sdf > 0]
+                    negative_coord = coord[sdf <= 0]
+                    positive_coord = coord[sdf > 0]
 
-            if self.target_transform.fixed_points:
-                coord = self.coord
-                if truncate_sdf:
-                    if np.random.rand() < self.truncate_prob:
-                        sdf_filter = (np.abs(sdf) <= truncated_value * train_truncate_scaling)
-                        coord = coord[sdf_filter]
-                        sdf = sdf[sdf_filter] 
-                    sdf = sdf / (truncated_value * train_truncate_scaling)
-                negative_sdf = sdf[sdf <= 0] 
-                positive_sdf = sdf[sdf > 0]
-                negative_coord = coord[sdf <= 0]
-                positive_coord = coord[sdf > 0]
+                    set_random_state(n_state, t_state)
+                    negative_sdf = self.target_transform((negative_sdf, negative_coord)).unsqueeze(-1)
+                    positive_sdf = self.target_transform((positive_sdf, positive_coord)).unsqueeze(-1)
 
-                set_random_state(n_state, t_state)
-                negative_sdf = self.target_transform((negative_sdf, negative_coord)).unsqueeze(-1)
-                positive_sdf = self.target_transform((positive_sdf, positive_coord)).unsqueeze(-1)
-
-                set_random_state(n_state, t_state)
-                negative_coord = self.target_transform(negative_coord)
-                positive_coord = self.target_transform(positive_coord)
-                
-                sdf = torch.concat((negative_sdf, positive_sdf), dim = 0)
-                coord = torch.concat((negative_coord, positive_coord), dim = 0)
-                shuffle_indices = torch.randperm(sdf.shape[0])
-                sdf = sdf[shuffle_indices]
-                coord = coord[shuffle_indices]
+                    set_random_state(n_state, t_state)
+                    negative_coord = self.target_transform(negative_coord)
+                    positive_coord = self.target_transform(positive_coord)
+                    
+                    sdf = torch.concat((negative_sdf, positive_sdf), dim = 0)
+                    coord = torch.concat((negative_coord, positive_coord), dim = 0)
+                    shuffle_indices = torch.randperm(sdf.shape[0])
+                    sdf = sdf[shuffle_indices]
+                    coord = coord[shuffle_indices]
+                else:
+                    set_random_state(n_state, t_state)
+                    sdf = self.target_transform(sdf).unsqueeze(-1)
+                    set_random_state(n_state, t_state)
+                    coord = self.target_transform(self.coord)
             else:
-                set_random_state(n_state, t_state)
-                sdf = self.target_transform(sdf).unsqueeze(-1)
-                set_random_state(n_state, t_state)
-                coord = self.target_transform(self.coord)
+                coord = torch.from_numpy(self.coord).float()
         return pcd, coord, sdf, self.pcd_path_list[index]
     
 class PcdSDFWithClassLabelDataset(Dataset):
@@ -96,8 +104,8 @@ class PcdSDFWithClassLabelDataset(Dataset):
                  target_transform = None,
                  class_label_transform = None, 
                  mode = 'train', 
-                 data_dir = 'partial', 
-                 target_dir = 'target', 
+                 data_dir = 'raw', 
+                 target_dir = 'sdf', 
                  data_suffix = '.ply', 
                  target_suffix='.ply', 
                  cls_label = {},
@@ -116,21 +124,27 @@ class PcdSDFWithClassLabelDataset(Dataset):
         self.class_label_transform = class_label_transform
         self.target_transform = target_transform
         self.pcd_path_list = []
-        self.target_path_list = []
         self.class_labels = []
+        if target_dir is None:
+            assert self.mode == 'test', "Only in test mode, target_dir can be None."
+            self.target_path_list = None
+        else:
+            self.target_path_list = []
 
         class_dirs = list(cls_label.keys())
         filter_dict = None
         if filter_file is not None:
             filter_dict = load_config(filter_file)
+
         for cls_dir in class_dirs:
             sub_path_list = sorted(glob.glob(os.path.join(data_path, data_dir, cls_dir, "*" + data_suffix)))
             if filter_dict:
                 filter_list = filter_dict[cls_dir]
                 sub_path_list = [p for p in sub_path_list if contains_one_of(p, filter_list)]
             self.pcd_path_list = self.pcd_path_list + sub_path_list
-            sub_target_path_list = [rreplace(rreplace(s, data_dir, target_dir, 1), data_suffix, target_suffix, 1) for s in sub_path_list]
-            self.target_path_list = self.target_path_list + sub_target_path_list
+            if not self.target_path_list is None:
+                sub_target_path_list = [rreplace(rreplace(s, data_dir, target_dir, 1), data_suffix, target_suffix, 1) for s in sub_path_list]
+                self.target_path_list = self.target_path_list + sub_target_path_list
             assert cls_dir in cls_label, f'Unknowk class: {cls_dir}'
             self.class_labels = self.class_labels + [cls_label[cls_dir], ] * len(sub_path_list)
 
@@ -138,7 +152,8 @@ class PcdSDFWithClassLabelDataset(Dataset):
             shuffled_index = np.arange(len(self.pcd_path_list))
             np.random.shuffle(shuffled_index)
             self.pcd_path_list = [self.pcd_path_list[i] for i in shuffled_index]
-            self.target_path_list = [self.target_path_list[i] for i in shuffled_index]
+            if not self.target_path_list is None:
+                self.target_path_list = [self.target_path_list[i] for i in shuffled_index]
             self.class_labels = [self.class_labels[i] for i in shuffled_index]
         self.coord = resolution2coord(resolution)[0]
         self.truncate_prob = truncate_prob
@@ -148,8 +163,11 @@ class PcdSDFWithClassLabelDataset(Dataset):
     def __getitem__(self, index):
         """Get the pcds"""
         pcd = load_pcd(self.pcd_path_list[index])
-        sdf = load_npy(self.target_path_list[index]).flatten()
-        assert len(sdf) == len(self.coord), f"Coordinates ({len(self.coord)}) and sdf ({len(sdf)}) are not matched."
+        if not self.target_path_list is None:
+            sdf = load_npy(self.target_path_list[index]).flatten()
+            assert len(sdf) == len(self.coord), f"Coordinates ({len(self.coord)}) and sdf ({len(sdf)}) are not matched."
+        else:
+            sdf = None
         cls_label = self.class_labels[index]
 
         ### pose transformation (translation and rotation) is not allowed
@@ -161,39 +179,40 @@ class PcdSDFWithClassLabelDataset(Dataset):
 
             set_random_state(n_state, t_state)
             cls_label = self.class_label_transform(cls_label)
+            if self.target_transform:
+                if self.target_transform.fixed_points:
+                    coord = self.coord
+                    if truncate_sdf:
+                        if np.random.rand() < self.truncate_prob:
+                            sdf_filter = (np.abs(sdf) <= truncated_value * train_truncate_scaling)
+                            coord = coord[sdf_filter]
+                            sdf = sdf[sdf_filter] 
+                        sdf = sdf / (truncated_value * train_truncate_scaling)
+                    negative_sdf = sdf[sdf <= 0] 
+                    positive_sdf = sdf[sdf > 0]
+                    negative_coord = coord[sdf <= 0]
+                    positive_coord = coord[sdf > 0]
 
-            if self.target_transform.fixed_points:
-                coord = self.coord
-                if truncate_sdf:
-                    if np.random.rand() < self.truncate_prob:
-                        sdf_filter = (np.abs(sdf) <= truncated_value * train_truncate_scaling)
-                        coord = coord[sdf_filter]
-                        sdf = sdf[sdf_filter] 
-                    sdf = sdf / (truncated_value * train_truncate_scaling)
-                negative_sdf = sdf[sdf <= 0] 
-                positive_sdf = sdf[sdf > 0]
-                negative_coord = coord[sdf <= 0]
-                positive_coord = coord[sdf > 0]
+                    set_random_state(n_state, t_state)
+                    negative_sdf = self.target_transform((negative_sdf, negative_coord)).unsqueeze(-1)
+                    positive_sdf = self.target_transform((positive_sdf, positive_coord)).unsqueeze(-1)
 
-                set_random_state(n_state, t_state)
-                negative_sdf = self.target_transform((negative_sdf, negative_coord)).unsqueeze(-1)
-                positive_sdf = self.target_transform((positive_sdf, positive_coord)).unsqueeze(-1)
-
-                set_random_state(n_state, t_state)
-                negative_coord = self.target_transform(negative_coord)
-                positive_coord = self.target_transform(positive_coord)
-                
-                sdf = torch.concat((negative_sdf, positive_sdf), dim = 0)
-                coord = torch.concat((negative_coord, positive_coord), dim = 0)
-                shuffle_indices = torch.randperm(sdf.shape[0])
-                sdf = sdf[shuffle_indices]
-                coord = coord[shuffle_indices]
+                    set_random_state(n_state, t_state)
+                    negative_coord = self.target_transform(negative_coord)
+                    positive_coord = self.target_transform(positive_coord)
+                    
+                    sdf = torch.concat((negative_sdf, positive_sdf), dim = 0)
+                    coord = torch.concat((negative_coord, positive_coord), dim = 0)
+                    shuffle_indices = torch.randperm(sdf.shape[0])
+                    sdf = sdf[shuffle_indices]
+                    coord = coord[shuffle_indices]
+                else:
+                    set_random_state(n_state, t_state)
+                    sdf = self.target_transform(sdf).unsqueeze(-1)
+                    set_random_state(n_state, t_state)
+                    coord = self.target_transform(self.coord)
             else:
-                set_random_state(n_state, t_state)
-                sdf = self.target_transform(sdf).unsqueeze(-1)
-                set_random_state(n_state, t_state)
-                coord = self.target_transform(self.coord)
-
+                coord = torch.from_numpy(self.coord).float()
         return pcd, cls_label, coord, sdf, self.pcd_path_list[index]
 
 pcd_dataset_dict['PcdSDFDataset'] = PcdSDFDataset

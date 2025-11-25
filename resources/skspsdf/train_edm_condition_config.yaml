@@ -12,7 +12,7 @@ model:
     encoder:
       name: SeqTrans
       in_channel: 16
-      point_num: 256
+      point_num: 288
       building_block: pct_sa
       seq_feature_channels: [512, 512, 512, 512, 512, 512]
       num_heads: 8
@@ -37,7 +37,7 @@ loader:
     data_suffix: .npy
     cls_label: imageCAS
   data_path_list: 
-    - /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SkResCNN_val_train_edm
+    - /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SkSpResCNN_val_LPC_train_edm
   batch_size: 10
   num_workers: 8
   shuffle: true
@@ -50,7 +50,7 @@ loader:
       num_classes: 2
     - name: ToTensor  
 
-check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SeqTrans_SkCNN
+check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SeqTrans_SkSpCNN_LPC
 resume: True
 ### parameter for optimizer
 optimizer:

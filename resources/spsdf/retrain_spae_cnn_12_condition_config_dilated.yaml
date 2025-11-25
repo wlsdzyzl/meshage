@@ -91,4 +91,6 @@ save_after_epochs: 2
 # warmup_start_scale: 0.01
 clip_grad: 1.0
 early_stop_patience: 5
+min_loss_delta: 0.0
+
 # custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]

@@ -37,7 +37,7 @@ loader:
     data_suffix: .npy
     cls_label: imageCAS
   data_path_list: 
-    - /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SpResCNN_val_train_edm
+    - /media/wlsdzyzl/DATA/vcg-results/imageCAS/latent/SpResCNN_val_LPC_train_edm
   batch_size: 10
   num_workers: 8
   shuffle: true
@@ -50,7 +50,7 @@ loader:
       num_classes: 2
     - name: ToTensor  
 
-check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SeqTrans_SpCNN
+check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS/SeqTrans_SpCNN_LPC
 resume: True
 ### parameter for optimizer
 optimizer:
