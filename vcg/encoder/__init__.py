@@ -61,9 +61,12 @@ def create_vcg_encoder(encoder_config, return_encoder = True, return_decoder = T
         #### point cloud encoder
         point_num = encoder_config.pop('point_num', 2560)
         voxel_resolutions = encoder_config.pop('voxel_resolutions', [])
+        voxel_attens = encoder_config.pop('voxel_attens', None)
         dense_channels = encoder_config.pop('dense_channels', [256, 256])
         assert type(voxel_resolutions) == list, "voxel_resolutions should be a list."
         assert type(dense_channels) == list, "dense_channels should be a list."
+        if not isinstance(voxel_attens, list): 
+            voxel_attens = [voxel_attens,] * len(voxel_resolutions)
         if not return_encoder:
             latent_channel = encoder_config.pop('latent_channel', None)
             num_latent_points = encoder_config.pop('num_latent_points', 256)
@@ -75,11 +78,12 @@ def create_vcg_encoder(encoder_config, return_encoder = True, return_decoder = T
         assert isinstance(seq_feature_channels, list), 'feature channels should be a list.'
         if return_encoder:
             encoder = Encoder(point_dim=in_channel, 
-                              point_num=point_num,
+                            point_num=point_num,
                             local_feature_channels=local_feature_channels, 
                             dense_channels=dense_channels, 
                             building_block=building_block,
                             voxel_resolutions = voxel_resolutions,
+                            voxel_attens = voxel_attens,
                             **encoder_config)
             latent_channel = encoder.out_channel
             num_latent_points = encoder.num_latent_points

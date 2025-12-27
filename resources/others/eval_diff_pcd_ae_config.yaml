@@ -9,13 +9,13 @@ prediction:
 target:
   path: /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/fold5/raw
   suffix: .ply
-  data_form: pcd
   transforms: 
     - name: FixedPoints
       method: qfps
       num: 2560
 eval_type: recon
 # eval_batch_num: 2
+data_form: pcd
 evaluation_metrics:
     - name: CD
     - name: EMD

@@ -1,0 +1,22 @@
+prediction:
+  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/mesh/SkSpCNN_val_for_test
+  suffix: .ply
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+target:
+  path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_vessel_diff_standardized/split/fold5/surface
+  suffix: .ply
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+eval_type: recon
+# eval_batch_num: 2
+data_form: pcd
+evaluation_metrics:
+    - name: CD
+    - name: EMD
+      reg: 1.0
+      method: greenkhorn

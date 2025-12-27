@@ -37,7 +37,7 @@ def process(input_sdf_path, output_sdf_path,
         save_npy(sdf_path[:-4]+'.smooth.npy', output_sdf)
     logger.info(f"extracting mesh which will be saved to {recon_mesh_path}")
     save_sdf2mesh(recon_mesh_path, output_sdf)
-### python generate_sdf_from_mesh.py --mesh_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet/bladder --sdf_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet_SDF/bladder --recon_mesh_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet_Mesh/bladder --smoothing
+### python generate_sdf_from_mesh.py --input_dir /media/wlsdzyzl/DATA/datasets/sdf/MedShapeNet/bladder --sdf_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet_SDF/bladder --recon_mesh_dir /media/wlsdzyzl/DATA/datasets/pcd/MedShapeNet_Mesh/bladder --smoothing
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate SDF from sdf files.")
     parser.add_argument("--input_dir", type=str, required=True, help="Path to the input sdf files.")

@@ -42,14 +42,14 @@ def standardize_points(point_clouds, followed_skeletons):
         if sum_hist < 0.95 * len(point_clouds):
             max_bb = bin_edges[i+1]
             break
-    print(histogram, bin_edges, max_bb)
+    # print(histogram, bin_edges, max_bb)
     global_scaling = 2.0 / max_bb
 
     for i in range(len(point_clouds)):
         point_clouds[i] *= global_scaling
         if followed_skeletons:
             followed_skeletons[i] *= global_scaling
-
+# python standardize_pcds.py --skeleton_dir /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/vessel_diffusion/output/skeleton/ --surface_dir /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/vessel_diffusion/output/surface/ --output_dir /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/vessel_diffusion/output_standardized/ > standardized_both.out
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Standardize point clouds and skeletons.")
     parser.add_argument("--skeleton_dir", type=str, required=True, help="Path to the skeleton files.")

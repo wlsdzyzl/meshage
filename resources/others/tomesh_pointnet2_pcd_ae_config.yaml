@@ -4,7 +4,7 @@ mode: test
 model:
   # can be AE, VAE, SeM and DDPM
   name: SDF
-  coordinate_sampling_ratio: 0.25
+  coordinate_sampling_ratio: 0.3
   encoder:
     name: SPSDFCNN
     in_channel: 3

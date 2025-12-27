@@ -1,0 +1,80 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: SDF
+  coordinate_sampling_ratio: 0.1
+  # latent_point_constraints: True
+  # latent_point_inter_num: 2
+  encoder:
+    name: SKSDFCNN
+    in_channel: 3
+    out_channel: 1
+    point_num: 4096
+    building_block: res_dense
+    projection_channel: 64
+    num_neighbors_k_cross: 32
+    num_neighbors_k_self: 0
+    local_feature_channels: [512, 512, 512, 512]
+    seq_feature_channels: [512, 512, 512, 512]
+    dense_channels: [512, 12]
+    pos_embedding: true
+    # voxel_resolutions: [0, 0, 16, 16, 0, 0]
+    activation: gelu
+    normalization: layer
+    standardize_latents: True
+    with_radius: True
+    skeleton_net_config:
+      skp_num: 400
+      isk_num: 2
+      skp_neighbor_num: 32
+      radius_scaling: 1.0
+      dbscan_eps: 0.65
+      dbscan_min_sample_num: 1
+  # condition_embedding:
+  #   combine_condition: injection
+  #   condition_injection: gate_bias
+  #   encoder:
+  #     name: OneHot
+  #     type: categories
+  #     out_channel: 128
+  #     num_classes: 2
+  reconstruction_losses: 
+    - name: MSE
+loader:
+  dataset: 
+    name: PcdSDFDataset
+    truncate_prob: 1.0
+    resolution: 0.022
+    data_dir: surface
+    data_suffix: .ply
+    target_dir: sdf022
+    target_suffix: _sdf.npy
+  data_path_list: 
+    # - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold1
+    # - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold2
+    # - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold3
+    # - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold4
+    - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold5
+  batch_size: 2
+  num_workers: 8
+  shuffle: true
+  data_transforms:
+    - name: FixedPoints
+      method: qfps
+      num: 4096
+    - name: ToTensor
+  target_transforms:
+    - name: ToTensor
+pickle_results: True
+## RTS, RC: radius constraints, Rscaling: radius scaling
+model_path: /media/wlsdzyzl/DATA/vcg-ckp/CoW_vessel_diff/SkCNN_val/ckp_best_loss.pth
+recon_dir: /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/mesh/SkCNN_val_for_test
+
+custom_save_results: 
+  - name: latent
+    dir: /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/latent/SkCNN_val_for_test
+  - name: latent_points
+    dir: /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/skeleton/SkCNN_val_for_test
+# custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]

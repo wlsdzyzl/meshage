@@ -1,0 +1,50 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: SDF
+  # latent_point_constraints: True
+  coordinate_sampling_ratio: 0.1
+  encoder:
+    name: SPSDFCNN
+    in_channel: 3
+    out_channel: 1
+    point_num: 4096
+    building_block: res_dense
+    projection_channel: 64
+    num_neighbors_k: 32
+    num_fps_points: [2048, 1280, 640, 400]
+    fps_feature_channels: [512, 512, 512, 512]
+    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    seq_feature_channels: [512, 512, 512, 512]
+    dense_channels: [512, 12]
+    pos_embedding: true
+    # voxel_resolutions: [0, 0, 16, 16, 0, 0]
+    knn_query: feature
+    activation: gelu
+    normalization: layer
+    standardize_latents: True
+  reconstruction_losses: 
+    - name: MSE
+loader:
+  dataset: 
+    name: PcdSDFDataset
+    resolution: 0.022
+    data_dir: .
+    data_suffix: .ply
+    target_dir: null
+  data_path_list:
+    - /media/wlsdzyzl/DATA/vessel_diffusion/gen/CoW
+  batch_size: 2
+  num_workers: 8
+  shuffle: false
+  data_transforms:
+    # - name: FixedPoints
+    #   num: 2560
+    - name: ToTensor
+## C12: Channel = 12; R: with radius; T: truncate_sdf; TS: scaling truncated SDF to [-1, 1]
+## SS: scale and shift; RC: radius constraints
+pickle_results: true
+model_path: /media/wlsdzyzl/DATA/vcg-ckp/CoW_vessel_diff/tomesh/ckp_best_loss.pth
+recon_dir: /media/wlsdzyzl/DATA/vessel_diffusion/gen/CoW/mesh

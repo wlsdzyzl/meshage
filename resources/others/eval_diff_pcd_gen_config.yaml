@@ -9,13 +9,13 @@ prediction:
 target:
   path: /media/wlsdzyzl/DATA/datasets/pcd/MedSDF/fold5/raw
   suffix: .ply
-  data_form: pcd
   transforms: 
     - name: FixedPoints
       method: qfps
       num: 2048
 eval_type: gen
 # eval_batch_num: 2
+data_form: pcd
 evaluation_metrics:
     - name: FID
       embedding_net:
@@ -55,11 +55,11 @@ evaluation_metrics:
           normalization: group
       embedding_net_path: /media/wlsdzyzl/DATA/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
       batch_size: 2
-    - name: MMDAndCov
+    - name: MMD&Cov
       package: loss
       distance: 
         name: CD
-    - name: MMDAndCov
+    - name: MMD&Cov
       package: loss
       distance:
         name: EMD

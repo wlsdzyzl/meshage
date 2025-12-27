@@ -1,0 +1,14 @@
+prediction:
+  path: /media/wlsdzyzl/DATA/vessel_diffusion/gen/CoW/mesh
+  suffix: .ply
+target:
+  path: /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold5/rmesh022
+  suffix: .ply
+eval_type: gen
+# eval_batch_num: 2
+data_form: pcd
+is_mesh: true
+evaluation_metrics:
+    - name: meanBettiError
+      min_num_faces: 100
+      min_hole_size: 50
