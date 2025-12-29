@@ -487,7 +487,8 @@ class SkeletonSDFDecoder(SeqNetDecoder):
     def __init__(self, point_dim=1,
                 ### embedding  
                 projection_channel = 256, 
-                latent_channel = 256,
+                latent_channel = 16,
+                latent_projection_channel = None,
                 latent_injection = 'cross_atten',
                 num_latent_points = 256,
                 num_blocks = 2,
@@ -498,10 +499,12 @@ class SkeletonSDFDecoder(SeqNetDecoder):
                 condition_injection = 'gate_bias',
                 with_radius = False,
                 standardize_latents = True,
+                self_atten_for_latent = False,
                 **kwargs):
+        latent_projection_channel = latent_projection_channel or latent_channel
         super().__init__(point_dim = point_dim,
             latent_channel = projection_channel,
-            time_channel = latent_channel,
+            time_channel = latent_projection_channel,
             time_injection = latent_injection,
             num_blocks = num_blocks,
             building_block = building_block,
@@ -513,6 +516,9 @@ class SkeletonSDFDecoder(SeqNetDecoder):
             condition_channel = condition_channel,
             condition_injection = condition_injection)
         # self.out_point_dim = point_dim
+        if not latent_channel == latent_projection_channel:
+            self.latent_point_proj = nn.Linear(latent_channel,
+                latent_projection_channel)
         self.coord_proj = PositionEmbeddingBlock(in_channel = 3, 
                     out_channel = projection_channel,
                     activation = activation)
@@ -520,13 +526,32 @@ class SkeletonSDFDecoder(SeqNetDecoder):
         self.standardize_latents = standardize_latents
         if standardize_latents:
             self.scale_shift = ScaleShiftBlock((num_latent_points, latent_channel - 3 - with_radius))
+        if self_atten_for_latent:
+            SABlock = get_building_block('pct_sa',                                        activation=activation, 
+                                        norm = normalization, 
+                                        num_norm_groups = num_norm_groups, 
+                                        dropout = dropout,)
+            sequence = [MultipleBuildingBlocks(n = self.num_blocks, 
+                                    BuildingBlock=SABlock,
+                                    in_channel=latent_projection_channel, 
+                                    out_channel=latent_projection_channel) 
+                                for i in range(len(self.seq_path) - 1) ]
+            self.latent_attens = nn.ModuleList(sequence)
+
+        
     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
     def forward(self, latent, coordinate, c = None):
         ### use cross attention to compute coordinate and local feature
         if self.standardize_latents:
             latent = torch.concat((latent[..., :3 + self.with_radius], 
                 self.scale_shift(latent[..., 3 + self.with_radius:])), dim = -1)
+        if hasattr(self, 'latent_point_proj'):
+            latent = self.latent_point_proj(latent)
         coord_feature = self.coord_proj(coordinate)
-        res = super().forward(coord_feature, t = latent, c = c)
-        return res
+        for sid in range(len(self.seq)):
+            if hasattr(self, 'latent_attens'):
+                latent = self.latent_attens[sid](latent)
+            coord_feature = self.seq[sid](coord_feature, t = latent)
+        # res = super().forward(coord_feature, t = latent, c = c)
+        return self.latent_proj(coord_feature)
 

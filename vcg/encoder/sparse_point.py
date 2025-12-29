@@ -281,6 +281,7 @@ class SparsePointSDFDecoder(SkeletonSDFDecoder):
                 ### embedding  
                 projection_channel = 256, 
                 latent_channel = 256,
+                latent_projection_channel = None,
                 latent_injection = 'cross_atten',
                 num_latent_points = 256,
                 num_blocks = 2,
@@ -290,11 +291,13 @@ class SparsePointSDFDecoder(SkeletonSDFDecoder):
                 condition_channel = 0,
                 condition_injection = 'gate_bias',
                 standardize_latents = True,
+                self_atten_for_latent = False,
                 **kwargs):
         super().__init__(point_dim = point_dim,
             latent_channel = latent_channel,
             projection_channel=projection_channel,
             latent_injection = latent_injection,
+            latent_projection_channel = latent_projection_channel,
             num_blocks = num_blocks,
             building_block = building_block,
             seq_feature_channels = seq_feature_channels,
@@ -306,5 +309,6 @@ class SparsePointSDFDecoder(SkeletonSDFDecoder):
             condition_channel = condition_channel,
             condition_injection = condition_injection,
             standardize_latents = standardize_latents,
+            self_atten_for_latent = self_atten_for_latent,
             with_radius = False,
             )
