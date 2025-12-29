@@ -1,0 +1,14 @@
+sub_dirs: ['bladder', 'brain', 'colon', 'coronary_artery_left_d', 'coronary_artery_right_d', 'duodenum', 'gallbladder', 'liver', 'pancreas', 'skull', 'spleen', 'stomach', 'trachea', 'uterus']
+prediction:
+  path: /data/guoqingzhang/vcg-results/MedSDF/mesh/SpCNN_val_wo_LPC
+  suffix: .ply
+target:
+  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022
+  suffix: _mesh.ply
+eval_type: recon
+data_form: pcd
+is_mesh: true
+evaluation_metrics:
+    - name: BettiError
+      min_num_faces: 100
+      min_hole_size: 50

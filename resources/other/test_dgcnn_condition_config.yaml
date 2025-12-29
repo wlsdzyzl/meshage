@@ -1,0 +1,71 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: AE
+  encoder:
+    name: PointNet
+    in_channel: 3
+    out_channel: 3
+    point_num: 2560
+    building_block: res_dense
+    projection_channel: 64
+    num_neighbors_k: 20
+    local_feature_channels: [512, 512, 512, 512]
+    dense_channels: [1024, 1024]
+    activation: lrelu
+    normalization: group
+    num_blocks: 2
+    vector_embedding: True
+  decoder:
+    name: PointNet
+    folding_times: 2
+  condition_embedding:
+    combine_condition: injection
+    condition_injection: gate_bias
+    encoder:
+      name: OneHot
+      type: categories
+      out_channel: 128
+      num_classes: 14
+  reconstruction_losses: 
+    - name: DCD
+      alpha: 40
+      n_lambda: 0.5
+    - name: CD
+      weight: 0.001
+loader:
+  dataset: 
+    name: PcdClsDataset
+    data_suffix: .ply
+    target_dir: sdf022
+    target_suffix: _sdf.npy
+    cls_label: MedSDF
+  data_path_list: 
+    - /data/guoqingzhang/datasets/MedSDF/split/fold5/raw
+  batch_size: 4
+  num_workers: 8
+  shuffle: true
+  data_transforms:
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+    - name: ToTensor
+  target_transforms:
+    - name: FixedPoints
+      num: 2560
+    - name: ToTensor
+  class_label_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 14
+    - name: ToTensor
+## C12: Channel = 12; R: with radius; T: truncate_sdf; TS: scaling truncated SDF to [-1, 1]
+## SS: scale and shift; RC: radius constraints
+
+pickle_results: True
+pickle_path: /data/guoqingzhang/vcg-pickle
+model_path: /data/guoqingzhang/vcg-ckp/MedSDF/DGCNN_AE_FOLDING2/ckp_best_loss.pth
+recon_dir: /data/guoqingzhang/vcg-results/MedSDF/recon_pcd/DGCNN_AE_FOLDING2

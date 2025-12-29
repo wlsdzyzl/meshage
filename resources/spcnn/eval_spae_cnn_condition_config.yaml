@@ -1,0 +1,26 @@
+sub_dirs: [bladder, brain, colon, coronary_artery_left_d, coronary_artery_right_d, duodenum, gallbladder, liver, pancreas, skull, spleen, stomach, trachea, uterus]
+target:
+  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/raw
+  suffix: .ply
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+prediction:
+  path: /data/guoqingzhang/vcg-results/MedSDF/mesh/SpCNN_val
+  suffix: .ply
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+eval_type: recon
+data_form: pcd
+# batch_size: 6
+# eval_batch_num: 2
+evaluation_metrics:
+    - name: CD
+    - name: EMD
+      reg: 1.0
+      method: greenkhorn
+    - name: F1&HD-Point
+      dist_threshold: 0.06

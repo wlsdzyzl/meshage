@@ -1,0 +1,68 @@
+sub_dirs: [bladder, brain, colon, coronary_artery_left_d, coronary_artery_right_d, duodenum, gallbladder, liver, pancreas, skull, spleen, stomach, trachea, uterus]
+target:
+  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/raw/
+  suffix: .ply
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2048
+    - name: Normalize
+prediction:
+  path: /data/guoqingzhang/vcg-results/MedSDF/gen/LDM_EDM_SkSpCNN_wo_LPC/
+  suffix: .ply
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2048
+    - name: Normalize
+eval_type: gen
+data_form: pcd
+batch_size: 6
+# eval_batch_num: 2
+evaluation_metrics:
+    - name: FID
+      embedding_net:
+        # can be AE, VAE, SeM and DDPM
+        name: ClM
+        # encoder config
+        encoder:
+          name: PointNet
+          in_channel: 3
+          out_channel: 46
+          point_num: 2048
+          building_block: dense
+          num_neighbors_k: 20
+          local_feature_channels: [64, 64, 128, 256, 512]
+          dense_channels: [512, 512]
+          activation: lrelu
+          normalization: group
+      embedding_net_path: /data/guoqingzhang/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
+      batch_size: 2
+    - name: KID
+      num_subsets: 10
+      subset_size: 50
+      embedding_net:
+        # can be AE, VAE, SeM and DDPM
+        name: ClM
+        # encoder config
+        encoder:
+          name: PointNet
+          in_channel: 3
+          out_channel: 46
+          point_num: 2048
+          building_block: dense
+          num_neighbors_k: 20
+          local_feature_channels: [64, 64, 128, 256, 512]
+          dense_channels: [512, 512]
+          activation: lrelu
+          normalization: group
+      embedding_net_path: /data/guoqingzhang/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
+      batch_size: 2
+    - name: MMD&Cov
+      package: loss
+      distance: 
+        name: CD
+    - name: MMD&Cov
+      package: loss
+      distance:
+        name: EMD

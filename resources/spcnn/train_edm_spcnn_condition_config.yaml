@@ -1,0 +1,74 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: train
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: EDM
+  classifier_free_guidance:
+    condition_dropout: 0.2
+    guidance_weight: 2.0
+  eps_model:
+    time_channel: 128
+    encoder:
+      name: SeqTrans
+      in_channel: 15
+      point_num: 256
+      building_block: pct_sa
+      seq_feature_channels: [512, 512, 512, 512, 512, 512]
+      num_heads: 8
+      d_k: 64
+      activation: gelu
+      normalization: layer
+      num_blocks: 4
+      # vector_embedding: false
+    condition_embedding:
+      combine_condition: injection
+      condition_injection: gate_bias
+      encoder:
+        name: OneHot
+        type: categories
+        out_channel: 128
+        num_classes: 14
+      decoder: same_as_encoder
+  eps_loss:
+    name: MSE
+loader:
+  dataset: 
+    name: PcdClsDataset
+    data_suffix: .npy
+    cls_label: MedSDF
+  data_path_list: 
+    - /data/guoqingzhang/vcg-results/MedSDF/latent/SpCNN_val_for_train
+  batch_size: 128
+  num_workers: 8
+  shuffle: true
+  data_transforms:
+    - name: ToTensor
+  class_label_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 14
+    - name: ToTensor  
+
+check_point_dir: /data/guoqingzhang/vcg-ckp/MedSDF/SeqTrans_SpCNN
+resume: True
+### parameter for optimizer
+optimizer:
+  name: Adam
+  lr: 0.001
+  weight_decay: 0.00000001
+### scheduler for learning rate
+lr_scheduler: 
+  name: LinearLR
+  start_factor: 1.0
+  end_factor: 0.01
+sampler:
+  name: NormalSampler
+max_epoch: 1000
+write_after_iters: 10
+write_sample_num: 4
+save_after_epochs: 10
+warmup_epochs: 1
+warmup_start_scale: 0.01
+clip_grad: 1.0

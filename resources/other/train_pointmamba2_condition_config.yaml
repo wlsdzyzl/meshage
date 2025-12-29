@@ -1,0 +1,100 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: train
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: AE
+  encoder:
+    name: PointMamba2
+    in_channel: 3
+    out_channel: 3
+    point_num: 2560
+    building_block: pmamba_non_ffn
+    projection_channel: 64
+    num_neighbors_k: 32
+    num_fps_points: [1280, 640, 320, 160]
+    fps_feature_channels: [512, 512, 512, 512]
+    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    dense_channels: [1024, 1024]
+    activation: lrelu
+    normalization: group
+    long_range_modeling: True
+    scan_strategies: [x_order, y_order, z_order, center_dist]
+    sorted_query: True
+    flip_scan: True
+    pos_embedding: True
+    vector_embedding: True
+    knn_query: feature
+    final_concat: True
+    channel_attention: eca
+    num_blocks: 2
+  decoder:
+    name: PointNet
+    building_block: dense
+    folding_times: 2
+  condition_embedding:
+    combine_condition: injection
+    condition_injection: gate_bias
+    encoder:
+      name: OneHot
+      type: categories
+      out_channel: 128
+      num_classes: 14
+  reconstruction_losses: 
+    - name: DCD
+      alpha: 40
+      n_lambda: 0.5
+    - name: CD
+      weight: 0.001
+loader:
+  dataset: 
+    name: PcdClsDataset
+    data_suffix: .ply
+    target_dir: sdf022
+    target_suffix: _sdf.npy
+    cls_label: MedSDF
+  data_path_list: 
+    - /data/guoqingzhang/datasets/MedSDF/split/fold1/raw
+    - /data/guoqingzhang/datasets/MedSDF/split/fold2/raw
+    - /data/guoqingzhang/datasets/MedSDF/split/fold3/raw
+    - /data/guoqingzhang/datasets/MedSDF/split/fold4/raw
+  batch_size: 4
+  num_workers: 8
+  shuffle: true
+  data_transforms:
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+    - name: ToTensor
+  target_transforms:
+    - name: FixedPoints
+      num: 2560
+    - name: ToTensor
+  class_label_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 14
+    - name: ToTensor
+val_split_ratio: 0.1
+val_split_seed: 42
+check_point_dir: /data/guoqingzhang/vcg-ckp/MedSDF/PointMamba2_NON_FFN_AE_FOLDING2
+### parameter for optimizer
+optimizer:
+  name: Adam
+  lr: 0.0001
+  weight_decay: 0.00000001
+### scheduler for learning rate
+lr_scheduler: 
+  name: LinearLR
+  start_factor: 1.0
+  end_factor: 0.01
+resume: True
+max_epoch: 150
+write_after_iters: 10
+write_sample_num: 4
+save_after_epochs: 2
+warmup_epochs: 1
+warmup_start_scale: 0.01
+clip_grad: 1.0
+# custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]
