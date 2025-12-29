@@ -1,5 +1,5 @@
 prediction:
-  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/mesh/SkSpCNN_val_for_test
+  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/gen/LDM_EDM_SkSpCNN/
   suffix: .ply
 target:
   path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_vessel_diff_standardized/split/fold5/rmesh022

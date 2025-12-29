@@ -1,5 +1,5 @@
 prediction:
-  path: /media/wlsdzyzl/DATA/vessel_diffusion/gen/imageCAS
+  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/gen/VessDiff
   suffix: .ply
   transforms: 
     - name: FixedPoints

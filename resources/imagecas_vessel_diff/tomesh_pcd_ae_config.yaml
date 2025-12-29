@@ -35,7 +35,7 @@ loader:
     data_suffix: .ply
     target_dir: null
   data_path_list:
-    - /media/wlsdzyzl/DATA/vessel_diffusion/gen/imageCAS
+    - /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/gen/VessDiff
   batch_size: 2
   num_workers: 8
   shuffle: false
@@ -47,4 +47,4 @@ loader:
 ## SS: scale and shift; RC: radius constraints
 pickle_results: true
 model_path: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS_vessel_diff/tomesh/ckp_best_loss.pth
-recon_dir: /media/wlsdzyzl/DATA/vessel_diffusion/gen/imageCAS/mesh
+recon_dir: /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/gen/VessDiff_Mesh

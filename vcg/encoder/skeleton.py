@@ -234,7 +234,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                                             num_blocks = self.num_blocks,
                                             ) for i in range(len(self.lf_path) - 2) ]
         ## local feature, similar to pointnet
-        else:    
+        else:   
             lf_sequence = [MultipleBuildingBlocks(in_channel=self.lf_path[i], 
                                             out_channel=self.lf_path[i+1], 
                                             BuildingBlock = self.BuildingBlock,
@@ -337,7 +337,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
                                             num_blocks = self.num_blocks,
                                             ) for i in range(len(self.lf_path) - 2) ]
         ## local feature, similar to pointnet
-        else:    
+        else:   
             lf_sequence = [MultipleBuildingBlocks(in_channel=self.lf_path[i], 
                                             out_channel=self.lf_path[i+1], 
                                             BuildingBlock = self.BuildingBlock,
@@ -454,7 +454,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                                             num_blocks = self.num_blocks,
                                             ) for i in range(len(self.lf_path) - 2) ]
         ## local feature, similar to pointnet
-        else:    
+        else:   
             lf_sequence = [MultipleBuildingBlocks(in_channel=self.lf_path[i], 
                                             out_channel=self.lf_path[i+1], 
                                             BuildingBlock = self.BuildingBlock,

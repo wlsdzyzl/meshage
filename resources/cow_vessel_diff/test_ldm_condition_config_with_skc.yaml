@@ -61,6 +61,6 @@ eval_gen:
   sampler:
     name: NormalSampler
     batch_size: 2
-  gen_dir: /media/wlsdzyzl/DATA/vcg-results/gen/CoW_vessel_diff/LDM_EDM_SkCNN_with_SKC/
+  gen_dir: /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC/
   ### new generation from random noise
   random_sample_num: 500

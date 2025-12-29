@@ -26,7 +26,7 @@ def standardize_points(point_clouds, followed_skeletons):
     mean_max_radius = sum(max_radius) / len(max_radius)
     max_bbs = []
     ## scale samples to have similar max radius
-    for i in range(len(point_clouds)):        
+    for i in range(len(point_clouds)):       
         separate_scaling = (mean_max_radius +  np.random.uniform(0, 0.025)) / max_radius[i]
         point_clouds[i] *= separate_scaling
         if followed_skeletons:

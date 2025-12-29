@@ -1,5 +1,5 @@
 prediction:
-  path: /media/wlsdzyzl/DATA/vessel_diffusion/gen/CoW/mesh
+  path: /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/gen/VessDiff_Mesh
   suffix: .ply
 target:
   path: /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold5/rmesh022

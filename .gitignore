@@ -6,7 +6,8 @@ results/
 trash/
 build/
 __pycache__
-trash
-3rdparty
+trash/
+3rdparty/
 *pickled/
 logs/
+sbatch/

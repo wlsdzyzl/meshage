@@ -1,5 +1,5 @@
 prediction:
-  path: /media/wlsdzyzl/DATA/vessel_diffusion/recon/imageCAS/mesh
+  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/mesh/VessDiff
   suffix: _4096.ply
 
 target:
