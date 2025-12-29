@@ -10,4 +10,4 @@ trash/
 3rdparty/
 *pickled/
 logs/
-sbatch/
+# sbatch/
