@@ -1,5 +1,5 @@
 dist/
-# results/
+results/
 *.egg-info/
 *.out
 *.pyc
