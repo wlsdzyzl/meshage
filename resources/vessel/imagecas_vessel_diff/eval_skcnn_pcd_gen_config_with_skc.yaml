@@ -1,12 +1,12 @@
 prediction:
-  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC/
+  path: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC/
   suffix: .ply
   transforms: 
     - name: FixedPoints
       method: qfps
       num: 2048
 target:
-  path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_vessel_diff_standardized/split/fold5/surface
+  path: /data/guoqingzhang/datasets/imageCAS/fold5/surface
   suffix: .ply
   transforms: 
     - name: FixedPoints
@@ -32,7 +32,7 @@ evaluation_metrics:
           dense_channels: [512, 512]
           activation: lrelu
           normalization: group
-      embedding_net_path: /media/wlsdzyzl/DATA/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
+      embedding_net_path: /data/guoqingzhang/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
       batch_size: 2
     - name: KID
       num_subsets: 10
@@ -52,7 +52,7 @@ evaluation_metrics:
           dense_channels: [512, 512]
           activation: lrelu
           normalization: group
-      embedding_net_path: /media/wlsdzyzl/DATA/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
+      embedding_net_path: /data/guoqingzhang/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
       batch_size: 2
     - name: MMD&Cov
       package: loss

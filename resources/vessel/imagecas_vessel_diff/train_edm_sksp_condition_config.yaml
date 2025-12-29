@@ -23,14 +23,14 @@ loader:
     name: PcdDataset
     data_suffix: .npy
   data_path_list: 
-    - /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/latent/SkSpCNN_val_for_train
+    - /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/latent/SkSpCNN_val_for_train
   batch_size: 4
   num_workers: 8
   shuffle: true
   data_transforms:
     - name: ToTensor
 
-check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS_vessel_diff/SeqTrans_SkSpCNN
+check_point_dir: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SeqTrans_SkSpCNN
 resume: True
 ### parameter for optimizer
 optimizer:

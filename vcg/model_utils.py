@@ -133,7 +133,7 @@ def test_run(model, t):
     return res 
 
 ## save sdf to sdf volume
-def save_data(output, data_form, output_path):   
+def save_data(output, data_form, output_path):  
     if output.shape[-1] == 1:
         output = output.squeeze(-1)
         length = int(np.cbrt(output.shape[0]))

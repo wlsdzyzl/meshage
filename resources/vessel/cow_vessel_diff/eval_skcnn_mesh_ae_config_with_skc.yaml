@@ -1,9 +1,9 @@
 prediction:
-  path: /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/mesh/SkCNN_val_with_SKC_for_test
+  path: /data/guoqingzhang/vcg-results/CoW_vessel_diff/mesh/SkCNN_val_with_SKC_for_test
   suffix: .ply
 
 target:
-  path: /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold5/rmesh022
+  path: /data/guoqingzhang/datasets/CoW/fold5/rmesh022
   suffix: _mesh.ply
 is_mesh: true
 eval_type: recon

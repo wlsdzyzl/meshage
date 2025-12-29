@@ -1,12 +1,12 @@
 prediction:
-  path:  /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/recon_pcd/VessDiff/
+  path: /data/guoqingzhang/vcg-results/CoW_vessel_diff/recon_pcd/VessDiff/
   suffix: _4096.ply
   transforms: 
     - name: FixedPoints
       method: qfps
       num: 2560
 target:
-  path: /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold5/surface
+  path: /data/guoqingzhang/datasets/CoW/fold5/surface
   suffix: .ply
   transforms: 
     - name: FixedPoints

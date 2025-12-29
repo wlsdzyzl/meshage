@@ -51,9 +51,9 @@ loader:
     target_dir: sdf022
     target_suffix: _sdf.npy
   data_path_list: 
-    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_vessel_diff_standardized/split/fold1
-    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_vessel_diff_standardized/split/fold2
-    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_vessel_diff_standardized/split/fold3
+    - /data/guoqingzhang/datasets/imageCAS/fold1
+    - /data/guoqingzhang/datasets/imageCAS/fold2
+    - /data/guoqingzhang/datasets/imageCAS/fold3
   batch_size: 2
   num_workers: 8
   shuffle: true
@@ -76,7 +76,7 @@ val_loader:
     target_dir: sdf022
     target_suffix: _sdf.npy
   data_path_list: 
-    - /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_vessel_diff_standardized/split/fold4
+    - /data/guoqingzhang/datasets/imageCAS/fold4
   batch_size: 4
   num_workers: 8
   shuffle: true
@@ -91,8 +91,8 @@ val_loader:
     - name: ToTensor
 
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC/
-pretrained: /media/wlsdzyzl/DATA/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC/ckp_best_loss.pth
+check_point_dir: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC/
+pretrained: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC/ckp_best_loss.pth
 ### parameter for optimizer
 optimizer:
   name: Adam

@@ -4,8 +4,8 @@ mode: train
 model:
   # can be AE, VAE, SeM and DDPM
   name: SDF
-  # latent_point_constraints: True
-  # latent_point_inter_num: 2
+  latent_point_constraints: True
+  latent_point_inter_num: 2
   encoder:
     name: SKSDFCNN
     in_channel: 3
@@ -24,6 +24,8 @@ model:
     normalization: layer
     standardize_latents: True
     with_radius: True
+    self_atten_for_latent: True
+    latent_projection_channel: 512
     skeleton_net_config:
       skp_num: 400
       isk_num: 2
@@ -51,9 +53,9 @@ loader:
     target_dir: sdf022
     target_suffix: _sdf.npy
   data_path_list: 
-    - /data/guoqingzhang/datasets/CoW/fold1
-    - /data/guoqingzhang/datasets/CoW/fold2
-    - /data/guoqingzhang/datasets/CoW/fold3
+    - /data/guoqingzhang/datasets/imageCAS/fold1
+    - /data/guoqingzhang/datasets/imageCAS/fold2
+    - /data/guoqingzhang/datasets/imageCAS/fold3
   batch_size: 2
   num_workers: 8
   shuffle: true
@@ -76,7 +78,7 @@ val_loader:
     target_dir: sdf022
     target_suffix: _sdf.npy
   data_path_list: 
-    - /data/guoqingzhang/datasets/CoW/fold4
+    - /data/guoqingzhang/datasets/imageCAS/fold4
   batch_size: 4
   num_workers: 8
   shuffle: true
@@ -91,9 +93,8 @@ val_loader:
     - name: ToTensor
 
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-check_point_dir: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val/
-pretrained: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val/ckp_best_loss.pth
-### parameter for optimizer
+check_point_dir: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC_LA/
+pretrained: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC_LA/ckp_best_loss.pth
 optimizer:
   name: Adam
   lr: 0.000001
@@ -111,6 +112,5 @@ save_after_epochs: 2
 # warmup_epochs: 1
 # warmup_start_scale: 0.01
 clip_grad: 1.0
-early_stop_patience: 5
+early_stop_patience: 2
 min_loss_delta: 0.0
-# custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]

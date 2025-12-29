@@ -1,12 +1,12 @@
 prediction:
-  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/mesh/SkCNN_val_with_SKC_for_test
+  path: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/mesh/SkCNN_val_with_SKC_for_test
   suffix: .ply
   transforms: 
     - name: FixedPoints
       method: qfps
       num: 2560
 target:
-  path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_vessel_diff_standardized/split/fold5/surface
+  path: /data/guoqingzhang/datasets/imageCAS/fold5/surface
   suffix: .ply
   transforms: 
     - name: FixedPoints

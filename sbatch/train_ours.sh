@@ -6,7 +6,7 @@
 #SBATCH -t 144000
 # train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_skae_cnn_condition_config.yaml
 # train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_skae_cnn_condition_config_with_latent_atten.yaml
-train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_skae_cnn_condition_config_512_with_latent_atten.yaml
+# train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_skae_cnn_condition_config_512_with_latent_atten.yaml
 # train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_skae_cnn_condition_config_wo_skc.yaml
 # train_vcg --config /home/guoqingzhang/vcg/resources/spcnn/train_spae_cnn_condition_config.yaml
 # train_vcg --config /home/guoqingzhang/vcg/resources/spcnn/train_spae_cnn_condition_config_wo_lpc.yaml

@@ -37,9 +37,9 @@ loader:
     target_dir: sdf022
     target_suffix: _sdf.npy
   data_path_list: 
-    - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold1
-    - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold2
-    - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold3
+    - /data/guoqingzhang/datasets/CoW/fold1
+    - /data/guoqingzhang/datasets/CoW/fold2
+    - /data/guoqingzhang/datasets/CoW/fold3
   batch_size: 2
   num_workers: 8
   shuffle: true
@@ -62,7 +62,7 @@ val_loader:
     target_dir: sdf022
     target_suffix: _sdf.npy
   data_path_list: 
-    - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold4
+    - /data/guoqingzhang/datasets/CoW/fold4
   batch_size: 4
   num_workers: 8
   shuffle: true
@@ -77,7 +77,7 @@ val_loader:
     - name: ToTensor
 
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-check_point_dir: /media/wlsdzyzl/DATA/vcg-ckp/CoW_vessel_diff/tomesh/
+check_point_dir: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/tomesh/
 ### parameter for optimizer
 optimizer:
   name: Adam

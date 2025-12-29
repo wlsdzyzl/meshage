@@ -17,7 +17,11 @@ loader:
     data_dir: raw/coronary_artery_left
     data_suffix: .ply
   data_path_list: 
-    - //media/wlsdzyzl/DATA/datasets/pcd/MedSDF/
+    - /data/guoqingzhang/datasets/MedSDF/split/fold1
+    - /data/guoqingzhang/datasets/MedSDF/split/fold2
+    - /data/guoqingzhang/datasets/MedSDF/split/fold3
+    - /data/guoqingzhang/datasets/MedSDF/split/fold4
+    - /data/guoqingzhang/datasets/MedSDF/split/fold5
   batch_size: 64
   num_workers: 8
   shuffle: true
@@ -30,9 +34,9 @@ loader:
 
 custom_save_results: 
   - name: recon_sphere
-    dir: /media/wlsdzyzl/DATA/vcg-results/skeleton/imagecas_surface/sknet/sphere/right
+    dir: /data/guoqingzhang/vcg-results/skeleton/imagecas_surface/sknet/sphere/right
   - name: recon_skeleton
-    dir: /media/wlsdzyzl/DATA/vcg-results/skeleton/imagecas_surface/sknet/skeleton/right
+    dir: /data/guoqingzhang/vcg-results/skeleton/imagecas_surface/sknet/skeleton/right
   - name: radius
-    dir: /media/wlsdzyzl/DATA/vcg-results/skeleton/imagecas_surface/sknet/skr/right
+    dir: /data/guoqingzhang/vcg-results/skeleton/imagecas_surface/sknet/skr/right
 # eval_batch_num: 1

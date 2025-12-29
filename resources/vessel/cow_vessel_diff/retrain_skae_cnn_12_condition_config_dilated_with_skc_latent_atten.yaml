@@ -4,8 +4,8 @@ mode: train
 model:
   # can be AE, VAE, SeM and DDPM
   name: SDF
-  # latent_point_constraints: True
-  # latent_point_inter_num: 2
+  latent_point_constraints: True
+  latent_point_inter_num: 2
   encoder:
     name: SKSDFCNN
     in_channel: 3
@@ -24,6 +24,8 @@ model:
     normalization: layer
     standardize_latents: True
     with_radius: True
+    self_atten_for_latent: True
+    latent_projection_channel: 512
     skeleton_net_config:
       skp_num: 400
       isk_num: 2
@@ -91,8 +93,8 @@ val_loader:
     - name: ToTensor
 
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-check_point_dir: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val/
-pretrained: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val/ckp_best_loss.pth
+check_point_dir: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val_with_SKC_LA/
+pretrained: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val_with_SKC_LA/ckp_best_loss.pth
 ### parameter for optimizer
 optimizer:
   name: Adam

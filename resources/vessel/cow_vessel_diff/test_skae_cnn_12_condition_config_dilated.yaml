@@ -52,11 +52,11 @@ loader:
     target_dir: sdf022
     target_suffix: _sdf.npy
   data_path_list: 
-    # - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold1
-    # - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold2
-    # - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold3
-    # - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold4
-    - /media/wlsdzyzl/DATA/datasets/pcd/CoW/output_vessel_diff_standardized/split/fold5
+    # - /data/guoqingzhang/datasets/CoW/fold1
+    # - /data/guoqingzhang/datasets/CoW/fold2
+    # - /data/guoqingzhang/datasets/CoW/fold3
+    # - /data/guoqingzhang/datasets/CoW/fold4
+    - /data/guoqingzhang/datasets/CoW/fold5
   batch_size: 2
   num_workers: 8
   shuffle: true
@@ -69,12 +69,12 @@ loader:
     - name: ToTensor
 pickle_results: True
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-model_path: /media/wlsdzyzl/DATA/vcg-ckp/CoW_vessel_diff/SkCNN_val/ckp_best_loss.pth
-recon_dir: /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/mesh/SkCNN_val_for_test
+model_path: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val/ckp_best_loss.pth
+recon_dir: /data/guoqingzhang/vcg-results/CoW_vessel_diff/mesh/SkCNN_val_for_test
 
 custom_save_results: 
   - name: latent
-    dir: /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/latent/SkCNN_val_for_test
+    dir: /data/guoqingzhang/vcg-results/CoW_vessel_diff/latent/SkCNN_val_for_test
   - name: latent_points
-    dir: /media/wlsdzyzl/DATA/vcg-results/CoW_vessel_diff/skeleton/SkCNN_val_for_test
+    dir: /data/guoqingzhang/vcg-results/CoW_vessel_diff/skeleton/SkCNN_val_for_test
 # custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]

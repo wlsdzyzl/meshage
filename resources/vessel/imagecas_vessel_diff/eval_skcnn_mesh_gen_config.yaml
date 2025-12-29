@@ -1,8 +1,8 @@
 prediction:
-  path: /media/wlsdzyzl/DATA/vcg-results/imageCAS_vessel_diff/gen/LDM_EDM_SkCNN
+  path: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/gen/LDM_EDM_SkCNN
   suffix: .ply
 target:
-  path: /media/wlsdzyzl/DATA/datasets/pcd/imageCAS/output_vessel_diff_standardized/split/fold5/rmesh022
+  path: /data/guoqingzhang/datasets/imageCAS/fold5/rmesh022
   suffix: .ply
 eval_type: gen
 # eval_batch_num: 2
