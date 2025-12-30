@@ -8,9 +8,9 @@ from flemme.block import QueryAndGroup, MultipleBuildingBlocks, \
                     ScaleShiftBlock
 from flemme.encoder import PointEncoder, SeqNetDecoder
 from flemme.logger import get_logger
-
 from vcg.sknet import SkeletonNet
 from functools import partial
+from knn_cuda import KNN
 ### skeleton-regularized point cloud auto-encoder
 logger = get_logger("skeleton_encoder")
 
@@ -34,6 +34,7 @@ class SkeletonEncoder(PointEncoder):
                  condition_channel,
                  condition_injection,
                  skeleton_net_config,
+                 num_skeleton_points,
                  pos_embedding,
                  with_radius,
                  standardize_latents,
@@ -72,9 +73,15 @@ class SkeletonEncoder(PointEncoder):
                 self.pos_embed = nn.Linear(3, projection_channel)
                 logger.info("Using point cloud positional embedding.")
         self.point_num = point_num
-        skeleton_net_config['point_num'] = point_num
-        self.skeletonize = SkeletonNet(skeleton_net_config)
-        self.num_latent_points = self.skeletonize.skp_num
+        if not skeleton_net_config is None:
+            skeleton_net_config['point_num'] = point_num
+            self.skeletonize = SkeletonNet(skeleton_net_config)
+            self.num_latent_points = self.skeletonize.skp_num
+        else:
+            self.skeletonize = None
+            self.num_latent_points = num_skeleton_points
+            if with_radius:
+                self.knn = KNN(k = 4, transpose_mode=True)
         ## 4 dim: xyzr
         
         self.sk_proj = nn.Linear(3 + with_radius, projection_channel)
@@ -98,14 +105,27 @@ class SkeletonEncoder(PointEncoder):
         ### (B, N, K, C) -> (B, N, C), N: num of skeletal points
         skf = grouped_sff.max(dim = 2)[0]
         return skf
-    def forward(self, x, c = None):
+    def forward(self, x, c = None, ske = None):
         if self.lf is None:
             raise NotImplementedError
         sf_res, sk_res = [], []
 
         pos = x[..., :3]
-        ske_res = self.skeletonize(pos)
-        sk, r = ske_res['recon_skeleton'], ske_res['radius']
+        if self.skeletonize:
+            if not ske is None:
+                logger.warning('This model extract skeleton online, the input skeleton will be ignored.')
+            ske_res = self.skeletonize(pos)
+            sk, r = ske_res['recon_skeleton'], ske_res['radius']
+        else:
+            assert not ske is None, 'Precomputed skeleton is needed.'
+            sk = ske
+            if ske.shape[-1] == 4:
+                sk, r = ske[...,0:3], ske[..., 3:4]
+            elif self.with_radius:
+                dist, _ = self.knn(pos, sk)
+                r = dist.mean(dim = -1, keepdim = True)
+        assert sk.shape[1] == self.num_latent_points, \
+            'The number of points in the input skeleton does not match the model.'
         pos_emb, sk_emb = pos, sk
         
         if hasattr(self, 'pos_embed'):
@@ -186,6 +206,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                  condition_channel = 0,
                  condition_injection = 'gate_bias',
                  skeleton_net_config = {},
+                 num_skeleton_points = 256,
                  pos_embedding = True,
                  with_radius = False,
                  standardize_latents = True,
@@ -211,6 +232,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                 condition_channel = condition_channel,
                 condition_injection = condition_injection,
                 skeleton_net_config = skeleton_net_config,
+                num_skeleton_points = num_skeleton_points,
                 pos_embedding = pos_embedding,
                 with_radius = with_radius,
                 standardize_latents = standardize_latents,
@@ -286,6 +308,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
                     condition_injection = 'gate_bias',
                     pos_embedding = True,
                     skeleton_net_config = {},
+                    num_skeleton_points = 256,
                     with_radius = False,
                     standardize_latents = True,
                     knn_query = 'feature',
@@ -310,6 +333,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
                 condition_channel = condition_channel,
                 condition_injection = condition_injection,
                 skeleton_net_config = skeleton_net_config,
+                num_skeleton_points = num_skeleton_points,
                 pos_embedding = pos_embedding,
                 with_radius = with_radius,
                 standardize_latents = standardize_latents,
@@ -396,6 +420,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                 condition_injection = 'gate_bias',
                 pos_embedding = True,
                 skeleton_net_config = {},
+                num_skeleton_points = 256,
                 with_radius = False,
                 standardize_latents = True,
                 knn_query = 'feature',
@@ -420,6 +445,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                 condition_channel = condition_channel,
                 condition_injection = condition_injection,
                 skeleton_net_config = skeleton_net_config,
+                num_skeleton_points = num_skeleton_points,
                 pos_embedding = pos_embedding,
                 with_radius = with_radius,
                 standardize_latents = standardize_latents,

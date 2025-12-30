@@ -101,6 +101,7 @@ eval_gen:
   sampler:
     name: NormalSampler
     batch_size: 4
-  gen_dir: /data/guoqingzhang/vcg-results/MedSDF/gen/LDM_EDM_SkCNN_test/
+    save_latents: true
+  gen_dir: /data/guoqingzhang/vcg-results/MedSDF/gen/LDM_EDM_SkCNN/
   ### new generation from random noise
-  random_sample_num: 10
+  random_sample_num: 500

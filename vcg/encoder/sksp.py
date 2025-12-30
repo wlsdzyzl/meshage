@@ -9,6 +9,7 @@ from flemme.encoder import PointNetEncoder, PointNet2Encoder, \
 from vcg.sknet import SkeletonNet
 from flemme.logger import get_logger
 from functools import partial
+from knn_cuda import KNN
 ### skeleton-regularized point cloud auto-encoder
 logger = get_logger("sksp_encoder")
 
@@ -43,6 +44,7 @@ class SKSPCNNEncoder(PointNet2Encoder):
                  num_neighbors_k_self = 0,
                  num_neighbors_k_cross = 32,
                  skeleton_net_config = {},
+                 num_skeleton_points = 256,
                  with_radius = False,
                  standardize_latents = True,
                  **kwargs):
@@ -121,15 +123,21 @@ class SKSPCNNEncoder(PointNet2Encoder):
         assert self.out_channel == self.sk_layer.out_channel, \
             "skeleton latents should have an identical number of channels with sparse-point latents."
         self.point_num = point_num
-        skeleton_net_config['point_num'] = point_num
-        self.skeletonize = SkeletonNet(skeleton_net_config)
-        self.num_latent_points = self.skeletonize.skp_num
+        if not skeleton_net_config is None:
+            skeleton_net_config['point_num'] = point_num
+            self.skeletonize = SkeletonNet(skeleton_net_config)
+            self.num_skeleton_points = self.skeletonize.skp_num
+        else:
+            self.skeletonize = None
+            self.num_skeleton_points = num_skeleton_points
+            if with_radius:
+                self.knn = KNN(k = 4, transpose_mode=True)
         ## 4 dim: xyzr
         self.query_and_group = QueryAndGroup(num_neighbors_k_cross, knn_query=knn_query)
         self.out_channel += (3 + with_radius)
         self.with_radius = with_radius
         self.standardize_latents = standardize_latents
-        self.num_latent_points = self.num_fps_points[-1] + self.skeletonize.skp_num
+        self.num_latent_points = self.num_fps_points[-1] + self.num_skeleton_points
 
         self.standardize_latents = standardize_latents
         if self.standardize_latents:
@@ -150,12 +158,25 @@ class SKSPCNNEncoder(PointNet2Encoder):
         skf = grouped_sff.max(dim = 2)[0]
         return skf
     ## extract skeleton feature
-    def extract_skf(self, x, c = None):
+    def extract_skf(self, x, c = None, ske = None):
         sf_res, sk_res = [], []
 
         pos = x[..., :3]
-        ske_res = self.skeletonize(pos)
-        sk, r = ske_res['recon_skeleton'], ske_res['radius']
+        if self.skeletonize:
+            if not ske is None:
+                logger.warning('This model extract skeleton online, the input skeleton will be ignored.')
+            ske_res = self.skeletonize(pos)
+            sk, r = ske_res['recon_skeleton'], ske_res['radius']
+        else:
+            assert not ske is None, 'Precomputed skeleton is needed.'
+            sk = ske
+            if ske.shape[-1] == 4:
+                sk, r = ske[...,0:3], ske[..., 3:4]
+            elif self.with_radius:
+                dist, _ = self.knn(pos, sk)
+                r = dist.mean(dim = -1, keepdim = True)
+        assert sk.shape[1] == self.num_skeleton_points, \
+            'The number of points in the input skeleton does not match the model.'
         pos_emb, sk_emb = pos, sk
         
         if hasattr(self, 'pos_embed'):
@@ -206,9 +227,9 @@ class SKSPCNNEncoder(PointNet2Encoder):
         ## compute embedding vectors
         x = self.sk_layer.dense(x, c = c)
         return x, sk, r
-    def forward(self, x, c = None):
+    def forward(self, x, c = None, ske = None):
         spx, sp = super().forward(x, c = c)
-        skx, sk, r = self.extract_skf(x, c = c)
+        skx, sk, r = self.extract_skf(x, c = c, ske = ske)
         x = torch.cat((spx, skx), dim = 1)
         pk = torch.cat((sp, sk), dim = 1)
 
@@ -259,6 +280,7 @@ class SKSPTransEncoder(PointTrans2Encoder):
                 num_neighbors_k_self = 0,
                 num_neighbors_k_cross = 32,
                 skeleton_net_config = {},
+                num_skeleton_points = 256,
                 with_radius = False,
                 standardize_latents = True,
                 **kwargs):
@@ -349,15 +371,21 @@ class SKSPTransEncoder(PointTrans2Encoder):
         assert self.out_channel == self.sk_layer.out_channel, \
             "skeleton latents should have an identical number of channels with sparse-point latents."
         self.point_num = point_num
-        skeleton_net_config['point_num'] = point_num
-        self.skeletonize = SkeletonNet(skeleton_net_config)
-        self.num_latent_points = self.skeletonize.skp_num
+        if not skeleton_net_config is None:
+            skeleton_net_config['point_num'] = point_num
+            self.skeletonize = SkeletonNet(skeleton_net_config)
+            self.num_skeleton_points = self.skeletonize.skp_num
+        else:
+            self.skeletonize = None
+            self.num_skeleton_points = num_skeleton_points
+            if with_radius:
+                self.knn = KNN(k = 4, transpose_mode=True)
         ## 4 dim: xyzr
         self.query_and_group = QueryAndGroup(num_neighbors_k_cross, knn_query=knn_query)
         self.out_channel += (3 + with_radius)
         self.with_radius = with_radius
         self.standardize_latents = standardize_latents
-        self.num_latent_points = self.num_fps_points[-1] + self.skeletonize.skp_num
+        self.num_latent_points = self.num_fps_points[-1] + self.num_skeleton_points
 
         self.standardize_latents = standardize_latents
         if self.standardize_latents:
@@ -378,12 +406,25 @@ class SKSPTransEncoder(PointTrans2Encoder):
         skf = grouped_sff.max(dim = 2)[0]
         return skf
     ## extract skeleton feature
-    def extract_skf(self, x, c = None):
+    def extract_skf(self, x, c = None, ske = None):
         sf_res, sk_res = [], []
 
         pos = x[..., :3]
-        ske_res = self.skeletonize(pos)
-        sk, r = ske_res['recon_skeleton'], ske_res['radius']
+        if self.skeletonize:
+            if not ske is None:
+                logger.warning('This model extract skeleton online, the input skeleton will be ignored.')
+            ske_res = self.skeletonize(pos)
+            sk, r = ske_res['recon_skeleton'], ske_res['radius']
+        else:
+            assert not ske is None, 'Precomputed skeleton is needed.'
+            sk = ske
+            if ske.shape[-1] == 4:
+                sk, r = ske[...,0:3], ske[..., 3:4]
+            elif self.with_radius:
+                dist, _ = self.knn(pos, sk)
+                r = dist.mean(dim = -1, keepdim = True)
+        assert sk.shape[1] == self.num_skeleton_points, \
+            'The number of points in the input skeleton does not match the model.'
         pos_emb, sk_emb = pos, sk
         
         if hasattr(self, 'pos_embed'):
@@ -434,9 +475,9 @@ class SKSPTransEncoder(PointTrans2Encoder):
         ## compute embedding vectors
         x = self.sk_layer.dense(x, c = c)
         return x, sk, r
-    def forward(self, x, c = None):
+    def forward(self, x, c = None, ske = None):
         spx, sp = super().forward(x, c = c)
-        skx, sk, r = self.extract_skf(x, c = c)
+        skx, sk, r = self.extract_skf(x, c = c, ske = ske)
         x = torch.cat((spx, skx), dim = 1)
         pk = torch.cat((sp, sk), dim = 1)
 
@@ -495,6 +536,7 @@ class SKSPMambaEncoder(PointMamba2Encoder):
                 num_neighbors_k_self = 0,
                 num_neighbors_k_cross = 32,
                 skeleton_net_config = {},
+                num_skeleton_points = 256,
                 with_radius = False,
                 standardize_latents = True,
                 **kwargs):
@@ -598,15 +640,21 @@ class SKSPMambaEncoder(PointMamba2Encoder):
         assert self.out_channel == self.sk_layer.out_channel, \
             "skeleton latents should have an identical number of channels with sparse-point latents."
         self.point_num = point_num
-        skeleton_net_config['point_num'] = point_num
-        self.skeletonize = SkeletonNet(skeleton_net_config)
-        self.num_latent_points = self.skeletonize.skp_num
+        if not skeleton_net_config is None:
+            skeleton_net_config['point_num'] = point_num
+            self.skeletonize = SkeletonNet(skeleton_net_config)
+            self.num_skeleton_points = self.skeletonize.skp_num
+        else:
+            self.skeletonize = None
+            self.num_skeleton_points = num_skeleton_points
+            if with_radius:
+                self.knn = KNN(k = 4, transpose_mode=True)
         ## 4 dim: xyzr
         self.query_and_group = QueryAndGroup(num_neighbors_k_cross, knn_query=knn_query)
         self.out_channel += (3 + with_radius)
         self.with_radius = with_radius
         self.standardize_latents = standardize_latents
-        self.num_latent_points = self.num_fps_points[-1] + self.skeletonize.skp_num
+        self.num_latent_points = self.num_fps_points[-1] + self.num_skeleton_points
 
         self.standardize_latents = standardize_latents
         if self.standardize_latents:
@@ -627,12 +675,25 @@ class SKSPMambaEncoder(PointMamba2Encoder):
         skf = grouped_sff.max(dim = 2)[0]
         return skf
     ## extract skeleton feature
-    def extract_skf(self, x, c = None):
+    def extract_skf(self, x, c = None, ske = None):
         sf_res, sk_res = [], []
 
         pos = x[..., :3]
-        ske_res = self.skeletonize(pos)
-        sk, r = ske_res['recon_skeleton'], ske_res['radius']
+        if self.skeletonize:
+            if not ske is None:
+                logger.warning('This model extract skeleton online, the input skeleton will be ignored.')
+            ske_res = self.skeletonize(pos)
+            sk, r = ske_res['recon_skeleton'], ske_res['radius']
+        else:
+            assert not ske is None, 'Precomputed skeleton is needed.'
+            sk = ske
+            if ske.shape[-1] == 4:
+                sk, r = ske[...,0:3], ske[..., 3:4]
+            elif self.with_radius:
+                dist, _ = self.knn(pos, sk)
+                r = dist.mean(dim = -1, keepdim = True)
+        assert sk.shape[1] == self.num_skeleton_points, \
+            'The number of points in the input skeleton does not match the model.'
         pos_emb, sk_emb = pos, sk
         
         if hasattr(self, 'pos_embed'):
@@ -683,9 +744,9 @@ class SKSPMambaEncoder(PointMamba2Encoder):
         ## compute embedding vectors
         x = self.sk_layer.dense(x, c = c)
         return x, sk, r
-    def forward(self, x, c = None):
+    def forward(self, x, c = None, ske = None):
         spx, sp = super().forward(x, c = c)
-        skx, sk, r = self.extract_skf(x, c = c)
+        skx, sk, r = self.extract_skf(x, c = c, ske = ske)
         x = torch.cat((spx, skx), dim = 1)
         pk = torch.cat((sp, sk), dim = 1)
 

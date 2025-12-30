@@ -8,11 +8,11 @@ from flemme.utils import load_pcd, load_npy, \
     contains_one_of, load_config
 from flemme.logger import get_logger
 from flemme.dataset import pcd_dataset_dict, \
-    create_loader
+    create_loader as _create_loader
 from vcg.utils import resolution2coord
 from vcg.config import truncate_sdf, truncated_value, \
                     train_truncate_scaling
-
+from functools import partial
 ### Point Cloud with SDF
 ### target is sdf
 logger = get_logger('pcd_sdf_dataset')
@@ -22,6 +22,8 @@ class PcdSDFDataset(Dataset):
                 target_transform = None, mode = 'train', data_dir = 'raw', 
                 target_dir = 'sdf', data_suffix = '.ply', 
                 target_suffix='.npy', resolution = 0.01, 
+                skeleton_dir = None, skeleton_suffix='.ply',
+                skeleton_transform = None,
                 filter_file = None, truncate_prob = 1.0, **kwargs):
         super().__init__()
         if len(kwargs) > 0:
@@ -41,7 +43,11 @@ class PcdSDFDataset(Dataset):
             self.target_path_list = None
         else:
             self.target_path_list = [rreplace(rreplace(ppath, data_suffix, target_suffix, 1), data_dir, target_dir, 1) for ppath in self.pcd_path_list]
+        self.skeleton_path_list = None
+        if not skeleton_dir is None:
+            self.skeleton_path_list = [rreplace(rreplace(ppath, data_suffix, skeleton_suffix, 1), data_dir, skeleton_dir, 1) for ppath in self.pcd_path_list]
         self.target_transform = target_transform
+        self.skeleton_transform = skeleton_transform
         self.coord = resolution2coord(resolution)[0]
         self.truncate_prob = truncate_prob
     def __len__(self):
@@ -56,6 +62,10 @@ class PcdSDFDataset(Dataset):
         else:
             sdf = None
 
+        if not self.pcd_path_list is None:
+            ske = load_pcd(self.skeleton_path_list[index])
+        else:
+            ske = None
         ### pose transformation (translation and rotation) is not allowed
         ### only perform fixed_points transform
         if self.data_transform:
@@ -96,24 +106,31 @@ class PcdSDFDataset(Dataset):
                     coord = self.target_transform(self.coord)
             else:
                 coord = torch.from_numpy(self.coord).float()
-        return pcd, coord, sdf, self.pcd_path_list[index]
+            if not ske is None and self.skeleton_transform:
+                set_random_state(n_state, t_state)
+                ske = self.skeleton_transform(ske)
+        return pcd, ske, coord, sdf, self.pcd_path_list[index]
+
     
 class PcdSDFWithClassLabelDataset(Dataset):
     def __init__(self, data_path, 
-                 data_transform = None, 
-                 target_transform = None,
-                 class_label_transform = None, 
-                 mode = 'train', 
-                 data_dir = 'raw', 
-                 target_dir = 'sdf', 
-                 data_suffix = '.ply', 
-                 target_suffix='.ply', 
-                 cls_label = {},
-                 pre_shuffle = True,
-                 resolution = 0.01, 
-                 filter_file = None, 
-                 truncate_prob = 1.0,
-                 **kwargs):
+                data_transform = None, 
+                target_transform = None,
+                class_label_transform = None, 
+                mode = 'train', 
+                data_dir = 'raw', 
+                target_dir = 'sdf', 
+                data_suffix = '.ply', 
+                target_suffix='.ply', 
+                cls_label = {},
+                pre_shuffle = True,
+                resolution = 0.01, 
+                filter_file = None, 
+                truncate_prob = 1.0,
+                skeleton_dir = None, 
+                skeleton_suffix='.ply',
+                skeleton_transform = None,
+                **kwargs):
         super().__init__()
         if len(kwargs) > 0:
             logger.debug("redundant parameters: {}".format(kwargs))
@@ -123,6 +140,7 @@ class PcdSDFWithClassLabelDataset(Dataset):
         self.data_transform = data_transform
         self.class_label_transform = class_label_transform
         self.target_transform = target_transform
+        self.skeleton_transform = skeleton_transform
         self.pcd_path_list = []
         self.class_labels = []
         if target_dir is None:
@@ -130,6 +148,10 @@ class PcdSDFWithClassLabelDataset(Dataset):
             self.target_path_list = None
         else:
             self.target_path_list = []
+        if skeleton_dir is None:
+            self.skeleton_path_list = None
+        else:
+            self.skeleton_path_list = []
 
         class_dirs = list(cls_label.keys())
         filter_dict = None
@@ -145,6 +167,9 @@ class PcdSDFWithClassLabelDataset(Dataset):
             if not self.target_path_list is None:
                 sub_target_path_list = [rreplace(rreplace(s, data_dir, target_dir, 1), data_suffix, target_suffix, 1) for s in sub_path_list]
                 self.target_path_list = self.target_path_list + sub_target_path_list
+            if not self.skeleton_path_list is None:
+                sub_skeleton_path_list = [rreplace(rreplace(s, data_dir, skeleton_dir, 1), data_suffix, skeleton_suffix, 1) for s in sub_path_list]
+                self.skeleton_path_list = self.skeleton_path_list + sub_skeleton_path_list
             assert cls_dir in cls_label, f'Unknowk class: {cls_dir}'
             self.class_labels = self.class_labels + [cls_label[cls_dir], ] * len(sub_path_list)
 
@@ -154,6 +179,8 @@ class PcdSDFWithClassLabelDataset(Dataset):
             self.pcd_path_list = [self.pcd_path_list[i] for i in shuffled_index]
             if not self.target_path_list is None:
                 self.target_path_list = [self.target_path_list[i] for i in shuffled_index]
+            if not self.skeleton_path_list is None:
+                self.skeleton_path_list = [self.skeleton_path_list[i] for i in shuffled_index]
             self.class_labels = [self.class_labels[i] for i in shuffled_index]
         self.coord = resolution2coord(resolution)[0]
         self.truncate_prob = truncate_prob
@@ -168,6 +195,10 @@ class PcdSDFWithClassLabelDataset(Dataset):
             assert len(sdf) == len(self.coord), f"Coordinates ({len(self.coord)}) and sdf ({len(sdf)}) are not matched."
         else:
             sdf = None
+        if not self.skeleton_path_list is None:
+            ske = load_pcd(self.skeleton_path_list[index])
+        else:
+            ske = None
         cls_label = self.class_labels[index]
 
         ### pose transformation (translation and rotation) is not allowed
@@ -213,7 +244,12 @@ class PcdSDFWithClassLabelDataset(Dataset):
                     coord = self.target_transform(self.coord)
             else:
                 coord = torch.from_numpy(self.coord).float()
-        return pcd, cls_label, coord, sdf, self.pcd_path_list[index]
+            if not ske is None and self.skeleton_transform:
+                set_random_state(n_state, t_state)
+                ske = self.skeleton_transform(ske)        
+        return pcd, ske, cls_label, coord, sdf, self.pcd_path_list[index]
 
 pcd_dataset_dict['PcdSDFDataset'] = PcdSDFDataset
 pcd_dataset_dict['PcdSDFWithClassLabelDataset'] = PcdSDFWithClassLabelDataset
+
+create_loader = partial(_create_loader, custom_attributes=['skeleton'])

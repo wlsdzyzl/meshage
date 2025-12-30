@@ -71,7 +71,7 @@ loader:
     - name: ToTensor
 pickle_results: True
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-model_path: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val_with_SKC/ckp_best_loss.pth
+model_path: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val_with_SKC_LA/ckp_best_loss.pth
 recon_dir: /data/guoqingzhang/vcg-results/CoW_vessel_diff/mesh/SkCNN_val_with_SKC_LA_for_train
 
 custom_save_results: 

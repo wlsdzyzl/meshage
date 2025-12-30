@@ -59,16 +59,16 @@ class SDFModel(AE):
             if ske_inter_idx is None:
                 return sdf
             return sdf, ske_inter_idx
-    def forward(self, x, coord, c=None):
-        z = self.encode(x, c = c)
+    def forward(self, x, coord, c=None, ske = None):
+        z = self.encode(x, c = c, ske = ske)
         sdf = self.decode(z, coord, c = c)
         if type(sdf) == tuple:
             sdf, ske_inter_idx = sdf
             return {'recon': sdf, 'latent': z, 'ske_inter_idx': ske_inter_idx, 'latent_points': z[..., :3]}
         return {'recon': sdf, 'latent': z, 'latent_points': z[..., :3]}
-    def compute_loss(self, x, coord, y, c = None, res = None):
+    def compute_loss(self, x, coord, y, c = None, res = None, ske = None):
         if res is None:
-            res = self.forward(x, coord, c)   
+            res = self.forward(x, coord, c, ske = ske)   
         losses = []
         assert self.coordinate_sampling_ratio == 1.0, 'Coordinate sampling should only be used for test.'
         if self.latent_point_constraints:
@@ -78,7 +78,8 @@ class SDFModel(AE):
                     ske_inter_idx = res['ske_inter_idx']
                     inter_rs = tuple(0.5 * r + 0.5 * gather_features(r, index = ske_inter_idx[..., i], channel_dim = -1, gather_dim = 1) for i in range(self.latent_point_inter_num))
                     r = torch.cat((r, ) + inter_rs, dim = 1)
-                r = r / self.encoder.skeletonize.radius_scaling
+                if self.encoder.skeletonize:
+                    r = r / self.encoder.skeletonize.radius_scaling
                 if truncate_sdf:
                     r = r / (truncated_value * train_truncate_scaling)
                 y = torch.concat((y, r), dim = 1)

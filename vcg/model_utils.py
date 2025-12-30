@@ -22,19 +22,16 @@ supported_vcg_models = {
 supported_flemme_models = ['Base', 'EDM', 'LDM']
 supported_ae_models.append('SDF')
 def process_input(t):
-    x, c, coord, sdf, p = None, None, None, None, None
+    x, ske, c, coord, sdf, p = None, None, None, None, None, None
     if len(t) == 2:
         x, p = t
     if len(t) == 3:
         x, c, p = t
-    if len(t) == 4:
-        x, coord, sdf, p = t 
     if len(t) == 5:
-        x, c, coord, sdf, p = t
-    ## patch
-    # if len(t) == 5:
-    #     x, y, c, si, p = t
-    return x, c, coord, sdf, p
+        x, ske, coord, sdf, p = t 
+    if len(t) == 6:
+        x, ske, c, coord, sdf, p = t
+    return x, ske, c, coord, sdf, p
 
 def compute_loss(model, x, coord, sdf, c, **kwargs):
     ## pointsdf with label
@@ -80,8 +77,10 @@ def create_model(model_config):
     
 def train_run(model, t, only_forward = False):
     processed_input = process_input(t)
-    x, c, coord, sdf, _ = processed_input
+    x, ske, c, coord, sdf, _ = processed_input
     x = x.to(device) 
+    if ske is not None:
+        ske = ske.to(device)
     if c is not None: 
         c = c.to(device)
     if coord is not None:
@@ -100,19 +99,21 @@ def train_run(model, t, only_forward = False):
     ### here we want to generate raw image
     if only_forward:
         ## model.forward
-        tmp_res = forward_pass(model, x, coord, c)
+        tmp_res = forward_pass(model, x, coord, c, ske = ske)
         res.update(tmp_res)
         return res 
     else:
         ## model.compute_loss
-        losses, tmp_res = compute_loss(model, x, coord, sdf, c)
+        losses, tmp_res = compute_loss(model, x, coord, sdf, c, ske = ske)
         res.update(tmp_res)
         return losses, res
 
 def test_run(model, t):
     processed_input = process_input(t)
-    x, c, coord, sdf, path = processed_input
+    x, ske, c, coord, sdf, path = processed_input
     x = x.to(device) 
+    if ske is not None:
+        ske = ske.to(device)
     if c is not None: 
         c = c.to(device)
     if coord is not None:
@@ -123,7 +124,7 @@ def test_run(model, t):
     if not x.shape[1:] == tuple(model.get_input_shape()):
         logger.error("Inconsistent sample shape between data and model: {} and {}".format(x.shape[1:], tuple(model.get_input_shape())))
         exit(1)  
-    res = forward_pass(model, x, coord, c)
+    res = forward_pass(model, x, coord, c, ske = ske)
     res['input'] = x
     res['path'] = path
     if model.is_supervised:
