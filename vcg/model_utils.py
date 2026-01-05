@@ -97,14 +97,17 @@ def train_run(model, t, only_forward = False):
     if model.is_conditional:
         res['condition'] = c
     ### here we want to generate raw image
+    model_kwargs = {}
+    if not ske is None:
+        model_kwargs = {"ske": ske}
     if only_forward:
         ## model.forward
-        tmp_res = forward_pass(model, x, coord, c, ske = ske)
+        tmp_res = forward_pass(model, x, coord, c, **model_kwargs)
         res.update(tmp_res)
         return res 
     else:
         ## model.compute_loss
-        losses, tmp_res = compute_loss(model, x, coord, sdf, c, ske = ske)
+        losses, tmp_res = compute_loss(model, x, coord, sdf, c, **model_kwargs)
         res.update(tmp_res)
         return losses, res
 

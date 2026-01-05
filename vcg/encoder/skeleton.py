@@ -74,10 +74,12 @@ class SkeletonEncoder(PointEncoder):
                 logger.info("Using point cloud positional embedding.")
         self.point_num = point_num
         if not skeleton_net_config is None:
+            logger.info('Using online skeletonization.')
             skeleton_net_config['point_num'] = point_num
             self.skeletonize = SkeletonNet(skeleton_net_config)
             self.num_latent_points = self.skeletonize.skp_num
         else:
+            logger.info('Pre-computed skeleton is needed.')
             self.skeletonize = None
             self.num_latent_points = num_skeleton_points
             if with_radius:
@@ -553,6 +555,7 @@ class SkeletonSDFDecoder(SeqNetDecoder):
         if standardize_latents:
             self.scale_shift = ScaleShiftBlock((num_latent_points, latent_channel - 3 - with_radius))
         if self_atten_for_latent:
+            logger.info('Apply self-attention on latent points.')
             SABlock = get_building_block('pct_sa',                                        activation=activation, 
                                         norm = normalization, 
                                         num_norm_groups = num_norm_groups, 

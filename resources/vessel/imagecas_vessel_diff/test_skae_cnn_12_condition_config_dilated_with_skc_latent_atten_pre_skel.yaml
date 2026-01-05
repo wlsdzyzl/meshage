@@ -27,13 +27,8 @@ model:
     with_radius: True
     self_atten_for_latent: True
     latent_projection_channel: 512
-    skeleton_net_config:
-      skp_num: 400
-      isk_num: 2
-      skp_neighbor_num: 32
-      radius_scaling: 1.0
-      dbscan_eps: 0.65
-      dbscan_min_sample_num: 1
+    num_skeleton_points: 400
+    skeleton_net_config: null
   # condition_embedding:
   #   combine_condition: injection
   #   condition_injection: gate_bias
@@ -53,6 +48,8 @@ loader:
     data_suffix: .ply
     target_dir: sdf022
     target_suffix: _sdf.npy
+    skeleton_dir: skeleton
+    skeleton_suffix: _mesh_ske.ply
   data_path_list: 
     # - /data/guoqingzhang/datasets/imageCAS/fold1
     # - /data/guoqingzhang/datasets/imageCAS/fold2
@@ -67,16 +64,21 @@ loader:
       method: qfps
       num: 4096
     - name: ToTensor
+  skeleton_transforms:
+    - name: FixedPoints
+      method: qfps
+      num: 400
+    - name: ToTensor
   target_transforms:
     - name: ToTensor
 pickle_results: True
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-model_path: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC_LA/ckp_best_loss.pth
-recon_dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/mesh/SkCNN_val_with_SKC_LA_for_test
+model_path: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC_LA_OS/ckp_best_loss.pth
+recon_dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/mesh/SkCNN_val_with_SKC_LA_OS_for_test
 
 custom_save_results: 
   - name: latent
-    dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/latent/SkCNN_val_with_SKC_LA_for_test
+    dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/latent/SkCNN_val_with_SKC_LA_OS_for_test
   - name: latent_points
-    dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/skeleton/SkCNN_val_with_SKC_LA_for_test
+    dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/skeleton/SkCNN_val_with_SKC_LA_OS_for_test
 # custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]

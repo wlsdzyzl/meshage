@@ -5,12 +5,12 @@
 #SBATCH -c 8
 #SBATCH -t 144000
 
-echo pointnet++
-eval_flemme --config /home/guoqingzhang/vcg/resources/other/eval_pointnet2_mesh_condition_config.yaml
-echo dgcnn
-eval_flemme --config /home/guoqingzhang/vcg/resources/other/eval_dgcnn_mesh_condition_config.yaml
-echo pointmamba2
-eval_flemme --config /home/guoqingzhang/vcg/resources/other/eval_pointmamba2_mesh_condition_config.yaml
+# echo pointnet++
+# eval_flemme --config /home/guoqingzhang/vcg/resources/other/eval_pointnet2_mesh_condition_config.yaml
+# echo dgcnn
+# eval_flemme --config /home/guoqingzhang/vcg/resources/other/eval_dgcnn_mesh_condition_config.yaml
+# echo pointmamba2
+# eval_flemme --config /home/guoqingzhang/vcg/resources/other/eval_pointmamba2_mesh_condition_config.yaml
 # echo diff_pcd
 # eval_flemme --config /home/guoqingzhang/vcg/resources/other/eval_diffpcd_recon_mesh_condition_config.yaml
 # echo vessel_diff
@@ -35,3 +35,7 @@ eval_flemme --config /home/guoqingzhang/vcg/resources/other/eval_pointmamba2_mes
 # eval_flemme --config /home/guoqingzhang/vcg/resources/sktrans/eval_skae_trans_mesh_condition_config_wo_skc.yaml
 # echo sksptrans wo lpc
 # eval_flemme --config /home/guoqingzhang/vcg/resources/sksptrans/eval_skspae_trans_mesh_condition_config_wo_lpc.yaml
+echo skcnn-512
+eval_flemme --config /home/guoqingzhang/vcg/resources/skcnn/eval_skae_cnn_mesh_condition_config_512.yaml
+echo skcnn-512 with LA OS
+eval_flemme --config /home/guoqingzhang/vcg/resources/skcnn/eval_skae_cnn_mesh_condition_config_512_with_la_os.yaml

@@ -124,10 +124,12 @@ class SKSPCNNEncoder(PointNet2Encoder):
             "skeleton latents should have an identical number of channels with sparse-point latents."
         self.point_num = point_num
         if not skeleton_net_config is None:
+            logger.info('Using online skeletonization.')
             skeleton_net_config['point_num'] = point_num
             self.skeletonize = SkeletonNet(skeleton_net_config)
             self.num_skeleton_points = self.skeletonize.skp_num
         else:
+            logger.info('Pre-computed skeleton is needed.')
             self.skeletonize = None
             self.num_skeleton_points = num_skeleton_points
             if with_radius:
@@ -372,10 +374,12 @@ class SKSPTransEncoder(PointTrans2Encoder):
             "skeleton latents should have an identical number of channels with sparse-point latents."
         self.point_num = point_num
         if not skeleton_net_config is None:
+            logger.info('Using online skeletonization.')
             skeleton_net_config['point_num'] = point_num
             self.skeletonize = SkeletonNet(skeleton_net_config)
             self.num_skeleton_points = self.skeletonize.skp_num
         else:
+            logger.info('Pre-computed skeleton is needed.')
             self.skeletonize = None
             self.num_skeleton_points = num_skeleton_points
             if with_radius:
@@ -641,10 +645,12 @@ class SKSPMambaEncoder(PointMamba2Encoder):
             "skeleton latents should have an identical number of channels with sparse-point latents."
         self.point_num = point_num
         if not skeleton_net_config is None:
+            logger.info('Using online skeletonization.')
             skeleton_net_config['point_num'] = point_num
             self.skeletonize = SkeletonNet(skeleton_net_config)
             self.num_skeleton_points = self.skeletonize.skp_num
         else:
+            logger.info('Pre-computed skeleton is needed.')
             self.skeletonize = None
             self.num_skeleton_points = num_skeleton_points
             if with_radius:

@@ -1,0 +1,15 @@
+prediction:
+  path: /data/guoqingzhang/vcg-results/CoW_vessel_diff/mesh/SkCNN_val_with_SKC_LA_OS_for_test
+  suffix: .ply
+
+target:
+  path: /data/guoqingzhang/datasets/CoW/fold5/rmesh022
+  suffix: _mesh.ply
+is_mesh: true
+eval_type: recon
+# eval_batch_num: 2
+data_form: pcd
+evaluation_metrics:
+    - name: BettiError
+      min_num_faces: 100
+      min_hole_size: 50

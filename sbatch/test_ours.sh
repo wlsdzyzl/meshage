@@ -11,7 +11,7 @@
 # test_vcg --config /home/guoqingzhang/vcg/resources/test_spae_cnn_condition_config_wo_lpc_for_train.yaml
 # test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_skae_cnn_condition_config.yaml
 # test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_skae_cnn_condition_config_512.yaml
-test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_skae_cnn_condition_config_512.yaml
+# test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_skae_cnn_condition_config_512.yaml
 # test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_skae_cnn_condition_config_for_train_512.yaml
 # test_vcg --config /home/guoqingzhang/vcg/resources/test_skae_cnn_condition_config_wo_skc.yaml
 # test_vcg --config /home/guoqingzhang/vcg/resources/test_spae_cnn_condition_config.yaml

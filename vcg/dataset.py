@@ -62,7 +62,7 @@ class PcdSDFDataset(Dataset):
         else:
             sdf = None
 
-        if not self.pcd_path_list is None:
+        if not self.skeleton_path_list is None:
             ske = load_pcd(self.skeleton_path_list[index])
         else:
             ske = None
