@@ -1,0 +1,14 @@
+sub_dirs: [bladder, brain, colon, coronary_artery_left_d, coronary_artery_right_d, duodenum, gallbladder, liver, pancreas, skull, spleen, stomach, trachea, uterus]
+target:
+  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022/
+  suffix: _mesh.ply
+prediction:
+  path: /data/guoqingzhang/vcg-results/MedSDF/gen/LDM_EDM_SkCNN_with_la/
+  suffix: .ply
+eval_type: gen
+data_form: pcd
+is_mesh: true
+evaluation_metrics:
+    - name: meanBettiError
+      min_num_faces: 100
+      min_hole_size: 50

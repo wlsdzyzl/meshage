@@ -18,5 +18,11 @@
 # test_vcg --config /home/guoqingzhang/vcg/resources/sksptrans/test_skspae_trans_condition_config_wo_lpc.yaml
 # train_vcg --config /home/guoqingzhang/vcg/resources/sksptrans/train_edm_sksptrans_condition_config.yaml
 # train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_edm_skcnn_condition_config_512.yaml
-train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_edm_skcnn_condition_config_512_with_la_os.yaml
+# train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_edm_skcnn_condition_config_512_with_la_os.yaml
+# test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_skae_cnn_condition_config_with_la_for_train.yaml
+# test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_skae_cnn_condition_config_with_la.yaml
+# train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_edm_skcnn_condition_config_with_la.yaml
+# test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_skae_cnn_condition_config_with_la_512.yaml
+# test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_skae_cnn_condition_config_with_la_512_for_train.yaml
 
+train_vcg --config /home/guoqingzhang/vcg/resources/skcnn/train_edm_skcnn_condition_config_512_with_la.yaml

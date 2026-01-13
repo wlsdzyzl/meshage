@@ -35,7 +35,11 @@
 # eval_flemme --config /home/guoqingzhang/vcg/resources/sktrans/eval_skae_trans_condition_config_wo_skc.yaml
 # echo sksptrans wo lpc
 # eval_flemme --config /home/guoqingzhang/vcg/resources/sksptrans/eval_skspae_trans_condition_config_wo_lpc.yaml
-echo skcnn-512
-eval_flemme --config /home/guoqingzhang/vcg/resources/skcnn/eval_skae_cnn_condition_config_512.yaml
-echo skcnn-512 with LA OS
-eval_flemme --config /home/guoqingzhang/vcg/resources/skcnn/eval_skae_cnn_condition_config_512_with_la_os.yaml
+# echo skcnn-512
+# eval_flemme --config /home/guoqingzhang/vcg/resources/skcnn/eval_skae_cnn_condition_config_512.yaml
+# echo skcnn-512 with LA OS
+# eval_flemme --config /home/guoqingzhang/vcg/resources/skcnn/eval_skae_cnn_condition_config_512_with_la_os.yaml
+echo skcnn with LA
+eval_flemme --config /home/guoqingzhang/vcg/resources/skcnn/eval_skae_cnn_condition_config_with_la.yaml
+echo skcnn-512 with LA
+eval_flemme --config /home/guoqingzhang/vcg/resources/skcnn/eval_skae_cnn_condition_config_with_la_512.yaml
