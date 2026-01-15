@@ -76,3 +76,4 @@ pickle_results: True
 # pickle_path: /data/guoqingzhang/vcg-pickle
 model_path: /data/guoqingzhang/vcg-ckp/MedSDF/SkCNN_val_512/ckp_best_loss.pth
 recon_dir: /data/guoqingzhang/vcg-for-figure/recon/SkCNN_val_512
+

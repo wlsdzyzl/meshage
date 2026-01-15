@@ -41,3 +41,11 @@ def resolution2coord(resolution):
     x, y, z = ((np.mgrid[:length, :length, :length] - length / 2 + 0.5 ) * resolution)
     coord = np.stack((x, y, z), axis=-1).reshape(-1, 3)
     return coord, length
+def save_valid_sdf_to_points(save_path, sdf):
+    resolution = space_length / sdf.shape[0]
+    coord = resolution2coord(resolution)[0]
+    sdf = sdf.flatten()
+    sampled_idx = np.logical_and(sdf >-1, sdf < 1) 
+    sampled_coord = coord[sampled_idx]
+    sampled_sdf = sdf[sampled_idx]
+    save_ply(save_path, (sampled_coord, sampled_sdf))

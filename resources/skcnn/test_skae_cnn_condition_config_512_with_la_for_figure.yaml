@@ -81,3 +81,5 @@ recon_dir: /data/guoqingzhang/vcg-for-figure/recon/SkCNN_val_512_with_la
 custom_save_results: 
   - name: latent_points
     dir: /data/guoqingzhang/vcg-for-figure/recon/skeleton
+  - name: recon
+    dir: /data/guoqingzhang/vcg-results/MedSDF/sdf

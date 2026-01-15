@@ -528,6 +528,8 @@ class SkeletonSDFDecoder(SeqNetDecoder):
                 with_radius = False,
                 standardize_latents = True,
                 self_atten_for_latent = False,
+                ## embed latent attention into building blocks
+                embed_la = True,
                 **kwargs):
         latent_projection_channel = latent_projection_channel or latent_channel
         super().__init__(point_dim = point_dim,
@@ -556,7 +558,8 @@ class SkeletonSDFDecoder(SeqNetDecoder):
             self.scale_shift = ScaleShiftBlock((num_latent_points, latent_channel - 3 - with_radius))
         if self_atten_for_latent:
             logger.info('Apply self-attention on latent points.')
-            SABlock = get_building_block('pct_sa',                                        activation=activation, 
+            SABlock = get_building_block('pct_sa',                                        
+                                        activation=activation, 
                                         norm = normalization, 
                                         num_norm_groups = num_norm_groups, 
                                         dropout = dropout,)
@@ -566,7 +569,7 @@ class SkeletonSDFDecoder(SeqNetDecoder):
                                     out_channel=latent_projection_channel) 
                                 for i in range(len(self.seq_path) - 1) ]
             self.latent_attens = nn.ModuleList(sequence)
-
+        self.embed_la = embed_la
         
     ## latent: B * N * C, coordinate: B * M * 3, return B * M * 1 (sdf)
     def forward(self, latent, coordinate, c = None):
@@ -576,9 +579,12 @@ class SkeletonSDFDecoder(SeqNetDecoder):
                 self.scale_shift(latent[..., 3 + self.with_radius:])), dim = -1)
         if hasattr(self, 'latent_point_proj'):
             latent = self.latent_point_proj(latent)
+        if hasattr(self, 'latent_attens') and not self.embed_la:
+            for la in self.latent_attens:
+                latent = la(latent)
         coord_feature = self.coord_proj(coordinate)
         for sid in range(len(self.seq)):
-            if hasattr(self, 'latent_attens'):
+            if hasattr(self, 'latent_attens') and self.embed_la:
                 latent = self.latent_attens[sid](latent)
             coord_feature = self.seq[sid](coord_feature, t = latent)
         # res = super().forward(coord_feature, t = latent, c = c)

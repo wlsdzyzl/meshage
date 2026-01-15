@@ -1,7 +1,7 @@
 from vcg.sknet import SkeletonNet #, LearnableSkeletonNet
 from vcg.sdf_model import SDFModel
 from vcg.encoder import create_vcg_encoder
-from vcg.utils import save_sdf2mesh, save_occ2mesh
+from vcg.utils import save_sdf2mesh, save_occ2mesh, save_valid_sdf_to_points
 from vcg.config import truncated_value, train_truncate_scaling, use_occupancy
 from flemme.model import create_model as _create_model, EDM, LDM, supported_ae_models
 from flemme.logger import get_logger
@@ -9,7 +9,7 @@ from flemme.trainer import save_data as _save_data
 from flemme.utils import save_npy, DataForm
 import torch
 import numpy as np
-
+import os
 logger = get_logger('model.utils')
 ## if we want to train pcd or image, 
 ## make sure that the image size from data loader and image size from the model parameters are identical
@@ -141,12 +141,19 @@ def save_data(output, data_form, output_path):
     if output.shape[-1] == 1:
         output = output.squeeze(-1)
         length = int(np.cbrt(output.shape[0]))
+        ## to avoid floating-point precision error
+        if length**3 < output.shape[0]:
+            length = length + 1
+        assert length ** 3 == output.shape[0], 'Error happens when recovering cube.'
         output = output.reshape((length, length, length))
-        if use_occupancy:
-            output = output > 0
-            save_occ2mesh(output_path+'.ply', output)
+        if '/sdf' in output_path:
+            save_valid_sdf_to_points(output_path+'.sdf.ply', output)
         else:
-            output = output * truncated_value * train_truncate_scaling
-            save_sdf2mesh(output_path+'.ply', output)
+            if use_occupancy:
+                output = output > 0
+                save_occ2mesh(output_path+'.ply', output)
+            else:
+                output = output * truncated_value * train_truncate_scaling
+                save_sdf2mesh(output_path+'.ply', output)
     else:
         _save_data(output, data_form, output_path)

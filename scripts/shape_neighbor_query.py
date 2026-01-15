@@ -1,7 +1,7 @@
 import numpy as np
 from flemme.metrics import CD, EMD
 from flemme.logger import get_logger
-from flemme.utils import load_ply, topk
+from flemme.utils import load_ply, topk, normalize
 from tqdm import tqdm
 import argparse
 import glob
@@ -17,6 +17,7 @@ if __name__ == "__main__":
     parser.add_argument("--distance", type=str, default="CD", help="Distance metric to use for neighbor search.")
     parser.add_argument("--k", type=int, default=1, help="Number of nearest neighbors to find.")
     parser.add_argument("--fixed_points", type=int, default=-1, help="Number of points to sample from each shape.")
+    parser.add_argument("--normalize", action='store_true', help="Normalize the query and target point clouds.")
     args = parser.parse_args()
 
     if args.distance.lower() not in ['cd', 'emd']:
@@ -30,6 +31,9 @@ if __name__ == "__main__":
     ### distance matrix
     query_shapes = [load_ply(f) for f in query_files]
     target_shapes = [load_ply(f) for f in target_files]
+    if args.normalize:
+        query_shapes = [normalize(p, channel_dim = -1) for p in query_shapes]
+        target_shapes = [normalize(p, channel_dim = -1) for p in target_shapes]
     if args.fixed_points > 0:
         from flemme.augment.pcd_transforms import FixedPoints
         fixed_points_transform = FixedPoints(num=args.fixed_points, method='qfps')

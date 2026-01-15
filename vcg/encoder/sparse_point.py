@@ -292,6 +292,7 @@ class SparsePointSDFDecoder(SkeletonSDFDecoder):
                 condition_injection = 'gate_bias',
                 standardize_latents = True,
                 self_atten_for_latent = False,
+                embed_la = True,
                 **kwargs):
         super().__init__(point_dim = point_dim,
             latent_channel = latent_channel,
@@ -310,5 +311,6 @@ class SparsePointSDFDecoder(SkeletonSDFDecoder):
             condition_injection = condition_injection,
             standardize_latents = standardize_latents,
             self_atten_for_latent = self_atten_for_latent,
+            embed_la = embed_la,
             with_radius = False,
             )
