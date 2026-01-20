@@ -52,6 +52,6 @@ if __name__ == "__main__":
     with open(args.output_file, 'w') as f:
         for i, q_file in enumerate(query_files):
             neighbors = [target_files[idx] for idx in neighbor_index[i]]
-            f.write(f"{q_file} " + " ".join(neighbors) + "\n")
+            f.write(f"query: {q_file}\n" + "neighbors:\n" +'\n'.join(neighbors) +'\n\n')
     logger.info(f"Saved neighbors to {args.output_file}")
 

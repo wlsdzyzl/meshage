@@ -1,0 +1,109 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: LDM
+  diffusion:
+    name: EDM
+    classifier_free_guidance:
+      condition_dropout: 0.2
+      guidance_weight: 2.0
+    eps_model:
+      time_channel: 128
+      encoder:
+        name: SeqTrans
+        in_channel: 16
+        point_num: 512
+        building_block: pct_sa
+        seq_feature_channels: [512, 512, 512, 512, 512, 512]
+        num_heads: 8
+        d_k: 64
+        activation: gelu
+        normalization: layer
+        num_blocks: 4
+        # vector_embedding: false
+      condition_embedding:
+        combine_condition: injection
+        condition_injection: gate_bias
+        encoder:
+          name: OneHot
+          type: categories
+          out_channel: 128
+          num_classes: 14
+        decoder: same_as_encoder
+    eps_loss:
+      name: MSE
+  autoencoder:
+    name: SDF
+    coordinate_sampling_ratio: 0.3
+    encoder:
+      name: SKSDFCNN
+      in_channel: 3
+      out_channel: 1
+      point_num: 2560
+      building_block: res_dense
+      projection_channel: 64
+      num_neighbors_k_cross: 32
+      num_neighbors_k_self: 0
+      local_feature_channels: [512, 512, 512, 512]
+      seq_feature_channels: [512, 512, 512, 512]
+      dense_channels: [512, 12]
+      pos_embedding: true
+      activation: gelu
+      normalization: layer
+      standardize_latents: True
+      self_atten_for_latent: True
+      latent_projection_channel: 512
+      with_radius: True
+      num_blocks: 4
+      skeleton_net_config:
+        skp_num: 512
+        isk_num: 2
+        skp_neighbor_num: 32
+        radius_scaling: 1.0
+        dbscan_eps: 0.65
+        dbscan_min_sample_num: 1
+    condition_embedding:
+      combine_condition: injection
+      condition_injection: gate_bias
+      encoder:
+        name: OneHot
+        type: categories
+        out_channel: 128
+        num_classes: 14
+    reconstruction_losses: 
+      - name: MSE
+    
+model_path:
+  diff_model: /data/guoqingzhang/vcg-ckp/MedSDF/SeqTrans_SkCNN_with_la_512/ckp_last.pth
+  ae_model: /data/guoqingzhang/vcg-ckp/MedSDF/SkCNN_val_with_la_512/ckp_best_loss.pth
+eval_gen:
+  conditions: 
+    bladder: 1
+    brain: 2  
+    colon: 3
+    coronary_artery_left_d: 4  
+    coronary_artery_right_d: 5
+    duodenum: 6  
+    gallbladder: 7
+    liver: 8
+    pancreas: 9
+    skull: 10  
+    spleen: 11 
+    stomach: 12 
+    trachea: 13
+    uterus: 14
+  condition_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 14
+    - name: ToTensor  
+  sampler:
+    name: NormalSampler
+    batch_size: 4
+    save_latents: true
+  gen_dir: /data/guoqingzhang/vcg-results/MedSDF/gen/LDM_EDM_SkCNN_with_la_512/
+  ### new generation from random noise
+  random_sample_num: 500

@@ -16,3 +16,4 @@
 # test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_ldm_skcnn_condition_config_512.yaml
 # test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_ldm_skcnn_condition_config_512_with_la_os.yaml
 test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_ldm_skcnn_condition_config_with_la.yaml
+# test_vcg --config /home/guoqingzhang/vcg/resources/skcnn/test_ldm_skcnn_condition_config_512_with_la.yaml
