@@ -84,7 +84,7 @@ val_split_seed: 42
 ## C12: Channel = 12; R: with radius; T: truncate_sdf; TS: scaling truncated SDF to [-1, 1]
 ## SS: scale and shift; RC: radius constraints
 ## SKC: skeleton_constraints
-check_point_dir: /data/guoqingzhang/vcg-ckp/MedSDF/SkCNN_val_with_la_512_off_skel/
+check_point_dir: /data/guoqingzhang/meshage-ckp/MedSDF/SkCNN_val_with_la_512_off_skel/
 ### parameter for optimizer
 optimizer:
   name: Adam

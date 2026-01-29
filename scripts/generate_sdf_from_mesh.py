@@ -6,8 +6,8 @@ from scipy.ndimage import uniform_filter
 import argparse
 import glob
 import os
-from vcg.utils import save_sdf2mesh, resolution2coord
-from vcg.config import truncated_value
+from meshage.utils import save_sdf2mesh, resolution2coord
+from meshage.config import truncated_value
 from trimesh.smoothing import filter_laplacian
 
 logger = get_logger("script::generate_sdf_from_mesh")

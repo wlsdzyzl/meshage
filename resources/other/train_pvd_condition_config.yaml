@@ -19,7 +19,7 @@ model:
       fps_feature_channels: [512, 512, 512, 512]
       voxel_resolutions: [32, 32, 16, 16]
       voxel_attens: [null, null, atten, atten]
-      neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+      # neighbor_radius: [0.2, 0.4, 0.6, 0.8]
       dense_channels: [1024, 1024]
       activation: silu
       normalization: group
@@ -62,7 +62,7 @@ loader:
     - name: ToTensor  
 val_split_ratio: 0.1
 val_split_seed: 42
-check_point_dir: /data/guoqingzhang/vcg-ckp/MedSDF/PVD
+check_point_dir: /data/guoqingzhang/meshage-ckp/MedSDF/PVD
 resume: True
 ### parameter for optimizer
 optimizer:

@@ -1,7 +1,7 @@
 import numpy as np
 from flemme.utils import save_ply
 import mcubes
-from vcg.config import *
+from meshage.config import *
 
 def load_skeleton(sk_path):
     sk = np.load(sk_path)

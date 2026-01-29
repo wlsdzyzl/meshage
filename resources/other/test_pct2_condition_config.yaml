@@ -14,7 +14,7 @@ model:
     building_block: pct_oa
     num_fps_points: [1280, 640, 320, 160]
     fps_feature_channels: [512, 512, 512, 512]
-    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    # neighbor_radius: [0.2, 0.4, 0.6, 0.8]
     dense_channels: [1024, 1024]
     activation: lrelu
     normalization: group
@@ -70,6 +70,6 @@ loader:
 ## SS: scale and shift; RC: radius constraints
 
 pickle_results: True
-pickle_path: /data/guoqingzhang/vcg-pickle
-model_path: /data/guoqingzhang/vcg-ckp/MedSDF/PCT2_AE_FOLDING2/ckp_best_loss.pth
-recon_dir: /data/guoqingzhang/vcg-results/MedSDF/recon_pcd/PCT2_AE_FOLDING2
+pickle_path: /data/guoqingzhang/meshage-pickle
+model_path: /data/guoqingzhang/meshage-ckp/MedSDF/PCT2_AE_FOLDING2/ckp_best_loss.pth
+recon_dir: /data/guoqingzhang/meshage-results/MedSDF/recon_pcd/PCT2_AE_FOLDING2

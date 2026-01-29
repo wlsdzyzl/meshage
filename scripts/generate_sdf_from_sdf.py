@@ -7,8 +7,8 @@ import math
 import argparse
 import glob
 import os
-from vcg.utils import save_sdf2mesh
-from vcg.config import space_length, truncated_value
+from meshage.utils import save_sdf2mesh
+from meshage.config import space_length, truncated_value
 
 
 logger = get_logger("script::generate_sdf_from_sdf")

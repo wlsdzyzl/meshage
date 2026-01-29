@@ -6,7 +6,7 @@ from scipy.ndimage import uniform_filter
 import argparse
 import glob
 import os
-from vcg.utils import save_sdf2mesh, truncated_value, resolution2coord
+from meshage.utils import save_sdf2mesh, truncated_value, resolution2coord
 logger = get_logger("script::generate_sdf_from_skeleton")
 ### generate sdf from skeleton and surface points for volume (-1, -1, -1) to (1, 1, 1)
 def generate_sdf(skeleton, surface, resolution=0.01, k = 5):

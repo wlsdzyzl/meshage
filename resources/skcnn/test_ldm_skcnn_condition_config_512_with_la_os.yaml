@@ -71,8 +71,8 @@ model:
       - name: MSE
     
 model_path:
-  diff_model: /data/guoqingzhang/vcg-ckp/MedSDF/SeqTrans_SkCNN_with_la_512_off_skel/ckp_last.pth
-  ae_model: /data/guoqingzhang/vcg-ckp/MedSDF/SkCNN_val_with_la_512_off_skel/ckp_best_loss.pth
+  diff_model: /data/guoqingzhang/meshage-ckp/MedSDF/SeqTrans_SkCNN_with_la_512_off_skel/ckp_last.pth
+  ae_model: /data/guoqingzhang/meshage-ckp/MedSDF/SkCNN_val_with_la_512_off_skel/ckp_best_loss.pth
 eval_gen:
   conditions: 
     bladder: 1
@@ -99,6 +99,6 @@ eval_gen:
     name: NormalSampler
     batch_size: 4
     save_latents: true
-  gen_dir: /data/guoqingzhang/vcg-results/MedSDF/gen/LDM_EDM_SkCNN_with_la_512_off_skel/
+  gen_dir: /data/guoqingzhang/meshage-results/MedSDF/gen/LDM_EDM_SkCNN_with_la_512_off_skel/
   ### new generation from random noise
   random_sample_num: 500

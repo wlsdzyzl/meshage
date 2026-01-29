@@ -71,14 +71,14 @@ loader:
     - name: ToTensor
 pickle_results: True
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-model_path: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC_LA/ckp_best_loss.pth
-recon_dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/mesh/SkCNN_val_with_SKC_LA_for_test
+model_path: /data/guoqingzhang/meshage-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC_LA/ckp_best_loss.pth
+recon_dir: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/mesh/SkCNN_val_with_SKC_LA_for_test
 
 custom_save_results: 
   - name: latent
-    dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/latent/SkCNN_val_with_SKC_LA_for_test
+    dir: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/latent/SkCNN_val_with_SKC_LA_for_test
   - name: latent_points
-    dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/skeleton/SkCNN_val_with_SKC_LA_for_test
+    dir: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/skeleton/SkCNN_val_with_SKC_LA_for_test
   - name: recon
-    dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/sdf/SkCNN_val_with_SKC_LA_for_test
+    dir: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/sdf/SkCNN_val_with_SKC_LA_for_test
 # custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]

@@ -57,12 +57,12 @@ model:
       - name: MSE
     
 model_path:
-  diff_model: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SeqTrans_SkCNN_with_SKC_LA/ckp_last.pth
-  ae_model: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC_LA/ckp_best_loss.pth
+  diff_model: /data/guoqingzhang/meshage-ckp/imageCAS_vessel_diff/SeqTrans_SkCNN_with_SKC_LA/ckp_last.pth
+  ae_model: /data/guoqingzhang/meshage-ckp/imageCAS_vessel_diff/SkCNN_val_with_SKC_LA/ckp_best_loss.pth
 eval_gen:
   sampler:
     name: NormalSampler
     batch_size: 2
-  gen_dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC_LA/
+  gen_dir: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC_LA/
   ### new generation from random noise
   random_sample_num: 500

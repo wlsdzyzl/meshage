@@ -1,8 +1,8 @@
-from vcg.dataset import create_loader
+from meshage.dataset import create_loader
 from flemme.sampler import create_sampler
 from flemme.trainer import train
 from flemme.utils import load_config
-from vcg.model_utils import create_model, train_run
+from meshage.model_utils import create_model, train_run
 
 def main():
     train_config = load_config()

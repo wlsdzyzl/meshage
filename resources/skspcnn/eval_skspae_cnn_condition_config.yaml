@@ -7,7 +7,7 @@ target:
       method: qfps
       num: 2560
 prediction:
-  path: /data/guoqingzhang/vcg-results/MedSDF/mesh/SkSpCNN_val
+  path: /data/guoqingzhang/meshage-results/MedSDF/mesh/SkSpCNN_val
   suffix: .ply
   transforms: 
     - name: FixedPoints
@@ -20,7 +20,5 @@ data_form: pcd
 evaluation_metrics:
     - name: CD
     - name: EMD
-      reg: 1.0
-      method: greenkhorn
     - name: F1&HD-Point
       dist_threshold: 0.06

@@ -37,7 +37,7 @@ loader:
     data_suffix: .npy
     cls_label: MedSDF
   data_path_list: 
-    - /data/guoqingzhang/vcg-results/MedSDF/latent/SkSpTrans_val_wo_LPC_for_train
+    - /data/guoqingzhang/meshage-results/MedSDF/latent/SkSpTrans_val_wo_LPC_for_train
   batch_size: 64
   num_workers: 8
   shuffle: true
@@ -50,7 +50,7 @@ loader:
       num_classes: 14
     - name: ToTensor  
 
-check_point_dir: /data/guoqingzhang/vcg-ckp/MedSDF/SeqTrans_SkSpTrans_wo_LPC
+check_point_dir: /data/guoqingzhang/meshage-ckp/MedSDF/SeqTrans_SkSpTrans_wo_LPC
 resume: True
 ### parameter for optimizer
 optimizer:

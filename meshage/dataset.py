@@ -9,8 +9,8 @@ from flemme.utils import load_pcd, load_npy, \
 from flemme.logger import get_logger
 from flemme.dataset import pcd_dataset_dict, \
     create_loader as _create_loader
-from vcg.utils import resolution2coord
-from vcg.config import truncate_sdf, truncated_value, \
+from meshage.utils import resolution2coord
+from meshage.config import truncate_sdf, truncated_value, \
                     train_truncate_scaling
 from functools import partial
 ### Point Cloud with SDF

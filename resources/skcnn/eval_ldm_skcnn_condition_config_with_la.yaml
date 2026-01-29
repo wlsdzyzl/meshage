@@ -8,7 +8,7 @@ target:
       num: 2048
     - name: Normalize
 prediction:
-  path: /data/guoqingzhang/vcg-results/MedSDF/gen/LDM_EDM_SkCNN_with_la/
+  path: /data/guoqingzhang/meshage-results/MedSDF/gen/LDM_EDM_SkCNN_with_la/
   suffix: .ply
   transforms: 
     - name: FixedPoints

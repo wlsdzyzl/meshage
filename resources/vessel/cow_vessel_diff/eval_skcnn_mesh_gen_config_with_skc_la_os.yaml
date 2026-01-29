@@ -1,5 +1,5 @@
 prediction:
-  path: /data/guoqingzhang/vcg-results/CoW_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC_LA_OS
+  path: /data/guoqingzhang/meshage-results/CoW_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC_LA_OS
   suffix: .ply
 target:
   path: /data/guoqingzhang/datasets/CoW/fold5/rmesh022

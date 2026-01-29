@@ -56,7 +56,7 @@ loader:
     # - /data/guoqingzhang/datasets/MedSDF/split/fold2
     # - /data/guoqingzhang/datasets/MedSDF/split/fold3
     # - /data/guoqingzhang/datasets/MedSDF/split/fold4
-    - /data/guoqingzhang/vcg-for-figure/recon/input
+    - /data/guoqingzhang/meshage-for-figure/recon/input
   batch_size: 6
   num_workers: 8
   shuffle: true
@@ -75,9 +75,9 @@ loader:
 ## SS: scale and shift; RC: radius constraints
 
 pickle_results: True
-# pickle_path: /data/guoqingzhang/vcg-pickle
-model_path: /data/guoqingzhang/vcg-ckp/MedSDF/SkCNN_val_with_la/ckp_best_loss.pth
-recon_dir: /data/guoqingzhang/vcg-for-figure/recon/SkCNN_val_with_la
+# pickle_path: /data/guoqingzhang/meshage-pickle
+model_path: /data/guoqingzhang/meshage-ckp/MedSDF/SkCNN_val_with_la/ckp_best_loss.pth
+recon_dir: /data/guoqingzhang/meshage-for-figure/recon/SkCNN_val_with_la
 custom_save_results: 
   - name: latent_points
-    dir: /data/guoqingzhang/vcg-for-figure/recon/skeleton
+    dir: /data/guoqingzhang/meshage-for-figure/recon/skeleton

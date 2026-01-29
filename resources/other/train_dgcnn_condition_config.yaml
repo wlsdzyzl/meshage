@@ -67,7 +67,7 @@ loader:
     - name: ToTensor
 val_split_ratio: 0.1
 val_split_seed: 42
-check_point_dir: /data/guoqingzhang/vcg-ckp/MedSDF/DGCNN_AE_FOLDING2
+check_point_dir: /data/guoqingzhang/meshage-ckp/MedSDF/DGCNN_AE_FOLDING2
 ### parameter for optimizer
 optimizer:
   name: Adam

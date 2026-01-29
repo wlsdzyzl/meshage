@@ -19,7 +19,7 @@ model:
     num_fps_points: [2048, 1024, 512, 400]
     fps_feature_channels: [512, 512, 512, 512]
     local_feature_channels: [512, 512, 512, 512]
-    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    # neighbor_radius: [0.2, 0.4, 0.6, 0.8]
     seq_feature_channels: [512, 512, 512, 512]
     dense_channels: [512, 12]
     knn_query: feature
@@ -95,8 +95,8 @@ val_loader:
     - name: ToTensor
 
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-check_point_dir: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkSpCNN_val/
-pretrained: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkSpCNN_val/ckp_best_loss.pth
+check_point_dir: /data/guoqingzhang/meshage-ckp/CoW_vessel_diff/SkSpCNN_val/
+pretrained: /data/guoqingzhang/meshage-ckp/CoW_vessel_diff/SkSpCNN_val/ckp_best_loss.pth
 ### parameter for optimizer
 optimizer:
   name: Adam

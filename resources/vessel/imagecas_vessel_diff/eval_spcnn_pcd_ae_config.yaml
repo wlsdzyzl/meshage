@@ -1,0 +1,22 @@
+prediction:
+  path: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/mesh/SpCNN_val_for_test
+  suffix: .ply
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+target:
+  path: /data/guoqingzhang/datasets/imageCAS/fold5/surface
+  suffix: .ply
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+eval_type: recon
+# eval_batch_num: 2
+data_form: pcd
+evaluation_metrics:
+    - name: CD
+    - name: EMD
+    - name: F1&HD-Point
+      dist_threshold: 0.06

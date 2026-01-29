@@ -1,5 +1,5 @@
 prediction:
-  path: /data/guoqingzhang/vcg-results/CoW_vessel_diff/mesh/SkCNN_val_for_test
+  path: /data/guoqingzhang/meshage-results/CoW_vessel_diff/mesh/SkCNN_val_for_test
   suffix: .ply
   transforms: 
     - name: FixedPoints
@@ -18,5 +18,5 @@ data_form: pcd
 evaluation_metrics:
     - name: CD
     - name: EMD
-      reg: 1.0
-      method: greenkhorn
+    - name: F1&HD-Point
+      dist_threshold: 0.06

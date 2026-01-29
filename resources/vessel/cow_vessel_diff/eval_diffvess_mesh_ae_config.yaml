@@ -1,5 +1,5 @@
 prediction:
-  path: /data/guoqingzhang/vcg-results/CoW_vessel_diff/mesh/VessDiff/
+  path: /data/guoqingzhang/meshage-results/CoW_vessel_diff/mesh/VessDiff/
   suffix: _4096.ply
 
 target:

@@ -11,7 +11,7 @@ import numpy as np
 from sklearn.cluster import DBSCAN
 from joblib import Parallel, delayed
 
-logger = get_logger("vcg.sknet")
+logger = get_logger("meshage.sknet")
 
 def dbscan_single_cloud_np(points_np, eps=0.05, min_samples=10):
     clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(points_np)

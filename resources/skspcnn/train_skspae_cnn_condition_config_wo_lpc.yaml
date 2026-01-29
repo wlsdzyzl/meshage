@@ -17,7 +17,7 @@ model:
     num_fps_points: [1280, 640, 320, 256]
     fps_feature_channels: [512, 512, 512, 512]
     local_feature_channels: [512, 512, 512, 512]
-    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    # neighbor_radius: [0.2, 0.4, 0.6, 0.8]
     seq_feature_channels: [512, 512, 512, 512]
     dense_channels: [512, 12]
     knn_query: feature
@@ -76,7 +76,7 @@ val_split_seed: 42
 ## C12: Channel = 12; R: with radius; T: truncate_sdf; TS: scaling truncated SDF to [-1, 1]
 ## SS: scale and shift; RC: radius constraints
 ## SKC: skeleton_constraints
-check_point_dir: /data/guoqingzhang/vcg-ckp/MedSDF/SkSpCNN_val_wo_LPC/
+check_point_dir: /data/guoqingzhang/meshage-ckp/MedSDF/SkSpCNN_val_wo_LPC/
 ### parameter for optimizer
 optimizer:
   name: Adam

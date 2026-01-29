@@ -1,5 +1,5 @@
 prediction:
-  path: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/mesh/SkSpCNN_val_for_test
+  path: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/mesh/SkSpCNN_val_for_test
   suffix: .ply
 
 target:

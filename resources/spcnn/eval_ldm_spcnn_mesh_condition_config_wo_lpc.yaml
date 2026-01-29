@@ -3,7 +3,7 @@ target:
   path: /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022/
   suffix: _mesh.ply
 prediction:
-  path: /data/guoqingzhang/vcg-results/MedSDF/gen/LDM_EDM_SpCNN_wo_LPC/
+  path: /data/guoqingzhang/meshage-results/MedSDF/gen/LDM_EDM_SpCNN_wo_LPC/
   suffix: .ply
 eval_type: gen
 data_form: pcd

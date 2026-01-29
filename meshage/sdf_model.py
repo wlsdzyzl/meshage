@@ -5,14 +5,14 @@ from flemme.logger import get_logger
 from flemme.block import gather_features
 from knn_cuda import KNN
 # from flemme.model.distribution import GaussianDistribution as Gaussian
-from .encoder import create_vcg_encoder
+from .encoder import create_meshage_encoder
 from .utils import resolution2coord
 from .config import truncate_sdf, truncated_value, train_truncate_scaling, use_occupancy
 import numpy as np
 logger = get_logger("sdf_model")
 
 class SDFModel(AE):
-    def __init__(self, model_config, create_encoder_fn=create_vcg_encoder):
+    def __init__(self, model_config, create_encoder_fn=create_meshage_encoder):
         super().__init__(model_config, create_encoder_fn)
         self.is_supervised = True
         ### should only be used for test
@@ -60,7 +60,10 @@ class SDFModel(AE):
                 return sdf
             return sdf, ske_inter_idx
     def forward(self, x, coord, c=None, ske = None):
-        z = self.encode(x, c = c, ske = ske)
+        if ske is not None:
+            z = self.encode(x, c = c, ske = ske)
+        else:
+            z = self.encode(x, c = c)
         sdf = self.decode(z, coord, c = c)
         if type(sdf) == tuple:
             sdf, ske_inter_idx = sdf

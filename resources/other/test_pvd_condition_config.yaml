@@ -19,7 +19,7 @@ model:
       fps_feature_channels: [512, 512, 512, 512]
       voxel_resolutions: [32, 32, 16, 16]
       voxel_attens: [null, null, atten, atten]
-      neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+      # neighbor_radius: [0.2, 0.4, 0.6, 0.8]
       dense_channels: [1024, 1024]
       activation: silu
       normalization: group
@@ -37,7 +37,7 @@ model:
   eps_loss:
     name: MSE
     
-model_path: /data/guoqingzhang/vcg-ckp/MedSDF/PVD/ckp_last.pth
+model_path: /data/guoqingzhang/meshage-ckp/MedSDF/PVD/ckp_last.pth
 eval_gen:
   conditions: 
     bladder: 1
@@ -63,6 +63,6 @@ eval_gen:
   sampler:
     name: NormalSampler
     batch_size: 48
-  gen_dir: /data/guoqingzhang/vcg-results/MedSDF/gen/PVD/
+  gen_dir: /data/guoqingzhang/meshage-results/MedSDF/gen/PVD/
   ### new generation from random noise
   random_sample_num: 500

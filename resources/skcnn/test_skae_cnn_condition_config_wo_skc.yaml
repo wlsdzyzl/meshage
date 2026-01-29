@@ -76,11 +76,11 @@ loader:
 ## SS: scale and shift; RC: radius constraints
 
 pickle_results: True
-pickle_path: /data/guoqingzhang/vcg-pickle
-model_path: /data/guoqingzhang/vcg-ckp/MedSDF/SkCNN_val_wo_SKC/ckp_best_loss.pth
-recon_dir: /data/guoqingzhang/vcg-results/MedSDF/mesh/SkCNN_val_wo_SKC
+pickle_path: /data/guoqingzhang/meshage-pickle
+model_path: /data/guoqingzhang/meshage-ckp/MedSDF/SkCNN_val_wo_SKC/ckp_best_loss.pth
+recon_dir: /data/guoqingzhang/meshage-results/MedSDF/mesh/SkCNN_val_wo_SKC
 custom_save_results: 
   - name: latent
-    dir: /data/guoqingzhang/vcg-results/MedSDF/latent/SkCNN_val_wo_SKC
+    dir: /data/guoqingzhang/meshage-results/MedSDF/latent/SkCNN_val_wo_SKC
   - name: latent_points
-    dir: /data/guoqingzhang/vcg-results/MedSDF/skeleton/SkCNN_val_wo_SKC
+    dir: /data/guoqingzhang/meshage-results/MedSDF/skeleton/SkCNN_val_wo_SKC

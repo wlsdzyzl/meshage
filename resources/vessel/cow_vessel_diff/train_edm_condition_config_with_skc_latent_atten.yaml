@@ -23,14 +23,14 @@ loader:
     name: PcdDataset
     data_suffix: .npy
   data_path_list: 
-    - /data/guoqingzhang/vcg-results/CoW_vessel_diff/latent/SkCNN_val_with_SKC_LA_for_train
+    - /data/guoqingzhang/meshage-results/CoW_vessel_diff/latent/SkCNN_val_with_SKC_LA_for_train
   batch_size: 8
   num_workers: 8
   shuffle: true
   data_transforms:
     - name: ToTensor
 
-check_point_dir: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SeqTrans_SkCNN_with_SKC_LA
+check_point_dir: /data/guoqingzhang/meshage-ckp/CoW_vessel_diff/SeqTrans_SkCNN_with_SKC_LA
 resume: True
 ### parameter for optimizer
 optimizer:

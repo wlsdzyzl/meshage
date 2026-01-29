@@ -15,7 +15,7 @@ model:
     num_neighbors_k: 32
     num_fps_points: [1280, 640, 320, 256]
     fps_feature_channels: [512, 512, 512, 512]
-    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    # neighbor_radius: [0.2, 0.4, 0.6, 0.8]
     seq_feature_channels: [512, 512, 512, 512]
     dense_channels: [512, 12]
     knn_query: feature
@@ -43,7 +43,7 @@ loader:
     target_dir: null
     cls_label: MedSDF
   data_path_list:
-    - /data/guoqingzhang/vcg-results/MedSDF/recon_pcd/PCT2_AE_FOLDING2
+    - /data/guoqingzhang/meshage-results/MedSDF/recon_pcd/PCT2_AE_FOLDING2
   batch_size: 1
   num_workers: 8
   shuffle: true
@@ -60,5 +60,5 @@ loader:
 ## C12: Channel = 12; R: with radius; T: truncate_sdf; TS: scaling truncated SDF to [-1, 1]
 ## SS: scale and shift; RC: radius constraints
 pickle_results: true
-model_path: /data/guoqingzhang/vcg-ckp/MedSDF/tomesh.pth
-recon_dir: /data/guoqingzhang/vcg-results/MedSDF/mesh/PCT2/
+model_path: /data/guoqingzhang/meshage-ckp/MedSDF/tomesh.pth
+recon_dir: /data/guoqingzhang/meshage-results/MedSDF/mesh/PCT2/

@@ -7,18 +7,18 @@ from flemme.utils import DataForm
 from flemme.logger import get_logger
 
 ### skeleton-regularized point cloud auto-encoder
-logger = get_logger("vcg_encoder")
+logger = get_logger("meshage_encoder")
 
-supported_vcg_encoders = {}
-supported_vcg_encoders['SKSDFCNN'] = (SkeletonCNNEncoder, SkeletonSDFDecoder)
-supported_vcg_encoders['SKSDFTrans'] = (SkeletonTransEncoder, SkeletonSDFDecoder)
-supported_vcg_encoders['SKSDFMamba'] = (SkeletonMambaEncoder, SkeletonSDFDecoder)
-supported_vcg_encoders['SPSDFCNN'] = (SparsePointCNNEncoder, SparsePointSDFDecoder)
-supported_vcg_encoders['SPSDFTrans'] = (SparsePointTransEncoder, SparsePointSDFDecoder)
-supported_vcg_encoders['SPSDFMamba'] = (SparsePointMambaEncoder, SparsePointSDFDecoder)
-supported_vcg_encoders['SKSPSDFCNN'] = (SKSPCNNEncoder, SkeletonSDFDecoder)
-supported_vcg_encoders['SKSPSDFTrans'] = (SKSPTransEncoder, SkeletonSDFDecoder)
-supported_vcg_encoders['SKSPSDFMamba'] = (SKSPMambaEncoder, SkeletonSDFDecoder)
+supported_meshage_encoders = {}
+supported_meshage_encoders['SKSDFCNN'] = (SkeletonCNNEncoder, SkeletonSDFDecoder)
+supported_meshage_encoders['SKSDFTrans'] = (SkeletonTransEncoder, SkeletonSDFDecoder)
+supported_meshage_encoders['SKSDFMamba'] = (SkeletonMambaEncoder, SkeletonSDFDecoder)
+supported_meshage_encoders['SPSDFCNN'] = (SparsePointCNNEncoder, SparsePointSDFDecoder)
+supported_meshage_encoders['SPSDFTrans'] = (SparsePointTransEncoder, SparsePointSDFDecoder)
+supported_meshage_encoders['SPSDFMamba'] = (SparsePointMambaEncoder, SparsePointSDFDecoder)
+supported_meshage_encoders['SKSPSDFCNN'] = (SKSPCNNEncoder, SkeletonSDFDecoder)
+supported_meshage_encoders['SKSPSDFTrans'] = (SKSPTransEncoder, SkeletonSDFDecoder)
+supported_meshage_encoders['SKSPSDFMamba'] = (SKSPMambaEncoder, SkeletonSDFDecoder)
 
 supported_flemme_encoders = ['SeqNet', 'SeqTrans', 'SeqMamba']
 
@@ -35,12 +35,12 @@ supported_buildingblocks_for_encoder['SKSPSDFCNN'] = ['dense', 'double_dense', '
 supported_buildingblocks_for_encoder['SKSPSDFTrans'] = ['pct_sa', 'pct_oa']
 supported_buildingblocks_for_encoder['SKSPSDFMamba'] = ['pmamba', 'pmamba2']
 
-def create_vcg_encoder(encoder_config, return_encoder = True, return_decoder = True):
+def create_meshage_encoder(encoder_config, return_encoder = True, return_decoder = True):
         encoder_name = encoder_config.pop('name')
-        if not encoder_name in supported_vcg_encoders:
-            logger.error(f'Unsupported encoder: {encoder_name}, should be one of {supported_vcg_encoders.keys()}')
+        if not encoder_name in supported_meshage_encoders:
+            logger.error(f'Unsupported encoder: {encoder_name}, should be one of {supported_meshage_encoders.keys()}')
             exit(1)        
-        Encoder, Decoder = supported_vcg_encoders[encoder_name]
+        Encoder, Decoder = supported_meshage_encoders[encoder_name]
         building_block = encoder_config.pop('building_block', 'single')
         ### all encoders correspond to the same decoder whose building block could be different from encoder.
         ### therefore we especially assign a building block for decoder during the reconstruction.

@@ -1,5 +1,5 @@
 prediction:
-  path: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/gen/VessDiff
+  path: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/gen/VessDiff
   suffix: .ply
   transforms: 
     - name: FixedPoints

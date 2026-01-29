@@ -91,8 +91,8 @@ val_loader:
     - name: ToTensor
 
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-check_point_dir: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val/
-pretrained: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/SkCNN_val/ckp_best_loss.pth
+check_point_dir: /data/guoqingzhang/meshage-ckp/CoW_vessel_diff/SkCNN_val/
+pretrained: /data/guoqingzhang/meshage-ckp/CoW_vessel_diff/SkCNN_val/ckp_best_loss.pth
 ### parameter for optimizer
 optimizer:
   name: Adam

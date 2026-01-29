@@ -13,7 +13,7 @@ from flemme.utils import DataForm
 from flemme.loss import get_loss as get_flemme_loss
 
 
-logger = get_logger("vcg.loss")
+logger = get_logger("meshage.loss")
 class Sphere:
     def __init__(self, dim = 3, sphere_n = 16, 
         method = 'online_random', 

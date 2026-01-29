@@ -34,9 +34,9 @@ loader:
 
 custom_save_results: 
   - name: recon_sphere
-    dir: /data/guoqingzhang/vcg-results/skeleton/imagecas_surface/sknet/sphere/right
+    dir: /data/guoqingzhang/meshage-results/skeleton/imagecas_surface/sknet/sphere/right
   - name: recon_skeleton
-    dir: /data/guoqingzhang/vcg-results/skeleton/imagecas_surface/sknet/skeleton/right
+    dir: /data/guoqingzhang/meshage-results/skeleton/imagecas_surface/sknet/skeleton/right
   - name: radius
-    dir: /data/guoqingzhang/vcg-results/skeleton/imagecas_surface/sknet/skr/right
+    dir: /data/guoqingzhang/meshage-results/skeleton/imagecas_surface/sknet/skr/right
 # eval_batch_num: 1

@@ -58,7 +58,7 @@ loader:
     - name: ToTensor  
 val_split_ratio: 0.1
 val_split_seed: 42
-check_point_dir: /data/guoqingzhang/vcg-ckp/MedSDF/SeqTrans_None
+check_point_dir: /data/guoqingzhang/meshage-ckp/MedSDF/SeqTrans_None
 resume: True
 ### parameter for optimizer
 optimizer:

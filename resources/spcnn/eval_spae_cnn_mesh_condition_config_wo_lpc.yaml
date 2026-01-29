@@ -1,6 +1,6 @@
 sub_dirs: ['bladder', 'brain', 'colon', 'coronary_artery_left_d', 'coronary_artery_right_d', 'duodenum', 'gallbladder', 'liver', 'pancreas', 'skull', 'spleen', 'stomach', 'trachea', 'uterus']
 prediction:
-  path: /data/guoqingzhang/vcg-results/MedSDF/mesh/SpCNN_val_wo_LPC
+  path: /data/guoqingzhang/meshage-results/MedSDF/mesh/SpCNN_val_wo_LPC
   suffix: .ply
 target:
   path: /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022

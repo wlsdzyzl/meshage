@@ -20,7 +20,7 @@ model:
     num_fps_points: [2048, 1024, 512, 400]
     fps_feature_channels: [512, 512, 512, 512]
     local_feature_channels: [512, 512, 512, 512]
-    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    # neighbor_radius: [0.2, 0.4, 0.6, 0.8]
     seq_feature_channels: [512, 512, 512, 512]
     dense_channels: [512, 12]
     knn_query: feature
@@ -73,12 +73,12 @@ loader:
     - name: ToTensor
 pickle_results: True
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-model_path: /data/guoqingzhang/vcg-ckp/imageCAS_vessel_diff/SkSpCNN_val/ckp_best_loss.pth
-recon_dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/mesh/SkSpCNN_val_for_test
+model_path: /data/guoqingzhang/meshage-ckp/imageCAS_vessel_diff/SkSpCNN_val/ckp_best_loss.pth
+recon_dir: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/mesh/SkSpCNN_val_for_test
 
 custom_save_results: 
   - name: latent
-    dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/latent/SkSpCNN_val_for_test
+    dir: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/latent/SkSpCNN_val_for_test
   - name: latent_points
-    dir: /data/guoqingzhang/vcg-results/imageCAS_vessel_diff/skeleton/SkSpCNN_val_for_test
+    dir: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/skeleton/SkSpCNN_val_for_test
 # custom_write_results: [input_sphere, recon_dpm_sphere, gen_sphere]

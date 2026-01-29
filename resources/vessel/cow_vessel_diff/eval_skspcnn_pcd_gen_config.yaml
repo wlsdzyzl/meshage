@@ -1,5 +1,5 @@
 prediction:
-  path: /data/guoqingzhang/vcg-results/CoW_vessel_diff/gen/LDM_EDM_SkSpCNN/
+  path: /data/guoqingzhang/meshage-results/CoW_vessel_diff/gen/LDM_EDM_SkSpCNN/
   suffix: .ply
   transforms: 
     - name: FixedPoints

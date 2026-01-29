@@ -1,0 +1,88 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: SDF
+  coordinate_sampling_ratio: 0.3
+  encoder:
+    name: SKSDFCNN
+    in_channel: 3
+    out_channel: 1
+    point_num: 2560
+    building_block: res_dense
+    projection_channel: 64
+    num_neighbors_k_cross: 32
+    num_neighbors_k_self: 0
+    local_feature_channels: [512, 512, 512, 512]
+    seq_feature_channels: [512, 512, 512, 512]
+    dense_channels: [512, 12]
+    pos_embedding: true
+    activation: gelu
+    normalization: layer
+    standardize_latents: True
+    with_radius: True
+    num_blocks: 4
+    skeleton_net_config: null
+    num_skeleton_points: 256
+  condition_embedding:
+    combine_condition: injection
+    condition_injection: gate_bias
+    encoder:
+      name: OneHot
+      type: categories
+      out_channel: 128
+      num_classes: 14
+  reconstruction_losses: 
+    - name: MSE
+loader:
+  dataset: 
+    name: PcdSDFWithClassLabelDataset
+    truncate_sdf: true
+    resolution: 0.022
+    data_dir: raw
+    data_suffix: .ply
+    target_dir: sdf022
+    target_suffix: _sdf.npy
+    skeleton_dir: skeleton
+    skeleton_suffix: .ply
+    cls_label: MedSDF
+  data_path_list:
+    - /data/guoqingzhang/datasets/MedSDF/split/fold1
+    - /data/guoqingzhang/datasets/MedSDF/split/fold2
+    - /data/guoqingzhang/datasets/MedSDF/split/fold3
+    - /data/guoqingzhang/datasets/MedSDF/split/fold4
+    # - /data/guoqingzhang/datasets/MedSDF/split/fold5
+  batch_size: 6
+  num_workers: 8
+  shuffle: true
+  data_transforms:
+    - name: FixedPoints
+      method: qfps
+      num: 2560
+    - name: ToTensor
+  skeleton_transforms:
+    - name: FixedPoints
+      method: qfps
+      num: 256
+    - name: ToTensor
+  target_transforms:
+    - name: ToTensor
+  class_label_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 14
+    - name: ToTensor
+## C12: Channel = 12; R: with radius; T: truncate_sdf; TS: scaling truncated SDF to [-1, 1]
+## SS: scale and shift; RC: radius constraints
+
+pickle_results: True
+pickle_path: /data/guoqingzhang/meshage-pickle
+model_path: /data/guoqingzhang/meshage-ckp/MedSDF/SkCNN_val_wo_SKC_with_OS/ckp_best_loss.pth
+recon_dir: /data/guoqingzhang/meshage-results/MedSDF/mesh/SkCNN_val_wo_SKC_with_OS_for_train
+custom_save_results: 
+  - name: latent
+    dir: /data/guoqingzhang/meshage-results/MedSDF/latent/SkCNN_val_wo_SKC_with_OS_for_train
+  - name: latent_points
+    dir: /data/guoqingzhang/meshage-results/MedSDF/skeleton/SkCNN_val_wo_SKC_with_OS_for_train

@@ -10,7 +10,7 @@ from flemme.utils import normalize, DataForm
 from .loss import Sphere
 # RadiusConsistencyLoss as RCLoss, SingleTopoTreeLoss as TTLoss
 from .block import SkeletonizationBlock
-logger = get_logger("vcg.sknet")
+logger = get_logger("meshage.sknet")
 
     
 ## skeleton extraction from local graph

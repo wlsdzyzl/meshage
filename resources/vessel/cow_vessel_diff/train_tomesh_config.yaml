@@ -16,7 +16,7 @@ model:
     num_neighbors_k: 32
     num_fps_points: [2048, 1280, 640, 400]
     fps_feature_channels: [512, 512, 512, 512]
-    neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+    # neighbor_radius: [0.2, 0.4, 0.6, 0.8]
     seq_feature_channels: [512, 512, 512, 512]
     dense_channels: [512, 12]
     pos_embedding: true
@@ -77,7 +77,7 @@ val_loader:
     - name: ToTensor
 
 ## RTS, RC: radius constraints, Rscaling: radius scaling
-check_point_dir: /data/guoqingzhang/vcg-ckp/CoW_vessel_diff/tomesh/
+check_point_dir: /data/guoqingzhang/meshage-ckp/CoW_vessel_diff/tomesh/
 ### parameter for optimizer
 optimizer:
   name: Adam
