@@ -8,7 +8,7 @@ target:
       num: 2048
     - name: Normalize
 prediction:
-  path: /data/guoqingzhang/meshage-results/MedSDF/gen/PVD/
+  path: /data/guoqingzhang/meshage-results/MedSDF/gen/LDM_EDM_SpCNN_with_LA/
   suffix: .ply
   transforms: 
     - name: FixedPoints
@@ -17,6 +17,7 @@ prediction:
     - name: Normalize
 eval_type: gen
 data_form: pcd
+batch_size: 6
 # eval_batch_num: 2
 evaluation_metrics:
     - name: FID

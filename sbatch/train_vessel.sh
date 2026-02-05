@@ -51,8 +51,12 @@
 # test_meshage --config /home/guoqingzhang/meshage/resources/vessel/cow_vessel_diff/test_ldm_spcnn_condition_config.yaml
 # test_meshage --config /home/guoqingzhang/meshage/resources/vessel/cow_vessel_diff/test_ldm_condition_config_with_os.yaml
 
-train_meshage --config /home/guoqingzhang/meshage/resources/vessel/imagecas_vessel_diff/train_spae_cnn_12_condition_config_dilated_with_la.yaml
+# train_meshage --config /home/guoqingzhang/meshage/resources/vessel/imagecas_vessel_diff/train_spae_cnn_12_condition_config_dilated_with_la.yaml
+# test_meshage --config /home/guoqingzhang/meshage/resources/vessel/imagecas_vessel_diff/test_spae_cnn_12_condition_config_dilated_with_la.yaml
+# train_meshage --config /home/guoqingzhang/meshage/resources/vessel/imagecas_vessel_diff/train_edm_spcnn_condition_config_with_la.yaml
 # train_meshage --config /home/guoqingzhang/meshage/resources/vessel/cow_vessel_diff/train_spae_cnn_12_condition_config_dilated_with_la.yaml
 
 # test_meshage --config /home/guoqingzhang/meshage/resources/vessel/cow_vessel_diff/test_spae_cnn_12_condition_config_dilated_with_la.yaml
 # train_meshage --config /home/guoqingzhang/meshage/resources/vessel/cow_vessel_diff/train_edm_spcnn_condition_config_with_la.yaml
+# test_meshage --config /home/guoqingzhang/meshage/resources/vessel/cow_vessel_diff/test_ldm_spcnn_condition_config_with_la.yaml
+test_meshage --config /home/guoqingzhang/meshage/resources/vessel/imagecas_vessel_diff/test_ldm_spcnn_condition_config_with_la.yaml

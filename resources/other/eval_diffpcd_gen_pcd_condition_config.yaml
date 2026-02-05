@@ -65,3 +65,19 @@ evaluation_metrics:
       package: loss
       distance:
         name: EMD
+    - name: NNA
+      package: loss
+      distance: 
+        name: CD
+    - name: NNA
+      package: loss
+      distance:
+        name: EMD
+    - name: MaxMD
+      package: loss
+      distance: 
+        name: CD
+    - name: MaxMD
+      package: loss
+      distance:
+        name: EMD

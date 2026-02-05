@@ -28,4 +28,8 @@
 # train_meshage --config /home/guoqingzhang/meshage/resources/skcnn/train_edm_skcnn_condition_config_512_with_la.yaml
 # test_meshage --config /home/guoqingzhang/meshage/resources/skcnn/test_skae_cnn_condition_config_wo_skc_with_os.yaml
 # test_meshage --config /home/guoqingzhang/meshage/resources/skcnn/test_skae_cnn_condition_config_wo_skc_with_os_for_train.yaml
-train_meshage --config /home/guoqingzhang/meshage/resources/skcnn/train_edm_skcnn_condition_config_wo_skc_with_os.yaml
+# train_meshage --config /home/guoqingzhang/meshage/resources/skcnn/train_edm_skcnn_condition_config_wo_skc_with_os.yaml
+
+test_meshage --config /home/guoqingzhang/meshage/resources/spcnn/test_spae_cnn_condition_config_with_la.yaml
+test_meshage --config /home/guoqingzhang/meshage/resources/spcnn/test_spae_cnn_condition_config_with_la_for_train.yaml
+train_meshage --config /home/guoqingzhang/meshage/resources/spcnn/train_edm_spcnn_condition_config_with_la.yaml

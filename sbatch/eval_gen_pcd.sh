@@ -16,10 +16,14 @@ echo skcnn
 eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config.yaml
 # echo skcnn wo skc
 # eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config_wo_skc.yaml
+# echo skcnn wo skc with os
+# eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config_wo_skc_with_os.yaml
 # echo spcnn
 # eval_flemme --config /home/guoqingzhang/meshage/resources/spcnn/eval_ldm_spcnn_condition_config.yaml
 # echo spcnn wo lpc
 # eval_flemme --config /home/guoqingzhang/meshage/resources/spcnn/eval_ldm_spcnn_condition_config_wo_lpc.yaml
+# echo spcnn with la
+# eval_flemme --config /home/guoqingzhang/meshage/resources/spcnn/eval_ldm_spcnn_condition_config_with_la.yaml
 # echo skspcnn
 # eval_flemme --config /home/guoqingzhang/meshage/resources/skspcnn/eval_ldm_skspcnn_condition_config.yaml
 # echo skspcnn wo lpc
@@ -32,7 +36,7 @@ eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_c
 # eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config_512.yaml
 # echo skcnn-512 with LA OS
 # eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config_with_la_os_512.yaml
-echo skcnn with LA
-eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config_with_la.yaml
+# echo skcnn with LA
+# eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config_with_la.yaml
 # echo skcnn-512 with LA
 # eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config_with_la_512.yaml

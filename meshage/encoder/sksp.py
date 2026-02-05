@@ -107,7 +107,7 @@ class SKSPCNNEncoder(PointNet2Encoder):
                 condition_first = False)
         is_seq = self.BuildingBlock.func.is_sequence_modeling()
         if is_seq:
-            self.sk_layer.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.sk_layer.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = partial(
@@ -115,7 +115,7 @@ class SKSPCNNEncoder(PointNet2Encoder):
                                     BuildingBlock = self.BuildingBlock),)
                             for lfc in local_feature_channels ])
         else:
-            self.sk_layer.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.sk_layer.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = self.BuildingBlock) 
@@ -155,7 +155,7 @@ class SKSPCNNEncoder(PointNet2Encoder):
         ## intergrate skf into grouped surface feature
         sk_emb_feature = torch.cat((sk_emb - sk_emb, skf), dim = -1)
         grouped_sff = torch.cat((grouped_sff, sk_emb_feature.unsqueeze(2)), dim = 2)
-        grouped_sff = self.sk_layer.meshage[layer_id](grouped_sff, c = c)
+        grouped_sff = self.sk_layer.msg[layer_id](grouped_sff, c = c)
         ### (B, N, K, C) -> (B, N, C), N: num of skeletal points
         skf = grouped_sff.max(dim = 2)[0]
         return skf
@@ -357,7 +357,7 @@ class SKSPTransEncoder(PointTrans2Encoder):
                 condition_first = False)
         is_seq = self.BuildingBlock.func.is_sequence_modeling()
         if is_seq:
-            self.sk_layer.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.sk_layer.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = partial(
@@ -365,7 +365,7 @@ class SKSPTransEncoder(PointTrans2Encoder):
                                     BuildingBlock = self.BuildingBlock),)
                             for lfc in local_feature_channels ])
         else:
-            self.sk_layer.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.sk_layer.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = self.BuildingBlock) 
@@ -405,7 +405,7 @@ class SKSPTransEncoder(PointTrans2Encoder):
         ## intergrate skf into grouped surface feature
         sk_emb_feature = torch.cat((sk_emb - sk_emb, skf), dim = -1)
         grouped_sff = torch.cat((grouped_sff, sk_emb_feature.unsqueeze(2)), dim = 2)
-        grouped_sff = self.sk_layer.meshage[layer_id](grouped_sff, c = c)
+        grouped_sff = self.sk_layer.msg[layer_id](grouped_sff, c = c)
         ### (B, N, K, C) -> (B, N, C), N: num of skeletal points
         skf = grouped_sff.max(dim = 2)[0]
         return skf
@@ -628,7 +628,7 @@ class SKSPMambaEncoder(PointMamba2Encoder):
                 condition_first = False)
         is_seq = self.BuildingBlock.func.is_sequence_modeling()
         if is_seq:
-            self.sk_layer.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.sk_layer.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = partial(
@@ -636,7 +636,7 @@ class SKSPMambaEncoder(PointMamba2Encoder):
                                     BuildingBlock = self.BuildingBlock),)
                             for lfc in local_feature_channels ])
         else:
-            self.sk_layer.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.sk_layer.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = self.BuildingBlock) 
@@ -676,7 +676,7 @@ class SKSPMambaEncoder(PointMamba2Encoder):
         ## intergrate skf into grouped surface feature
         sk_emb_feature = torch.cat((sk_emb - sk_emb, skf), dim = -1)
         grouped_sff = torch.cat((grouped_sff, sk_emb_feature.unsqueeze(2)), dim = 2)
-        grouped_sff = self.sk_layer.meshage[layer_id](grouped_sff, c = c)
+        grouped_sff = self.sk_layer.msg[layer_id](grouped_sff, c = c)
         ### (B, N, K, C) -> (B, N, C), N: num of skeletal points
         skf = grouped_sff.max(dim = 2)[0]
         return skf

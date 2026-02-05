@@ -103,7 +103,7 @@ class SkeletonEncoder(PointEncoder):
         ## intergrate skf into grouped surface feature
         sk_emb_feature = torch.cat((sk_emb - sk_emb, skf), dim = -1)
         grouped_sff = torch.cat((grouped_sff, sk_emb_feature.unsqueeze(2)), dim = 2)
-        grouped_sff = self.meshage[layer_id](grouped_sff, c = c)
+        grouped_sff = self.msg[layer_id](grouped_sff, c = c)
         ### (B, N, K, C) -> (B, N, C), N: num of skeletal points
         skf = grouped_sff.max(dim = 2)[0]
         return skf
@@ -271,7 +271,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
         ## feature aggregating after group
         is_seq = self.BuildingBlock.func.is_sequence_modeling()
         if is_seq:
-            self.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = partial(
@@ -279,7 +279,7 @@ class SkeletonCNNEncoder(SkeletonEncoder):
                                     BuildingBlock = self.BuildingBlock),)
                             for lfc in local_feature_channels ])
         else:
-            self.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = self.BuildingBlock) 
@@ -376,7 +376,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
         ## feature aggregating after group
         is_seq = self.BuildingBlock.func.is_sequence_modeling()
         if is_seq:
-            self.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = partial(
@@ -384,7 +384,7 @@ class SkeletonTransEncoder(SkeletonEncoder):
                                     BuildingBlock = self.BuildingBlock),)
                             for lfc in local_feature_channels ])
         else:
-            self.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = self.BuildingBlock) 
@@ -495,7 +495,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
         ## feature aggregating after group
         is_seq = self.BuildingBlock.func.is_sequence_modeling()
         if is_seq:
-            self.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = partial(
@@ -503,7 +503,7 @@ class SkeletonMambaEncoder(SkeletonEncoder):
                                     BuildingBlock = self.BuildingBlock),)
                             for lfc in local_feature_channels ])
         else:
-            self.meshage = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
+            self.msg = nn.ModuleList([MultipleBuildingBlocks(in_channel = lfc + self.pos_embed_channel,
                                 out_channel = lfc,
                                 n = num_blocks,
                                 BuildingBlock = self.BuildingBlock) 

@@ -1,23 +1,20 @@
-sub_dirs: [bladder, brain, colon, coronary_artery_left_d, coronary_artery_right_d, duodenum, gallbladder, liver, pancreas, skull, spleen, stomach, trachea, uterus]
-target:
-  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/raw/
-  suffix: .ply
-  transforms: 
-    - name: FixedPoints
-      method: qfps
-      num: 2048
-    - name: Normalize
 prediction:
-  path: /data/guoqingzhang/meshage-results/MedSDF/gen/PVD/
+  path: /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/gen/LDM_EDM_SpCNN_with_LPC_LA/
   suffix: .ply
   transforms: 
     - name: FixedPoints
       method: qfps
       num: 2048
-    - name: Normalize
+target:
+  path: /data/guoqingzhang/datasets/imageCAS/fold5/surface
+  suffix: .ply
+  transforms: 
+    - name: FixedPoints
+      method: qfps
+      num: 2048
 eval_type: gen
-data_form: pcd
 # eval_batch_num: 2
+data_form: pcd
 evaluation_metrics:
     - name: FID
       embedding_net:
