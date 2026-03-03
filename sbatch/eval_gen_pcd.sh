@@ -12,8 +12,8 @@
 # eval_flemme --config /home/guoqingzhang/meshage/resources/other/eval_pvd_condition_config.yaml
 # echo gem3d
 # eval_flemme --config /home/guoqingzhang/meshage/resources/other/eval_gem3d_gen_pcd_condition_config.yaml
-echo skcnn
-eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config.yaml
+# echo skcnn
+# eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config.yaml
 # echo skcnn wo skc
 # eval_flemme --config /home/guoqingzhang/meshage/resources/skcnn/eval_ldm_skcnn_condition_config_wo_skc.yaml
 # echo skcnn wo skc with os

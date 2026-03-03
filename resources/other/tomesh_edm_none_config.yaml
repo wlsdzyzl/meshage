@@ -43,7 +43,7 @@ loader:
     target_dir: null
     cls_label: MedSDF
   data_path_list:
-    - /data/guoqingzhang/meshage-results/MedSDF/gen/EDM_NONE
+    - /data/guoqingzhang/meshage-results/MedSDF/gen/EDM_NONE_timer
   batch_size: 1
   num_workers: 8
   shuffle: true
@@ -61,4 +61,4 @@ loader:
 ## SS: scale and shift; RC: radius constraints
 pickle_results: true
 model_path: /data/guoqingzhang/meshage-ckp/MedSDF/tomesh.pth
-recon_dir: /data/guoqingzhang/meshage-results/MedSDF/gen/EDM_NONE_Mesh/
+recon_dir: /data/guoqingzhang/meshage-results/MedSDF/gen/EDM_NONE_Mesh_timer/

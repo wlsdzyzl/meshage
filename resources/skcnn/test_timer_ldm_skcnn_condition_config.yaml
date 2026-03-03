@@ -101,6 +101,6 @@ eval_gen:
   sampler:
     name: NormalSampler
     batch_size: 4
-  gen_dir: /data/guoqingzhang/meshage-results/MedSDF/gen/LDM_EDM_SkCNN_test/
+  gen_dir: /data/guoqingzhang/meshage-results/MedSDF/gen/LDM_EDM_SkCNN_timer/
   ### new generation from random noise
   random_sample_num: 10

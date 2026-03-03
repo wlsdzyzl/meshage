@@ -92,10 +92,13 @@
 # python shape_neighbor_query.py --query_dir /data/guoqingzhang/meshage-for-figure/gen/uterus --target_dir /data/guoqingzhang/meshage-results/MedSDF/gen/PVD_Mesh/uterus/ --k 5 --fixed_points 2560 --output_file ./uterus_pvd.out 
 # python shape_neighbor_query.py --query_dir /data/guoqingzhang/meshage-for-figure/gen/uterus --target_dir /data/guoqingzhang/meshage-results/MedSDF/gen/LDM_EDM_SkCNN_with_la/uterus/ --k 5 --fixed_points 2560 --output_file ./uterus_ours.out 
 
-python shape_neighbor_query.py --query_dir /data/guoqingzhang/meshage-for-figure/gen/imagecas/ --target_dir /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC_LA_repaired/ --k 20 --fixed_points 4096 --output_file ./imagecas_ours.out 
-python shape_neighbor_query.py --query_dir /data/guoqingzhang/meshage-for-figure/gen/imagecas/ --target_dir /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/gen/VessDiff_Mesh_repaired/ --k 20 --fixed_points 4096 --output_file ./imagecas_vessel_diff.out 
+# python shape_neighbor_query.py --query_dir /data/guoqingzhang/meshage-for-figure/gen/imagecas/ --target_dir /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC_LA_repaired/ --k 20 --fixed_points 4096 --output_file ./imagecas_ours.out 
+# python shape_neighbor_query.py --query_dir /data/guoqingzhang/meshage-for-figure/gen/imagecas/ --target_dir /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/gen/VessDiff_Mesh_repaired/ --k 20 --fixed_points 4096 --output_file ./imagecas_vessel_diff.out 
 
 # python shape_neighbor_query.py --query_dir /data/guoqingzhang/meshage-for-figure/gen/cow/ --target_dir /data/guoqingzhang/meshage-results/CoW_vessel_diff/gen/VessDiff_Mesh_repaired/ --k 5 --fixed_points 4096 --output_file ./cow_vessel_diff.out 
 # python shape_neighbor_query.py --query_dir /data/guoqingzhang/meshage-for-figure/gen/cow/ --target_dir /data/guoqingzhang/meshage-results/CoW_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC_LA_repaired/ --k 5 --fixed_points 4096 --output_file ./cow_ours.out 
 
 # python shape_neighbor_query.py --query_dir /data/guoqingzhang/meshage-for-figure/gen/imagecas_rand/ --target_dir /data/guoqingzhang/datasets/imageCAS/fold5/surface/ --k 5 --fixed_points 4096 --output_file ./imagecas_rand.out 
+
+
+python shape_neighbor_query.py --query_dir /home/guoqingzhang/meshage/scripts/data --target_dir /data/guoqingzhang/meshage-results/imageCAS_vessel_diff/gen/LDM_EDM_SkCNN_with_SKC_LA_test_200/final_skeleton/ --k 5 --fixed_points 256 --output_file ./imagecas_pipe.out

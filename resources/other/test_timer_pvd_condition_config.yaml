@@ -1,0 +1,68 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: EDM
+  classifier_free_guidance:
+    condition_dropout: 0.2
+    guidance_weight: 2.0
+  eps_model:
+    time_channel: 128
+    encoder:
+      name: PointNet2
+      in_channel: 3
+      point_num: 2560
+      building_block: res_dense
+      num_neighbors_k: 32
+      num_fps_points: [1280, 640, 320, 160]
+      fps_feature_channels: [512, 512, 512, 512]
+      voxel_resolutions: [32, 32, 16, 16]
+      voxel_attens: [null, null, atten, atten]
+      # neighbor_radius: [0.2, 0.4, 0.6, 0.8]
+      dense_channels: [1024, 1024]
+      activation: silu
+      normalization: group
+      num_blocks: 2
+      # vector_embedding: false
+    condition_embedding:
+      combine_condition: injection
+      condition_injection: gate_bias
+      encoder:
+        name: OneHot
+        type: categories
+        out_channel: 128
+        num_classes: 14
+      decoder: same_as_encoder
+  eps_loss:
+    name: MSE
+    
+model_path: /data/guoqingzhang/meshage-ckp/MedSDF/PVD/ckp_last.pth
+eval_gen:
+  conditions: 
+    bladder: 1
+    brain: 2  
+    colon: 3
+    coronary_artery_left_d: 4  
+    coronary_artery_right_d: 5
+    duodenum: 6  
+    gallbladder: 7
+    liver: 8
+    pancreas: 9
+    skull: 10  
+    spleen: 11 
+    stomach: 12 
+    trachea: 13
+    uterus: 14
+  condition_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 14
+    - name: ToTensor  
+  sampler:
+    name: NormalSampler
+    batch_size: 48
+  gen_dir: /data/guoqingzhang/meshage-results/MedSDF/gen/PVD_timer/
+  ### new generation from random noise
+  random_sample_num: 10

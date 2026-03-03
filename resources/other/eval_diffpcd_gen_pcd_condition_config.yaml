@@ -1,6 +1,6 @@
 sub_dirs: ['bladder', 'brain', 'colon', 'coronary_artery_left_d', 'coronary_artery_right_d', 'duodenum', 'gallbladder', 'liver', 'pancreas', 'skull', 'spleen', 'stomach', 'trachea', 'uterus']
 prediction:
-  path: /data/guoqingzhang/meshage-results/MedSDF/recon_pcd/DiffPCD
+  path: /data/guoqingzhang/meshage-results/MedSDF/gen/DiffPCD
   suffix: .ply
   transforms: 
     - name: FixedPoints
