@@ -3,8 +3,8 @@ prediction:
   path: /data/guoqingzhang/meshage-results/MedSDF/gen/DiffPCD_Mesh
   suffix: .ply
 target:
-  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/raw
-  suffix: .ply
+  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022
+  suffix: _mesh.ply
 eval_type: gen
 # eval_batch_num: 2
 is_mesh: true

@@ -1,0 +1,82 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: ClM
+  # encoder config
+  encoder:
+    name: PointNet
+    in_channel: 3
+    out_channel: 6
+    point_num: 2048
+    building_block: dense
+    num_neighbors_k: 20
+    local_feature_channels: [64, 64, 128, 256, 512]
+    dense_channels: [512, 512]
+    activation: lrelu
+    normalization: group
+  classification_losses: 
+    - name: CE
+loader:
+  dataset: 
+    name: PcdClsDataset
+    data_suffix: .ply
+    cls_label: 
+      DiffPCD: 1
+      EDM_NONE: 2
+      PVD: 3
+      GeM3D_origin: 4 
+      LDM_EDM_SkCNN_with_la: 5  
+      GT: 6
+  data_path_list: 
+    - /data/guoqingzhang/meshage-results/MedSDF/gen/tSNE/colon/split/fold2
+  batch_size: 16
+  num_workers: 8
+  shuffle: false
+  data_transforms:
+    - name: Normalize
+    - name: FixedPoints
+      num: 2048
+    - name: ToTensor
+  class_label_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 6
+    - name: ToTensor
+model_path: /data/guoqingzhang/meshage-results/MedSDF/gen/tSNE/colon/ckp_best_loss.pth
+# evaluation_metrics:
+#   seg:
+#     - name: Dice
+#     - name: ACC
+#     - name: mIoU
+pickle_results: true
+pickle_path: /data/guoqingzhang/flemme-pickled/medsdf/colon
+load_pickle_results: true
+tsne_visualization: 
+  # top_n: 6
+  title: t-SNE Visualization
+  vis_dim: 2
+  perplexity: 20
+  # perplexity: 10
+  size: 10
+  alpha: 0.8
+  remove_ticks: true
+  # learning_rate: 800
+  # early_exaggeration: 6
+  one_to_multiple: 3
+  noise_level: 0.1
+  legend: true
+  verbose: 1
+  color_map: Set1
+  color_reverse: True
+  random_state: 1996
+  tsne_path: tsne_medsdf_gen_colon.png
+  label_names:
+    - Diff-PCD
+    - EDM-PCD
+    - PVD
+    - GeM3D
+    - Ours 
+    - GT

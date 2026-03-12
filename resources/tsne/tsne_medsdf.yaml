@@ -1,0 +1,86 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: test
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: ClM
+  # encoder config
+  encoder:
+    name: PointNet
+    in_channel: 3
+    out_channel: 46
+    point_num: 2048
+    building_block: dense
+    num_neighbors_k: 20
+    local_feature_channels: [64, 64, 128, 256, 512]
+    dense_channels: [512, 512]
+    activation: lrelu
+    normalization: group
+  classification_losses: 
+    - name: CE
+loader:
+  dataset: 
+    name: PcdClsDataset
+    data_suffix: _mesh.ply
+    cls_label: MedSDF
+  data_path_list: 
+    - /data/guoqingzhang/datasets/MedSDF/split/fold1/rmesh022
+    - /data/guoqingzhang/datasets/MedSDF/split/fold2/rmesh022
+    - /data/guoqingzhang/datasets/MedSDF/split/fold3/rmesh022
+    - /data/guoqingzhang/datasets/MedSDF/split/fold4/rmesh022
+    - /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022
+  batch_size: 16
+  num_workers: 8
+  shuffle: false
+  data_transforms:
+    - name: Normalize
+    - name: FixedPoints
+      num: 2048
+    - name: ToTensor
+  class_label_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 46
+    - name: ToTensor
+model_path: /data/guoqingzhang/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
+# evaluation_metrics:
+#   seg:
+#     - name: Dice
+#     - name: ACC
+#     - name: mIoU
+pickle_results: true
+pickle_path: /data/guoqingzhang/flemme-pickled/medsdf
+# load_pickle_results: true
+tsne_visualization: 
+  top_n: -1
+  title: t-SNE Visualization
+  vis_dim: 2
+  # perplexity: 6
+  perplexity: 10
+  size: 10
+  alpha: 0.8
+  remove_ticks: true
+  # learning_rate: 800
+  # early_exaggeration: 6
+  noise_level: 0.04
+  legend: true
+  verbose: 1
+  color_map: Scannet
+  random_state: 1998
+  tsne_path: tsne_medsdf.png
+  label_names:
+    - 'bladder'
+    - 'brain'  
+    - 'colon'
+    - 'RCA'  
+    - 'LCA'
+    - 'duodenum'  
+    - 'gallbladder'
+    - 'liver'
+    - 'pancreas'
+    - 'skull'  
+    - 'spleen' 
+    - 'stomach' 
+    - 'trachea'
+    - 'uterus'

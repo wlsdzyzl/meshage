@@ -14,8 +14,8 @@ model:
 loader:
   dataset: 
     name: PcdDataset
-    data_dir: raw/coronary_artery_left
-    data_suffix: .ply
+    data_dir: rmesh022/coronary_artery_left
+    data_suffix: _mesh.ply
   data_path_list: 
     - /data/guoqingzhang/datasets/MedSDF/split/fold1
     - /data/guoqingzhang/datasets/MedSDF/split/fold2

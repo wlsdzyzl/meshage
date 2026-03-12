@@ -8,8 +8,8 @@ prediction:
       method: qfps
       num: 2560
 target:
-  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/raw
-  suffix: .ply
+  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022
+  suffix: _mesh.ply
   transforms: 
     - name: FixedPoints
       method: qfps

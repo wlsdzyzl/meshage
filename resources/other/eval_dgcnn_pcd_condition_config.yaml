@@ -3,8 +3,8 @@ prediction:
   path: /data/guoqingzhang/meshage-results/MedSDF/recon_pcd/DGCNN_AE_FOLDING2
   suffix: .ply
 target:
-  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/raw
-  suffix: .ply
+  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022
+  suffix: _mesh.ply
   transforms: 
     - name: FixedPoints
       method: qfps

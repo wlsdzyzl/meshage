@@ -1,0 +1,72 @@
+# train ae or vae
+#### a template for pcd encoder
+mode: train
+model:
+  # can be AE, VAE, SeM and DDPM
+  name: ClM
+  # encoder config
+  encoder:
+    name: PointNet
+    in_channel: 3
+    out_channel: 6
+    point_num: 2048
+    building_block: dense
+    num_neighbors_k: 20
+    local_feature_channels: [64, 64, 128, 256, 512]
+    dense_channels: [512, 512]
+    activation: lrelu
+    normalization: group
+  classification_losses: 
+    - name: CE
+loader:
+  dataset: 
+    name: PcdClsDataset
+    data_suffix: .ply
+    cls_label: 
+      DiffPCD: 1
+      EDM_NONE: 2
+      PVD: 3
+      GeM3D_origin: 4 
+      LDM_EDM_SkCNN_with_la: 5  
+      GT: 6
+  data_path_list: 
+    - /data/guoqingzhang/meshage-results/MedSDF/gen/tSNE/coronary_artery_left_d/split/fold1
+  batch_size: 16
+  num_workers: 8
+  shuffle: false
+  data_transforms:
+    - name: Normalize
+    - name: FixedPoints
+      num: 2048
+    - name: ToTensor
+  class_label_transforms:
+    - name: Relabel
+      offset: -1
+    - name: ToOneHot
+      num_classes: 6
+    - name: ToTensor
+pretrained_components: encoder
+pretrained: /data/guoqingzhang/flemme-ckp/MedPointS/DGCNN_FOR_FID/ckp_last.pth
+check_point_dir: /data/guoqingzhang/meshage-results/MedSDF/gen/tSNE/coronary_artery_left_d/
+# evaluation_metrics:
+#   seg:
+#     - name: Dice
+#     - name: ACC
+#     - name: mIoU
+optimizer:
+  name: Adam
+  lr: 0.0001
+  weight_decay: 0.00000001
+### scheduler for learning rate
+lr_scheduler: 
+  name: LinearLR
+  start_factor: 1.0
+  end_factor: 0.01
+# resume: True
+max_epoch: 50
+write_after_iters: 10
+write_sample_num: 4
+save_after_epochs: 2
+warmup_epochs: 1
+warmup_start_scale: 0.01
+clip_grad: 1.0

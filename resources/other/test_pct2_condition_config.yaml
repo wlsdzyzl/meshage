@@ -42,12 +42,12 @@ model:
 loader:
   dataset: 
     name: PcdClsDataset
-    data_suffix: .ply
+    data_suffix: _mesh.ply
     target_dir: sdf022
     target_suffix: _sdf.npy
     cls_label: MedSDF
   data_path_list: 
-    - /data/guoqingzhang/datasets/MedSDF/split/fold5/raw
+    - /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022
   batch_size: 4
   num_workers: 8
   shuffle: true

@@ -49,15 +49,15 @@ model:
 loader:
   dataset: 
     name: PcdClsDataset
-    data_suffix: .ply
+    data_suffix: _mesh.ply
     target_dir: sdf022
     target_suffix: _sdf.npy
     cls_label: MedSDF
   data_path_list: 
-    - /data/guoqingzhang/datasets/MedSDF/split/fold1/raw
-    - /data/guoqingzhang/datasets/MedSDF/split/fold2/raw
-    - /data/guoqingzhang/datasets/MedSDF/split/fold3/raw
-    - /data/guoqingzhang/datasets/MedSDF/split/fold4/raw
+    - /data/guoqingzhang/datasets/MedSDF/split/fold1/rmesh022
+    - /data/guoqingzhang/datasets/MedSDF/split/fold2/rmesh022
+    - /data/guoqingzhang/datasets/MedSDF/split/fold3/rmesh022
+    - /data/guoqingzhang/datasets/MedSDF/split/fold4/rmesh022
   batch_size: 4
   num_workers: 8
   shuffle: true

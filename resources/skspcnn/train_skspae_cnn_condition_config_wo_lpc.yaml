@@ -43,8 +43,8 @@ loader:
     truncate_sdf: true
     truncate_prob: 0.9
     resolution: 0.022
-    data_dir: raw
-    data_suffix: .ply
+    data_dir: rmesh022
+    data_suffix: _mesh.ply
     target_dir: sdf022
     target_suffix: _sdf.npy
     cls_label: MedSDF

@@ -1,7 +1,7 @@
 sub_dirs: [bladder, brain, colon, coronary_artery_left_d, coronary_artery_right_d, duodenum, gallbladder, liver, pancreas, skull, spleen, stomach, trachea, uterus]
 target:
-  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/raw/
-  suffix: .ply
+  path: /data/guoqingzhang/datasets/MedSDF/split/fold5/rmesh022/
+  suffix: _mesh.ply
   transforms: 
     - name: FixedPoints
       method: qfps
