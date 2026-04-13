@@ -1,0 +1,2 @@
+#!/bin/bash
+python generate_sdf_from_mesh.py --mesh_dir /data/guoqingzhang/datasets/ModelNet40/airplane/train --mesh_suffix .off --sdf_dir /data/guoqingzhang/datasets/ModelNet40/train/SDF/airplane --recon_mesh_dir /data/guoqingzhang/datasets/ModelNet40/train/rmesh022/airplane --mesh_smoothing --sdf_smoothing --normalization --resolution 0.022 --num_components -1 --num_resample_points 500000
